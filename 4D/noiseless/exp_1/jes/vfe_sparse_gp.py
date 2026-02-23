@@ -12,6 +12,9 @@ from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution, UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 
+from botorch.models.model import Model
+from botorch.posteriors.gpytorch import GPyTorchPosterior
+
 
 # Defines our approximate GP method based on the VFE approach
 class VFESparseGP(ApproximateGP):
@@ -100,9 +103,8 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
     # then we use the optimizer to update the parameters
     for i in range(training_iter):
         # Scales by number of data points
-        loss = closure() * train_x.shape[0]
+        loss = closure()
         # The closure is called explicitly and not passed to optimizer.step(), because Adam does not require it
-        # ,unlike LBFGS
         # Updates parameters
         optimizer.step()
         
@@ -166,7 +168,7 @@ class ConstrainedVariationalELBO(VariationalELBO):
 def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dict: dict | None = None,
     M: int = 64, training_iter: int = 500, lr: float = 0.01,
     noise_eps: float = 1e-6,  # tiny fixed noise for numerical stability
-    verbose: bool = True, y_star=None, num_constraint_points: int = 100, tau: float = 0.02, 
+    verbose: bool = True, y_star=None, Xc: torch.Tensor | None = None,num_constraint_points: int = 100, tau: float = 0.02, 
     mc_samples: int = 32, constraint_weight: float = 1.0,):
     """Fits a variational sparse GP model with tiny observation noise """
     
@@ -184,8 +186,14 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
     
     # Selects inducing points
     N = train_X.shape[0]
-    # Chooses up to M inducing points randomly from the training data
-    M_eff = min(M, N)
+
+    if state_dict is not None:
+        # Get previous inducing point count from checkpoint
+        prev_inducing = state_dict["model"]["variational_strategy.inducing_points"]
+        M_eff = prev_inducing.shape[0]
+        M_eff = min(M_eff, N)  # safety
+    else:
+        M_eff = min(M, N)
     perm = torch.randperm(N, device=train_X.device)
     inducing_points = train_X[perm[:M_eff]].contiguous()
     
@@ -205,10 +213,14 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
     if y_star is not None:
         # Option A: constraint points in [0,1]^d
         d = train_X.shape[-1]
-        Xc = torch.rand(num_constraint_points, d, device=train_X.device, dtype=train_X.dtype)
-
+        
+        if Xc is None:
+            Xc = torch.rand(num_constraint_points, d, device=train_X.device, dtype=train_X.dtype)
+        else:
+            Xc = Xc.to(device=train_X.device, dtype=train_X.dtype)
+            
         y_star_t = torch.as_tensor(y_star, device=train_X.device, dtype=train_X.dtype)
-
+        
         mll = ConstrainedVariationalELBO(
             likelihood=likelihood,
             model=model,
@@ -239,8 +251,7 @@ def pack_state_dict(model, likelihood) -> dict:
     return {"model": model.state_dict(), "likelihood": likelihood.state_dict()}
 
 # --- BoTorch wrapper for ApproximateGP (needed by JES) ---
-from botorch.models.model import Model
-from botorch.posteriors.gpytorch import GPyTorchPosterior
+
 
 
 class BoTorchVFEWrapper(Model):
@@ -252,10 +263,17 @@ class BoTorchVFEWrapper(Model):
         self,
         gp: torch.nn.Module,
         likelihood: gpytorch.likelihoods.Likelihood,
-        # conditioning refit hyperparams (keep small for speed)
         cond_training_iter: int = 25,
         cond_lr: float = 0.01,
         cond_noise_eps: float = 1e-6,
+
+        # --- NEW: constraint config ---
+        y_star=None,
+        Xc: torch.Tensor | None = None,
+        num_constraint_points: int = 100,
+        tau: float = 0.05,
+        mc_samples: int = 16,
+        constraint_weight: float = 1.0,
     ):
         super().__init__()
         self.gp = gp
@@ -264,24 +282,38 @@ class BoTorchVFEWrapper(Model):
         self.cond_lr = cond_lr
         self.cond_noise_eps = cond_noise_eps
 
+        # --- NEW: store constraint config ---
+        self.y_star = y_star
+        self.Xc = Xc
+        self.num_constraint_points = num_constraint_points
+        self.tau = tau
+        self.mc_samples = mc_samples
+        self.constraint_weight = constraint_weight
+        
     @property
     def num_outputs(self) -> int:
         return 1
     
     def posterior(
-        self,
-        X: torch.Tensor,
-        output_indices=None,
-        observation_noise: bool = False,
-        posterior_transform=None,
-        **kwargs,
+    self,
+    X: torch.Tensor,
+    output_indices=None,
+    observation_noise: bool = False,
+    posterior_transform=None,
+    **kwargs,
     ):
-        # IMPORTANTE: NO usar torch.no_grad() aquí, optimize_acqf necesita gradientes w.r.t. X
         X = X.double()
         self.gp.eval()
         self.likelihood.eval()
 
-        mvn = self.gp(X)  # mantiene grafo para autograd
+        # 1) LIMPIAR CACHÉS para evitar choques cuando cambia el batch size
+        if hasattr(self.gp, "_clear_cache"):
+            self.gp._clear_cache()
+        if hasattr(self.gp, "variational_strategy") and hasattr(self.gp.variational_strategy, "_clear_cache"):
+            self.gp.variational_strategy._clear_cache()
+
+        # 2) NO usar no_grad (optimize_acqf necesita gradientes w.r.t X)
+        mvn = self.gp(X)
         if observation_noise:
             mvn = self.likelihood(mvn)
 
@@ -343,21 +375,49 @@ class BoTorchVFEWrapper(Model):
             lr=self.cond_lr,
             noise_eps=self.cond_noise_eps,
             verbose=False,
+            y_star=self.y_star,
+            Xc=self.Xc,
+            num_constraint_points=self.num_constraint_points,
+            tau=self.tau,
+            mc_samples=self.mc_samples,
+            constraint_weight=self.constraint_weight,
         )
         gp_new.likelihood = lik_new
+        
         return BoTorchVFEWrapper(
             gp=gp_new,
             likelihood=lik_new,
             cond_training_iter=self.cond_training_iter,
             cond_lr=self.cond_lr,
             cond_noise_eps=self.cond_noise_eps,
+
+            y_star=self.y_star,
+            Xc=self.Xc,
+            num_constraint_points=self.num_constraint_points,
+            tau=self.tau,
+            mc_samples=self.mc_samples,
+            constraint_weight=self.constraint_weight,
         )
 
 
-def as_botorch_model(model: torch.nn.Module) -> Model:
-    """
-    Convert your gpytorch VFESparseGP (with model.likelihood attached) into a BoTorch Model.
-    """
+def as_botorch_model(
+    model: torch.nn.Module,
+    y_star=None,
+    Xc = None,
+    num_constraint_points: int = 100,
+    tau: float = 0.05,
+    mc_samples: int = 16,
+    constraint_weight: float = 1.0,
+) -> Model:
     if not hasattr(model, "likelihood"):
         raise RuntimeError("Model has no .likelihood. In fit_model, do: model.likelihood = likelihood")
-    return BoTorchVFEWrapper(model, model.likelihood)
+    return BoTorchVFEWrapper(
+        gp=model,
+        likelihood=model.likelihood,
+        y_star=y_star,
+        Xc=Xc,
+        num_constraint_points=num_constraint_points,
+        tau=tau,
+        mc_samples=mc_samples,
+        constraint_weight=constraint_weight,
+    )
