@@ -1,0 +1,8 @@
+Dudas para preguntar
+1. sobre el train con adam: no le paso al optimizer.step el closure, a diferencia de como hacíamos
+   con el lbfgs
+2. el valor f* lo computo yo con el get maximum problem -> no sé si esto está bien o no
+   en los apuntes tenía " me invento f*, aquí no lo he hecho", posiblemente esto esté mal
+3. la función escalón no sería diferenciable, podemos simular esto utilizando probit
+4. el sampleo lo he hecho en [0,1]^d
+5. diferencia entre noisy y noiseless
