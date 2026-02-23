@@ -72,97 +72,99 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
                     training_iter: int = 500, likelihood: torch.nn.Module | None = None, lr: float = 0.01,
                     verbose: bool = True,):
     """ Trains the variational GP model by maximizing the elbo using the ADAM optimizer"""
+    
+    # Sets the model and likelihood in training mode
     model.train()
     if likelihood is not None:
         likelihood.train()
-
-    # Parámetros a optimizar
+        
+    # Determines which parameters to optimize
     if likelihood is None:
         parameters = model.parameters()
     else:
         parameters = list(model.parameters()) + list(likelihood.parameters())
-
+        
+    # Defines ADAM optimizer
     optimizer = torch.optim.Adam(parameters, lr=lr)
-
+    
+    # Closure function to compute loss and gradients
     def closure():
         optimizer.zero_grad()
         output = model(train_x)
-        loss = -mll(output, train_y)
+        loss = -mll(output, train_y) # we maximize ELBO, so we minimize -ELBO
         loss.backward()
         return loss
-
+    
     losses = []
+    # This is the main training loop, we call the closure function here to compute loss and gradients, and
+    # then we use the optimizer to update the parameters
     for i in range(training_iter):
+        # Scales by number of data points
         loss = closure() * train_x.shape[0]
+        # The closure is called explicitly and not passed to optimizer.step(), because Adam does not require it
+        # ,unlike LBFGS
+        # Updates parameters
         optimizer.step()
-
+        
         losses.append(loss.item())
         if verbose and ((i + 1) % 50 == 0 or i == 0):
             print(f"Iter {i+1}/{training_iter} - Loss: {loss.item():.6f}")
-
+            
+    # Sets the model and likelihood in evaluation mode after training        
     model.eval()
     if likelihood is not None:
         likelihood.eval()
-
+        
     return losses
 
-
-# -------------------------
-# (C) Fit wrapper: esto es lo que vas a llamar desde loop_BO.py (reemplaza fit_model)
-# -------------------------
-def fit_model_vfe_sparse(
-    train_X: torch.Tensor,
-    train_Y: torch.Tensor,
-    state_dict: dict | None = None,
-    M: int = 64,
-    training_iter: int = 500,
-    lr: float = 0.01,
-    noise: float = 1e-4,
-    verbose: bool = True,
-):
-    """
-    Devuelve (model, likelihood) para que puedas:
-      - usar el model en BO
-      - guardar/cargar state_dict de ambos si quieres warm-start
-    """
+# Fits the VFE sparse GP model to the training data, and returns the trained model and likelihood
+def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dict: dict | None = None,
+    M: int = 64, training_iter: int = 500, lr: float = 0.01,
+    noise_eps: float = 1e-6,  # tiny fixed noise for numerical stability
+    verbose: bool = True,):
+    """Fits a variational sparse GP model with tiny observation noise """
+    
+    # Uses double precision for better numeical stability, important for Cholesk decompositions
     train_X = train_X.double()
     train_Y = train_Y.double()
-
-    # Likelihood gaussiana
-    likelihood = gpytorch.likelihoods.GaussianLikelihood()
-    likelihood.noise = torch.tensor(noise, dtype=train_X.dtype, device=train_X.device)
-
-    # Inducing points: elige M puntos (subconjunto aleatorio de train_X)
+    
+    # Target vector should be 1D
+    y_vec = train_Y.squeeze(-1) if train_Y.ndim == 2 and train_Y.shape[1] == 1 else train_Y
+    
+    #FIXME:
+    # Noiseless likelihood
+    # Fixes the noise to a small eps to approximate noiseless observations
+    fixed_noise = torch.full_like(y_vec, noise_eps)
+    likelihood = gpytorch.likelihoods.FixedNoiseGaussianLikelihood(noise=fixed_noise)
+    
+    # Selects inducing points
     N = train_X.shape[0]
+    # Chooses up to M inducing points randomly from the training data
     M_eff = min(M, N)
     perm = torch.randperm(N, device=train_X.device)
     inducing_points = train_X[perm[:M_eff]].contiguous()
-
+    
+    # Instantiate variational sparse GP model
     model = VFESparseGP(inducing_points=inducing_points)
-
-    # Warm-start (si quieres mantenerlo igual que tu loop actual)
-    # Nota: aquí hay dos state_dict: el del model y el del likelihood
+    
+    # Loads state dict if provided, it allows resuming training from checkpoints
     if state_dict is not None:
         model.load_state_dict(state_dict["model"])
-        likelihood.load_state_dict(state_dict["likelihood"])
-
-    # ELBO variacional
+        try:
+            likelihood.load_state_dict(state_dict["likelihood"])
+        except Exception:
+            pass  # allows loading checkpoints created with GaussianLikelihood
+        
+    # Defines the variational ELBO loss, our objective to maximize during training
     mll = VariationalELBO(likelihood, model, num_data=train_X.size(0))
-
-    # Entrena con ADAM
-    train_model_ADAM(
-        model=model,
-        mll=mll,
-        train_x=train_X,
-        train_y=train_Y.squeeze(-1) if train_Y.ndim == 2 and train_Y.shape[1] == 1 else train_Y,
-        training_iter=training_iter,
-        likelihood=None,   # OJO: VariationalELBO ya incluye likelihood
-        lr=lr,
-        verbose=verbose,
-    )
-
+    
+    # Training optimizes model parameters using ADAM to minimize -ELBO
+    # ELBO already includes likelihood
+    train_model_ADAM(model=model, mll=mll, train_x=train_X, train_y=y_vec, training_iter=training_iter,
+        likelihood=None, lr=lr, verbose=verbose,)
+    
     return model, likelihood
 
-
+# Packs model and likelihood state dicts into a single dictionary for checkpointing
 def pack_state_dict(model, likelihood) -> dict:
     return {"model": model.state_dict(), "likelihood": likelihood.state_dict()}
