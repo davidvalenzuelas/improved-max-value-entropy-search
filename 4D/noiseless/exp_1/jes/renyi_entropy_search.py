@@ -33,7 +33,13 @@ from botorch.acquisition.acquisition import AcquisitionFunction, MCSamplerMixin
 from botorch.acquisition.objective import PosteriorTransform
 
 from botorch.models.fully_bayesian import SaasFullyBayesianSingleTaskGP
-from botorch.models.gp_regression import MIN_INFERRED_NOISE_LEVEL
+
+try:
+    from botorch.models.gp_regression import MIN_INFERRED_NOISE_LEVEL
+except ImportError:
+    # Temporary fix to avoid error when importing
+    MIN_INFERRED_NOISE_LEVEL = 1e-6
+    
 from botorch.models.model import Model
 
 from botorch.models.utils import check_no_nans, fantasize as fantasize_flag
