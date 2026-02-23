@@ -1,0 +1,2845 @@
+==========================================
+SLURM_JOB_ID = 6153962
+SLURM_NODELIST = cibeles2-010
+SLURM_JOB_PARTITION = cccmd
+SLURM_JOB_USER = dhernand
+SLURM_JOB_ACCOUNT = ada2_serv
+SLURM_NPROCS = 1
+==========================================
+Loading python/3.10.13
+  Loading requirement: openmpi/gnu/openmpi-rocky
+processor	: 0
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3036.531
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 0
+initial apicid	: 0
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 1
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3037.138
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 2
+initial apicid	: 2
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 2
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3031.491
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 4
+initial apicid	: 4
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 3
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 3
+cpu cores	: 8
+apicid		: 6
+initial apicid	: 6
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 4
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 4
+cpu cores	: 8
+apicid		: 8
+initial apicid	: 8
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 5
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 5
+cpu cores	: 8
+apicid		: 10
+initial apicid	: 10
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 6
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 6
+cpu cores	: 8
+apicid		: 12
+initial apicid	: 12
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 7
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 0
+siblings	: 8
+core id		: 7
+cpu cores	: 8
+apicid		: 14
+initial apicid	: 14
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5199.96
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 8
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 0
+cpu cores	: 8
+apicid		: 32
+initial apicid	: 32
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 9
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 1
+cpu cores	: 8
+apicid		: 34
+initial apicid	: 34
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 10
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 2
+cpu cores	: 8
+apicid		: 36
+initial apicid	: 36
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 11
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 3
+cpu cores	: 8
+apicid		: 38
+initial apicid	: 38
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 12
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 4
+cpu cores	: 8
+apicid		: 40
+initial apicid	: 40
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 13
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 5
+cpu cores	: 8
+apicid		: 42
+initial apicid	: 42
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 14
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 6
+cpu cores	: 8
+apicid		: 44
+initial apicid	: 44
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+processor	: 15
+vendor_id	: GenuineIntel
+cpu family	: 6
+model		: 45
+model name	: Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz
+stepping	: 7
+microcode	: 0x71a
+cpu MHz		: 3300.000
+cache size	: 20480 KB
+physical id	: 1
+siblings	: 8
+core id		: 7
+cpu cores	: 8
+apicid		: 46
+initial apicid	: 46
+fpu		: yes
+fpu_exception	: yes
+cpuid level	: 13
+wp		: yes
+flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic popcnt tsc_deadline_timer aes xsave avx lahf_lm epb pti ssbd ibrs ibpb stibp tpr_shadow vnmi flexpriority ept vpid xsaveopt dtherm ida arat pln pts md_clear flush_l1d
+bugs		: cpu_meltdown spectre_v1 spectre_v2 spec_store_bypass l1tf mds swapgs itlb_multihit mmio_unknown
+bogomips	: 5206.17
+clflush size	: 64
+cache_alignment	: 64
+address sizes	: 46 bits physical, 48 bits virtual
+power management:
+
+Host=cibeles2-010.ccc.uam.es
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+[OK] Configuration loaded successfully.
+BO Iteration number: 0
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.8615, 0.0000, 0.6610]]), acq_value=1.1721463857640926
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 1
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.8740, 0.0000, 0.1034]]), acq_value=0.4681318910449787
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 2
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.7403, 0.0000, 0.3228]]), acq_value=0.5638015113671289
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 3
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.8787, 0.0000, 0.3495]]), acq_value=0.5191975783659974
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 4
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.7057, 0.0000, 0.0000]]), acq_value=1.0952232758622173
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 5
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.5774, 0.0000, 0.0000]]), acq_value=0.7470460225385929
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 6
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9196, 0.6660, 0.0000, 0.0000]]), acq_value=0.3781499170066438
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 7
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6356, 0.0422, 0.0000]]), acq_value=0.22046606866130003
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 8
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.7017, 0.1433, 0.0000]]), acq_value=0.022997514491513313
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 9
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1., 0., 0., 0.]]), acq_value=0.12286298454847211
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 10
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.5791, 0.0000, 0.0000]]), acq_value=0.15102637821043866
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 11
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9777, 0.4552, 0.0533, 0.0719]]), acq_value=0.015745803161238123
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 12
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8603, 0.6984, 0.0602, 0.0000]]), acq_value=0.00701801998063302
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 13
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7165, 0.7237, 0.2791, 0.2083]]), acq_value=0.0007549339647365677
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 14
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9742, 0.6699, 0.1817, 0.9069]]), acq_value=0.0025309400214867245
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 15
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6528, 0.0000, 0.0000]]), acq_value=0.10383408334960373
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 16
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9629, 0.4676, 0.0641, 0.0000]]), acq_value=0.0016974569110036336
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 17
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9434, 0.8408, 0.0619, 0.0345]]), acq_value=0.0010562170771138552
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 18
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8268, 0.6622, 0.0585, 0.0264]]), acq_value=0.00034889910787710976
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 19
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9586, 0.4414, 0.0943, 0.0042]]), acq_value=0.00038603317370464185
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 20
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8587, 0.9687, 0.1812, 0.1083]]), acq_value=0.00022434153784502142
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 21
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6430, 0.0000, 0.0000]]), acq_value=0.07616900293607007
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 22
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9457, 0.3900, 0.1125, 0.0675]]), acq_value=0.00043691158837544375
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 23
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1., 1., 0., 1.]]), acq_value=0.0733388033823323
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 24
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8742, 0.2899, 0.2238, 0.0921]]), acq_value=0.00017731398845777235
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 25
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9384, 0.8235, 0.0848, 0.0148]]), acq_value=0.00019730905057280257
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 26
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.7579, 0.4220, 0.0034]]), acq_value=0.059350317376877945
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 27
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9420, 0.7509, 0.0688, 0.3287]]), acq_value=5.5919706752644016e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 28
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6217, 0.0000, 0.0000]]), acq_value=0.05632209845274236
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 29
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7935, 0.9898, 0.2702, 0.1671]]), acq_value=3.4582706741004277e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 30
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9590, 0.8107, 0.5094, 0.0190]]), acq_value=2.8423941221766835e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 31
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9352, 0.4220, 0.1205, 0.0207]]), acq_value=9.156835317472578e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 32
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6224, 0.0000, 0.0000]]), acq_value=0.04711696935212625
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 33
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9998, 0.7121, 0.2427, 0.0000]]), acq_value=7.195800009099362e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 34
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.5771, 0.9721, 0.4146, 0.2670]]), acq_value=7.026732782647316e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 35
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9473, 0.9231, 0.0685, 0.0915]]), acq_value=7.062265116303257e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 36
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6314, 0.0000, 0.0000]]), acq_value=0.03621508927803563
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 37
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6485, 0.0000, 0.0000]]), acq_value=0.03653910594330223
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 38
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6479, 0.0000, 0.1085]]), acq_value=0.012146502723256958
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 39
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9493, 0.6844, 0.0810, 0.1665]]), acq_value=0.00025478237164466844
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 40
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8966, 0.8832, 0.1587, 0.0588]]), acq_value=2.9092330417396228e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 41
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8660, 0.7208, 0.3091, 0.1093]]), acq_value=8.75361327788704e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 42
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8832, 0.7593, 0.1590, 0.3816]]), acq_value=1.7753263226907845e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 43
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7631, 0.1513, 0.1952, 0.0539]]), acq_value=3.248314423595633e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 44
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6069, 0.0000, 0.0000]]), acq_value=0.03456715822735004
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 45
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6092, 0.0000, 0.0000]]), acq_value=0.02930592611671967
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 46
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6500, 0.0000, 0.0000]]), acq_value=0.02821680147071942
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 47
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6055, 0.0000, 0.0000]]), acq_value=0.0281072080093889
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 48
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6065, 0.0000, 0.0000]]), acq_value=0.022321642309417966
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 49
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6553, 0.0000, 0.0000]]), acq_value=0.02553888256650866
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 50
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6086, 0.0000, 0.0000]]), acq_value=0.021661853200251185
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 51
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6538, 0.0000, 0.0000]]), acq_value=0.022471022203637003
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 52
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6494, 0.0000, 0.0000]]), acq_value=0.018189235954259197
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 53
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9464, 0.2490, 0.0445, 0.0221]]), acq_value=5.426720542336949e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 54
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6030, 0.0000, 0.0000]]), acq_value=0.020675329454126673
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 55
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6125, 0.0000, 0.0000]]), acq_value=0.014749896490290876
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 56
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6076, 0.0000, 0.0000]]), acq_value=0.015411011667481322
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 57
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8034, 0.2424, 0.3344, 0.1417]]), acq_value=2.147368524024751e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 58
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8382, 0.6599, 0.0144, 0.3263]]), acq_value=2.1032648161306566e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 59
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6541, 0.0000, 0.0000]]), acq_value=0.01725871432181683
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 60
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6516, 0.0000, 0.0000]]), acq_value=0.015036610123958738
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 61
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9327, 0.3772, 0.1380, 0.0536]]), acq_value=6.922118673730049e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 62
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6110, 0.0000, 0.0000]]), acq_value=0.012889003097403345
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 63
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[7.3742e-01, 6.7161e-01, 3.7661e-02, 4.5370e-05]]), acq_value=3.5312000215836914e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 64
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8559, 0.9794, 0.4662, 0.3972]]), acq_value=6.436367802481469e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 65
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6481, 0.0000, 0.0000]]), acq_value=0.012208668721554683
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 66
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6093, 0.0000, 0.0000]]), acq_value=0.012034697076008655
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 67
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6684, 0.7258, 0.1663, 0.1050]]), acq_value=9.51929495007775e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 68
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8500, 0.8980, 0.0802, 0.1403]]), acq_value=0.007491960645442733
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 69
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7894, 0.4887, 0.1601, 0.2556]]), acq_value=7.811716954270187e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 70
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8831, 0.6858, 0.1325, 0.0611]]), acq_value=3.3694033888809205e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 71
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6095, 0.0000, 0.0000]]), acq_value=0.011526930876667063
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 72
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9405, 0.6386, 0.0850, 0.3095]]), acq_value=1.4557288137428959e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 73
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9649, 0.7411, 0.1975, 0.1730]]), acq_value=2.250686418264758e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 74
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6117, 0.0000, 0.0000]]), acq_value=0.010910770436323242
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 75
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9003, 0.9471, 0.1358, 0.1359]]), acq_value=1.1884152819330307e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 76
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9114, 0.5725, 0.1894, 0.0550]]), acq_value=1.024202522931228e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 77
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6472, 0.0000, 0.0000]]), acq_value=0.011327696554081668
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 78
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7816, 0.5620, 0.2159, 0.0360]]), acq_value=4.981549208971092e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 79
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6466, 0.0000, 0.0000]]), acq_value=0.010723957141849122
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 80
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9317, 0.6304, 0.2084, 0.0749]]), acq_value=8.187676104609576e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 81
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9418, 0.2730, 0.1131, 0.1074]]), acq_value=1.1164649380002167e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 82
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9682, 0.8211, 0.0092, 0.1110]]), acq_value=1.3019852032725154e-05
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 83
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9765, 0.9769, 0.0767, 0.1015]]), acq_value=5.171023401140395e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 84
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9525, 0.8831, 0.0267, 0.0971]]), acq_value=4.907896504757758e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 85
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6097, 0.0000, 0.0000]]), acq_value=0.011725418039287588
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 86
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9621, 0.8448, 0.1206, 0.1172]]), acq_value=1.0143670354512135e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 87
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6447, 0.0000, 0.0000]]), acq_value=0.010084707492453104
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 88
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6472, 0.0000, 0.0000]]), acq_value=0.010739242935597693
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 89
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7827, 0.6163, 0.0272, 0.0907]]), acq_value=1.6481296584158756e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 90
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6078, 0.0000, 0.0000]]), acq_value=0.010716544998335437
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 91
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6085, 0.0000, 0.0000]]), acq_value=0.010332724761432405
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 92
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8265, 0.4352, 0.2768, 0.0094]]), acq_value=1.008024595336443e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 93
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6106, 0.0000, 0.0000]]), acq_value=0.0091733432340107
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 94
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9737, 0.5839, 0.0060, 0.3121]]), acq_value=2.8194152929122973e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 95
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8748, 0.2406, 0.1075, 0.0041]]), acq_value=8.877524507455714e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 96
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7832, 0.5457, 0.0147, 0.1119]]), acq_value=8.499586331700559e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 97
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6114, 0.0000, 0.0000]]), acq_value=0.00879308564300682
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 98
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7639, 0.5020, 0.1099, 0.2135]]), acq_value=5.57151483421281e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 99
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6421, 0.0000, 0.0000]]), acq_value=0.008179368370029
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 100
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7701, 0.7811, 0.2080, 0.0128]]), acq_value=9.372077348218655e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 101
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8584, 0.7819, 0.3275, 0.1206]]), acq_value=3.977878881011865e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 102
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.5808, 0.5313, 0.2515, 0.3122]]), acq_value=4.042798166098427e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 103
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6430, 0.0000, 0.0000]]), acq_value=0.008049574113847019
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 104
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9331, 0.4582, 0.1428, 0.2770]]), acq_value=2.7370442344520907e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 105
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7910, 0.8163, 0.0344, 0.0291]]), acq_value=1.9602943511498605e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 106
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9301, 0.3744, 0.0965, 0.0161]]), acq_value=8.062118738438873e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 107
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6867, 0.4799, 0.0262, 0.1330]]), acq_value=2.540470781103865e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 108
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8206, 0.7902, 0.0578, 0.0850]]), acq_value=5.688636522671597e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 109
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6447, 0.0000, 0.0000]]), acq_value=0.00859685164689436
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 110
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6368, 0.0000, 0.0000]]), acq_value=0.006749656194609405
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 111
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7290, 0.4386, 0.0248, 0.0191]]), acq_value=5.607683840752609e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 112
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7831, 0.7735, 0.0723, 0.0134]]), acq_value=4.0421241570554045e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 113
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9355, 0.6032, 0.0268, 0.2340]]), acq_value=1.0418286410518451e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 114
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9109, 0.4389, 0.1595, 0.0530]]), acq_value=8.88576048546641e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 115
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9155, 0.9711, 0.1118, 0.5192]]), acq_value=3.9401509913106203e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 116
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6801, 0.7926, 0.2234, 0.0683]]), acq_value=1.5701567315784537e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 117
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6417, 0.0000, 0.0000]]), acq_value=0.0077892608589759105
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 118
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8128, 0.3471, 0.1789, 0.3200]]), acq_value=2.594383138321277e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 119
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9756, 0.2711, 0.0841, 0.1062]]), acq_value=1.2927534026596632e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 120
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6119, 0.0000, 0.0000]]), acq_value=0.0072304218864739644
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 121
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6416, 0.0000, 0.0000]]), acq_value=0.00755312972430755
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 122
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8017, 0.7145, 0.0453, 0.0937]]), acq_value=3.16417865769969e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 123
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9375, 0.5223, 0.1775, 0.0380]]), acq_value=5.533965577175781e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 124
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6114, 0.0000, 0.0000]]), acq_value=0.007730188009614808
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 125
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8714, 0.7858, 0.2435, 0.0714]]), acq_value=2.260808582565943e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 126
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7994, 0.5509, 0.2818, 0.5209]]), acq_value=4.755901250930172e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 127
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6372, 0.0000, 0.0000]]), acq_value=0.00665797567735385
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 128
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6141, 0.0000, 0.0000]]), acq_value=0.0069607868309755905
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 129
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8169, 0.8958, 0.2021, 0.1771]]), acq_value=1.739189803284802e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 130
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6527, 0.7894, 0.0970, 0.1158]]), acq_value=1.2466130784594132e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 131
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6113, 0.0000, 0.0000]]), acq_value=0.006965862958032004
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 132
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6402, 0.0000, 0.0000]]), acq_value=0.006262305132761631
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 133
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.7344, 0.0000, 0.5833]]), acq_value=0.02511772981842822
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 134
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8307, 0.3904, 0.0251, 0.0348]]), acq_value=4.413447446116603e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 135
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6123, 0.0000, 0.0000]]), acq_value=0.006216527077946177
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 136
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7750, 0.4507, 0.1154, 0.0867]]), acq_value=2.2804955737698585e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 137
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9232, 0.3453, 0.1599, 0.0890]]), acq_value=5.641592583927046e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 138
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8129, 0.2395, 0.0178, 0.2285]]), acq_value=8.715878395404442e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 139
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8189, 0.8690, 0.0942, 0.0694]]), acq_value=3.0693274163939854e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 140
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9638, 0.3226, 0.0160, 0.1317]]), acq_value=1.2228974099470769e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 141
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9024, 0.8982, 0.1353, 0.0594]]), acq_value=2.8342819041737854e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 142
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9143, 0.4852, 0.1930, 0.0988]]), acq_value=2.7131742302843875e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 143
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6389, 0.0000, 0.0000]]), acq_value=0.005960564885192116
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 144
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6168, 0.0000, 0.0000]]), acq_value=0.005411090200928198
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 145
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6423, 0.0000, 0.0000]]), acq_value=0.006269962984351174
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 146
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6145, 0.0000, 0.0000]]), acq_value=0.0057034417773554336
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 147
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9317, 0.4858, 0.0838, 0.3933]]), acq_value=1.5857496826754414e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 148
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8391, 0.7883, 0.0839, 0.0832]]), acq_value=1.0656003815445736e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 149
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9911, 0.2863, 0.1573, 0.0409]]), acq_value=1.0690120216816368e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 150
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9559, 0.9517, 0.0992, 0.1897]]), acq_value=2.913208285992841e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 151
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9658, 0.8228, 0.2703, 0.0072]]), acq_value=2.8693159670467594e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 152
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8118, 0.6989, 0.2312, 0.1594]]), acq_value=8.705344184400943e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 153
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8242, 0.2507, 0.3054, 0.1268]]), acq_value=6.245607583887924e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 154
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8073, 0.9124, 0.2420, 0.0732]]), acq_value=1.0426178392863861e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 155
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8176, 0.4098, 0.1698, 0.0798]]), acq_value=2.603785748123144e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 156
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9902, 0.5021, 0.1657, 0.2277]]), acq_value=2.3460040518563652e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 157
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9625, 0.9276, 0.0815, 0.0493]]), acq_value=1.2421349118718616e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 158
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7927, 0.9898, 0.2397, 0.1659]]), acq_value=1.0580330447873543e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 159
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6134, 0.0000, 0.0000]]), acq_value=0.0060043722282731304
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 160
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9192, 0.8633, 0.1174, 0.0385]]), acq_value=1.9787462726683636e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 161
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9148, 0.7684, 0.0112, 0.1187]]), acq_value=1.1056108205897974e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 162
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9162, 0.3851, 0.1057, 0.1290]]), acq_value=3.0728654620837403e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 163
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9114, 0.3181, 0.0189, 0.0182]]), acq_value=4.448559300651578e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 164
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[9.7648e-01, 9.9823e-01, 9.4497e-02, 3.2756e-04]]), acq_value=2.084196544099859e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 165
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8797, 0.9861, 0.1065, 0.3150]]), acq_value=7.024152778867254e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 166
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8918, 0.2699, 0.0285, 0.0362]]), acq_value=9.651940627297684e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 167
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6334, 0.0000, 0.0000]]), acq_value=0.003175609743528124
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 168
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8078, 0.5318, 0.0940, 0.0050]]), acq_value=3.0195382771935897e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 169
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6934, 0.3559, 0.2027, 0.2053]]), acq_value=1.5940960138016713e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 170
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9149, 0.7815, 0.0171, 0.1726]]), acq_value=5.660872268165029e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 171
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8110, 0.9896, 0.1633, 0.2098]]), acq_value=8.109862567606818e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 172
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9242, 0.7876, 0.0753, 0.0992]]), acq_value=7.95445026013919e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 173
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8127, 0.4889, 0.0204, 0.1446]]), acq_value=2.0692549915213299e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 174
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7680, 0.3917, 0.2767, 0.1158]]), acq_value=9.497380684675427e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 175
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8429, 0.8300, 0.0203, 0.2843]]), acq_value=2.748439288657867e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 176
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9087, 0.7372, 0.2263, 0.0633]]), acq_value=1.237433415735012e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 177
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9868, 0.6435, 0.0503, 0.2429]]), acq_value=1.0898835564598919e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 178
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9255, 0.3596, 0.1771, 0.2948]]), acq_value=4.537265799187118e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 179
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9540, 0.9667, 0.0367, 0.2003]]), acq_value=3.043556476012288e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 180
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6394, 0.0000, 0.0000]]), acq_value=0.005415803266773572
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 181
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9333, 0.9077, 0.1088, 0.0156]]), acq_value=7.52211523347146e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 182
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8018, 0.7935, 0.0568, 0.0314]]), acq_value=1.619108447314943e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 183
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6140, 0.0000, 0.0000]]), acq_value=0.005839984997256992
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 184
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8292, 0.3813, 0.2531, 0.0984]]), acq_value=3.6974747957829734e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 185
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8218, 0.9376, 0.2584, 0.0270]]), acq_value=6.579837966147473e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 186
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9833, 0.7670, 0.1913, 0.1115]]), acq_value=2.521873253280571e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 187
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8471, 0.6201, 0.1339, 0.0665]]), acq_value=3.6435566508341566e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 188
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9231, 0.2977, 0.1144, 0.1177]]), acq_value=1.8915498714577872e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 189
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6381, 0.0000, 0.0000]]), acq_value=0.005235616922971809
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 190
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9322, 0.9229, 0.0943, 0.0880]]), acq_value=2.1910346947873194e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 191
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8523, 0.4941, 0.2424, 0.0929]]), acq_value=4.210517307035033e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 192
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9128, 0.8286, 0.0684, 0.1491]]), acq_value=2.918420121955645e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 193
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6371, 0.0000, 0.0000]]), acq_value=0.004599209327955073
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 194
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8337, 0.9237, 0.0740, 0.0656]]), acq_value=1.8370849522164612e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 195
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8906, 0.8437, 0.2619, 0.2401]]), acq_value=2.731391729460242e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 196
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8806, 0.8498, 0.1697, 0.0736]]), acq_value=1.702009832516005e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 197
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9007, 0.6505, 0.1679, 0.0283]]), acq_value=1.1838519806128822e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 198
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8169, 0.2621, 0.2091, 0.2911]]), acq_value=6.445330100190994e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 199
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9141, 0.8281, 0.0735, 0.1790]]), acq_value=2.087332655609231e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 200
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7657, 0.5097, 0.0413, 0.0108]]), acq_value=1.336779204275107e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 201
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9207, 0.7211, 0.1814, 0.0669]]), acq_value=1.2687624753593418e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 202
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9078, 0.9990, 0.1941, 0.0293]]), acq_value=1.2772137783501059e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 203
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6716, 0.2017, 0.5550, 0.2399]]), acq_value=3.963544412122211e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 204
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9251, 0.3129, 0.1113, 0.0883]]), acq_value=1.1290037815747667e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 205
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8358, 0.8592, 0.0782, 0.1435]]), acq_value=1.4709986936867203e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 206
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6156, 0.0000, 0.0000]]), acq_value=0.004962848630249483
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 207
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8528, 0.3990, 0.2531, 0.2058]]), acq_value=2.931111972581668e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 208
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9126, 0.8716, 0.1741, 0.1141]]), acq_value=1.095205734436e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 209
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6926, 0.5891, 0.1042, 0.0714]]), acq_value=5.92563897949816e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 210
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9309, 0.9598, 0.2137, 0.2041]]), acq_value=3.75141648023547e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 211
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8765, 0.9792, 0.0655, 0.1105]]), acq_value=4.8474101843609674e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 212
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9999, 0.9424, 0.0841, 0.0042]]), acq_value=7.192181765147687e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 213
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9303, 0.9509, 0.2266, 0.0604]]), acq_value=6.385344258896808e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 214
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6369, 0.0000, 0.0000]]), acq_value=0.0048631292345992505
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 215
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6317, 0.7570, 0.1917, 0.4201]]), acq_value=2.0150989321621182e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 216
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.6795, 0.9424, 0.3528, 0.1177]]), acq_value=1.9747697130312325e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 217
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6172, 0.0000, 0.0000]]), acq_value=0.004669757649730072
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 218
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9024, 0.4733, 0.0352, 0.1883]]), acq_value=2.490609959937551e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 219
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9490, 0.9482, 0.0154, 0.1445]]), acq_value=1.6985968037674937e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 220
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7298, 0.8863, 0.0893, 0.0771]]), acq_value=4.067958733755539e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 221
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9160, 0.7843, 0.0944, 0.1203]]), acq_value=9.195764125169426e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 222
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6149, 0.0000, 0.0000]]), acq_value=0.005402599385748191
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 223
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8823, 0.4709, 0.0794, 0.0701]]), acq_value=1.2407356292376548e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 224
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9469, 0.6142, 0.0729, 0.1833]]), acq_value=1.1470150165782123e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 225
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7847, 0.4491, 0.1502, 0.0187]]), acq_value=1.7815371242124733e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 226
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.5355, 0.4030, 0.2011, 0.1074]]), acq_value=1.329435710129001e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 227
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6356, 0.0000, 0.0000]]), acq_value=0.004554890524325422
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 228
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9939, 0.6961, 0.1075, 0.1663]]), acq_value=1.2358750159369158e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 229
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9367, 0.7887, 0.2045, 0.0774]]), acq_value=2.5822903149119725e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 230
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9286, 0.8589, 0.0151, 0.0888]]), acq_value=2.1145563158797565e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 231
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9275, 0.0718, 0.0359, 0.0719]]), acq_value=2.4198229073291166e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 232
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8984, 0.7767, 0.1059, 0.0568]]), acq_value=4.227144087542989e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 233
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7505, 0.5831, 0.0975, 0.1056]]), acq_value=4.503970901792442e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 234
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9423, 0.9002, 0.1049, 0.1642]]), acq_value=9.976421827539994e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 235
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9200, 0.2318, 0.0546, 0.0886]]), acq_value=3.8833361082346585e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 236
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9309, 0.6352, 0.1737, 0.0049]]), acq_value=5.968075930951056e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 237
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8098, 0.6168, 0.0174, 0.0065]]), acq_value=1.02899663137479e-06
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 238
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9692, 0.7463, 0.1633, 0.1022]]), acq_value=1.5768343550326414e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 239
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6130, 0.0000, 0.0000]]), acq_value=0.005617669208616144
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 240
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8945, 0.3132, 0.0937, 0.1255]]), acq_value=1.241828504194853e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 241
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9123, 0.3985, 0.2790, 0.0401]]), acq_value=8.626505978992505e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 242
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.5771, 0.4506, 0.3695, 0.4598]]), acq_value=2.148781047539572e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 243
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7850, 0.6272, 0.2178, 0.0052]]), acq_value=1.0382283105458967e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 244
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7709, 0.7824, 0.1706, 0.1367]]), acq_value=3.357345726429095e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 245
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6396, 0.0000, 0.0000]]), acq_value=0.0050588433244330155
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 246
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9311, 0.9264, 0.0699, 0.0879]]), acq_value=1.1173684807963546e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 247
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9054, 0.8587, 0.0191, 0.1691]]), acq_value=7.048343811377755e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 248
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9391, 0.4512, 0.2057, 0.0489]]), acq_value=5.440118852617637e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 249
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8567, 0.3445, 0.1082, 0.1207]]), acq_value=9.01935086894401e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 250
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7026, 0.3845, 0.1880, 0.0128]]), acq_value=1.6888944326387545e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 251
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9839, 0.5202, 0.1241, 0.9611]]), acq_value=0.003147215438997708
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 252
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6395, 0.0000, 0.0000]]), acq_value=0.005169690457992954
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 253
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8858, 0.5863, 0.1653, 0.0419]]), acq_value=1.0489143920100474e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 254
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8579, 0.5438, 0.3256, 0.0179]]), acq_value=3.8504800348171386e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 255
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7708, 0.9067, 0.1031, 0.1678]]), acq_value=2.2255931042547417e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 256
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9075, 0.9432, 0.1052, 0.0918]]), acq_value=5.06482789319751e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 257
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8925, 0.2058, 0.2625, 0.2027]]), acq_value=2.2432205842859432e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 258
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9220, 0.3998, 0.0193, 0.1432]]), acq_value=1.7153345407971976e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 259
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8466, 0.5187, 0.1548, 0.2052]]), acq_value=4.303980721820366e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 260
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8754, 0.3908, 0.1058, 0.3000]]), acq_value=4.243801859926677e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 261
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9691, 0.8152, 0.2734, 0.1021]]), acq_value=4.498452596535252e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 262
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 1.0000, 0.4573, 0.0000]]), acq_value=0.038632992087239096
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 263
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8583, 0.2487, 0.0883, 0.0272]]), acq_value=3.790293623406882e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 264
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6184, 0.0000, 0.0000]]), acq_value=0.004170022375925536
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 265
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9827, 0.3040, 0.0637, 0.1053]]), acq_value=7.434579457621382e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 266
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8384, 0.8400, 0.1172, 0.0752]]), acq_value=9.809792861359412e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 267
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[9.8348e-01, 8.7906e-01, 1.5867e-01, 8.3272e-04]]), acq_value=3.049919612418961e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 268
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[9.1011e-01, 3.1790e-01, 1.2156e-05, 1.8132e-01]]), acq_value=2.289892750417799e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 269
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8060, 0.4437, 0.0399, 0.1568]]), acq_value=2.4476984161747595e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 270
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8201, 0.8066, 0.0441, 0.0058]]), acq_value=4.854349011929049e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 271
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6169, 0.0000, 0.0000]]), acq_value=0.004331153359970141
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 272
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9313, 0.4069, 0.1484, 0.0144]]), acq_value=1.3671094453715504e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 273
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9259, 0.9335, 0.1673, 0.0299]]), acq_value=8.532022729990096e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 274
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8963, 0.7655, 0.3165, 0.1797]]), acq_value=1.185421863447722e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 275
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8980, 0.3312, 0.1922, 0.0119]]), acq_value=8.038329732396043e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 276
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9475, 0.8966, 0.0631, 0.0767]]), acq_value=2.253087641457263e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 277
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9922, 0.7203, 0.2999, 0.0823]]), acq_value=4.4949329258692217e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 278
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9331, 0.4256, 0.0945, 0.1511]]), acq_value=7.361056153509793e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 279
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[1.0000, 0.6192, 0.0000, 0.0000]]), acq_value=0.0040599569152819925
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 280
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8679, 0.7387, 0.1638, 0.0358]]), acq_value=1.0382077259007971e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 281
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8763, 0.6520, 0.2643, 0.0057]]), acq_value=6.528887799839289e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 282
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7309, 0.2639, 0.2807, 0.1136]]), acq_value=1.1300104657552268e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 283
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8931, 0.7258, 0.1763, 0.0242]]), acq_value=1.2010685379593156e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 284
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8239, 0.5041, 0.0145, 0.0718]]), acq_value=2.929712580035382e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 285
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8210, 0.6046, 0.0615, 0.0346]]), acq_value=2.036227237656174e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 286
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9023, 0.3768, 0.0707, 0.0908]]), acq_value=9.389884911281676e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 287
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9172, 0.3977, 0.1223, 0.2004]]), acq_value=5.975545830372297e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 288
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9572, 0.7884, 0.1198, 0.1020]]), acq_value=1.6243904193968817e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 289
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9177, 0.3213, 0.0026, 0.0706]]), acq_value=1.1586143525144088e-07
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 290
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8150, 0.1775, 0.1407, 0.1006]]), acq_value=3.443665527735895e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 291
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8001, 0.1728, 0.3196, 0.2993]]), acq_value=1.5517485324467728e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 292
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8300, 0.5241, 0.2335, 0.0183]]), acq_value=2.496203962976118e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 293
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9325, 0.3803, 0.1348, 0.0225]]), acq_value=9.306102000117278e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 294
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8327, 0.6527, 0.0361, 0.1004]]), acq_value=2.2402933314014106e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 295
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9199, 0.7162, 0.2139, 0.0091]]), acq_value=6.4749897249472e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 296
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.7611, 0.7469, 0.1774, 0.0275]]), acq_value=1.2012391914506537e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 297
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8831, 0.8275, 0.1295, 0.0788]]), acq_value=6.97413008454717e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 298
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.9127, 0.8300, 0.0300, 0.1934]]), acq_value=4.099308445471017e-08
+Computing recommendations.
+Evaluating objective
+/home/dhernand/.local/lib/python3.10/site-packages/gpytorch/models/exact_gp.py:274: GPInputWarning: The input matches the stored training data. Did you forget to call model.train()?
+  warnings.warn(
+BO Iteration number: 299
+Fitting the model
+Optimizing Acquisition
+JES: candidate=tensor([[0.8381, 0.7333, 0.0397, 0.0787]]), acq_value=9.286556740262242e-08
+Computing recommendations.
+Evaluating objective
+End. Have a nice day!
