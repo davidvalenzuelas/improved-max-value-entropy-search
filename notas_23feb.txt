@@ -1,0 +1,8 @@
+1. he vendorizado botorch y gpytorch, clonando los repos y eliminando los .git para que los 
+   cambios que hagamos no afecten a los repositorios oficiales.
+2. he creado un venv para el tfg, donde he instalado todas las dependencias.
+3. he instalado gpytorch y botorch en modo editable, para que cualquier cambio que haga sobre
+   ellos se use directamente.
+4. he ajustado los imports en algunos ficheros, porque la cte MIN_INFERRED_NOISE_LEVEL ya no
+   existe en la versión actual.
+5. he instalado dependencias adicionales como matplotlib o dill.
