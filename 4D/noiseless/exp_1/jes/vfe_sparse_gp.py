@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
-# This file implements a VFE Sparse GP model using Gpytorch, as well as a training loop
-# with Adam optimizer. The function 'fit_model_vfe_sparse' will be the main entry point
-# for fitting the model.
-
 import torch
 import gpytorch
 
@@ -20,9 +16,6 @@ from botorch.posteriors.gpytorch import GPyTorchPosterior
 class VFESparseGP(ApproximateGP):
     
     def __init__(self, inducing_points: torch.Tensor):
-        """
-        inducing_points: (M, d)
-        """
         # Zero mean and RBF kernel for covariances
         mean_module = gpytorch.means.ZeroMean()
         covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
@@ -94,7 +87,8 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
     def closure():
         optimizer.zero_grad()
         output = model(train_x)
-        loss = -mll(output, train_y) # we maximize ELBO, so we minimize -ELBO
+        # we maximize ELBO, so we minimize -ELBO
+        loss = -mll(output, train_y)
         loss.backward()
         return loss
     
@@ -102,7 +96,6 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
     # This is the main training loop, we call the closure function here to compute loss and gradients, and
     # then we use the optimizer to update the parameters
     for i in range(training_iter):
-        # Scales by number of data points
         loss = closure()
         # The closure is called explicitly and not passed to optimizer.step(), because Adam does not require it
         # Updates parameters
@@ -118,8 +111,6 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
         likelihood.eval()
         
     return losses
-
-
 
 
 class ConstrainedVariationalELBO(VariationalELBO):
