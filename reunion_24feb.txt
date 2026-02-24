@@ -10,6 +10,10 @@ Dudas para preguntar
 6. sale warning 
    /home/david_el_crack/Documentos/tfginfo/TFG-info-david/tfgvenv/lib/python3.11/site-packages/linear_operator/utils/cholesky.py:40: NumericalWarning: A not p.d., added jitter of 1.0e-08 to the diagonal
   warnings.warn(
+7. en el caso noiseless, la likelihood es FixedNoiseGaussian, así que no hay que optimizar sus 
+  parámetros con adam, no?
+8. los ptos del dominio de la función no los muestreo uniformemente sino que uso Sobol
+9. hay que añadir (x*,y*) a los datos de entrenamiento?
 
 ------
  * me sale killed cada vez que ejecuto loop_bo aunque sea con pocas iteraciones

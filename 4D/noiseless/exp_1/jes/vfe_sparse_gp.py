@@ -114,43 +114,61 @@ def train_model_ADAM(model: torch.nn.Module, mll: torch.nn.Module, train_x: torc
 
 
 class ConstrainedVariationalELBO(VariationalELBO):
-    def __init__(
-        self,
-        likelihood,
-        model,
-        num_data: int,
-        Xc: torch.Tensor,
-        y_star: torch.Tensor,
-        tau: float = 0.02,
-        mc_samples: int = 32,
-        constraint_weight: float = 1.0,
-        eps: float = 1e-12,
-    ):
+    
+    def __init__(self, likelihood, model, num_data: int, Xc: torch.Tensor, y_star: torch.Tensor,
+        tau: float = 0.02, mc_samples: int = 32, constraint_weight: float = 1.0, eps: float = 1e-12,):
+        
+        # initializes the standard variational ELBO
+        # ELBO = E_q[log p(y|f)] - KL[q(u) || p(u)]
         super().__init__(likelihood=likelihood, model=model, num_data=num_data)
         self.register_buffer("Xc", Xc)
         self.register_buffer("y_star", y_star.view(1))
+        # Controls smoothness of the constraint, smaller tau means a sharper constraint
         self.tau = float(tau)
         self.mc_samples = int(mc_samples)
+        # Weights the importance of the constraint relative to the standard ELBO
         self.constraint_weight = float(constraint_weight)
         self.eps = float(eps)
-
+        
+        # Predefines a std normal distribution
         self._std_normal = torch.distributions.Normal(
             loc=torch.tensor(0.0, dtype=Xc.dtype, device=Xc.device),
             scale=torch.tensor(1.0, dtype=Xc.dtype, device=Xc.device),
         )
-
+        
+        
     def _constraint_term(self) -> torch.Tensor:
-        mvn_c = self.model(self.Xc)  # q(f(Xc))
-        fs = mvn_c.rsample(sample_shape=torch.Size([self.mc_samples]))  # (S, K)
-
+        """
+        Computes the additional constraint contribution:
+        C = sum_k E_q(f(x_c^k)) [ log phi((y_star - f(x_c^k)) / tau) ]
+        where: phi is the standard normal CDF and q(f(Xc)) is the variational
+        posterior at constraint points
+        
+        This term assigns high probability to f(Xc) being below y_star
+        """
+        # Computes variational distribution q(f(Xc)) at constraint points Xc
+        mvn_c = self.model(self.Xc)
+        # Draws monte carlo samples from q(f(Xc)) to approximate the expectation
+        fs = mvn_c.rsample(sample_shape=torch.Size([self.mc_samples]))
+        
+        # Standarizes the samples
         z = (self.y_star - fs) / self.tau
+        # Computes log probit 
         phi = self._std_normal.cdf(z).clamp_min(self.eps)
-        log_phi = torch.log(phi)  # (S, K)
-
-        return log_phi.mean(dim=0).sum()  # scalar
-
+        log_phi = torch.log(phi)
+        
+        # returns monte carlo estimate of the expectation, summed over constraint points
+        return log_phi.mean(dim=0).sum()
+    
+    
     def forward(self, output, target, **kwargs):
+        """
+        ELBO_constrained = ELBO_standard + λ * constraint_term
+        We minimize -ELBO_constrained
+        """
+        # Standard variational ELBO term
         base = super().forward(output, target, **kwargs)
+        # Adds the constraint term
         extra = self._constraint_term()
         return base + self.constraint_weight * extra
     
@@ -159,7 +177,7 @@ class ConstrainedVariationalELBO(VariationalELBO):
 def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dict: dict | None = None,
     M: int = 64, training_iter: int = 500, lr: float = 0.01,
     noise_eps: float = 1e-6,  # tiny fixed noise for numerical stability
-    verbose: bool = True, y_star=None, Xc: torch.Tensor | None = None,num_constraint_points: int = 100, tau: float = 0.02, 
+    verbose: bool = True, y_star=None, Xc: torch.Tensor | None = None, num_constraint_points: int = 100, tau: float = 0.02, 
     mc_samples: int = 32, constraint_weight: float = 1.0,):
     """Fits a variational sparse GP model with tiny observation noise """
     
@@ -177,12 +195,12 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
     
     # Selects inducing points
     N = train_X.shape[0]
-
+    
     if state_dict is not None:
         # Get previous inducing point count from checkpoint
         prev_inducing = state_dict["model"]["variational_strategy.inducing_points"]
         M_eff = prev_inducing.shape[0]
-        M_eff = min(M_eff, N)  # safety
+        M_eff = min(M_eff, N)
     else:
         M_eff = min(M, N)
     perm = torch.randperm(N, device=train_X.device)
@@ -200,9 +218,9 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
             pass  # allows loading checkpoints created with GaussianLikelihood
         
     # Defines the variational ELBO loss, our objective to maximize during training
-    # --- build the MLL (ELBO) ---
+    # Builds the constrained ELBO if y* is provided
     if y_star is not None:
-        # Option A: constraint points in [0,1]^d
+        # Constraint points in [0,1]^d
         d = train_X.shape[-1]
         
         if Xc is None:
@@ -212,16 +230,8 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
             
         y_star_t = torch.as_tensor(y_star, device=train_X.device, dtype=train_X.dtype)
         
-        mll = ConstrainedVariationalELBO(
-            likelihood=likelihood,
-            model=model,
-            num_data=train_X.size(0),
-            Xc=Xc,
-            y_star=y_star_t,
-            tau=tau,
-            mc_samples=mc_samples,
-            constraint_weight=constraint_weight,
-        )
+        mll = ConstrainedVariationalELBO(likelihood=likelihood, model=model, num_data=train_X.size(0),
+            Xc=Xc, y_star=y_star_t, tau=tau, mc_samples=mc_samples, constraint_weight=constraint_weight,)
     else:
         mll = VariationalELBO(likelihood, model, num_data=train_X.size(0))
     
@@ -241,39 +251,21 @@ def fit_model_vfe_sparse(train_X: torch.Tensor, train_Y: torch.Tensor, state_dic
 def pack_state_dict(model, likelihood) -> dict:
     return {"model": model.state_dict(), "likelihood": likelihood.state_dict()}
 
-# --- BoTorch wrapper for ApproximateGP (needed by JES) ---
-
-
-
 class BoTorchVFEWrapper(Model):
     """
-    Wrap a gpytorch ApproximateGP + likelihood to satisfy BoTorch's Model interface
-    required by qJointEntropySearch (posterior + condition_on_observations).
+    Wraps vfe sparse gp + likelihood to satisfy botorch's model interface
+    required by qJointEntropySearch
     """
-    def __init__(
-        self,
-        gp: torch.nn.Module,
-        likelihood: gpytorch.likelihoods.Likelihood,
-        cond_training_iter: int = 25,
-        cond_lr: float = 0.01,
-        cond_noise_eps: float = 1e-6,
-
-        # --- NEW: constraint config ---
-        y_star=None,
-        Xc: torch.Tensor | None = None,
-        num_constraint_points: int = 100,
-        tau: float = 0.05,
-        mc_samples: int = 16,
-        constraint_weight: float = 1.0,
-    ):
+    def __init__(self, gp: torch.nn.Module, likelihood: gpytorch.likelihoods.Likelihood,
+        cond_training_iter: int = 25, cond_lr: float = 0.01, cond_noise_eps: float = 1e-6,
+        y_star=None, Xc: torch.Tensor | None = None, num_constraint_points: int = 100,
+        tau: float = 0.05, mc_samples: int = 16, constraint_weight: float = 1.0,):
         super().__init__()
         self.gp = gp
         self.likelihood = likelihood
         self.cond_training_iter = cond_training_iter
         self.cond_lr = cond_lr
         self.cond_noise_eps = cond_noise_eps
-
-        # --- NEW: store constraint config ---
         self.y_star = y_star
         self.Xc = Xc
         self.num_constraint_points = num_constraint_points
@@ -283,132 +275,92 @@ class BoTorchVFEWrapper(Model):
         
     @property
     def num_outputs(self) -> int:
+        # single output GP
         return 1
     
-    def posterior(
-    self,
-    X: torch.Tensor,
-    output_indices=None,
-    observation_noise: bool = False,
-    posterior_transform=None,
-    **kwargs,
-    ):
+    def posterior(self, X: torch.Tensor, output_indices=None, observation_noise: bool = False,
+        posterior_transform=None,**kwargs,):
+        """This function is called to get the posterior distribution at new input points X,
+        it is used by JES to compute the acquisition function"""
         X = X.double()
         self.gp.eval()
         self.likelihood.eval()
-
-        # 1) LIMPIAR CACHÉS para evitar choques cuando cambia el batch size
+        
         if hasattr(self.gp, "_clear_cache"):
             self.gp._clear_cache()
         if hasattr(self.gp, "variational_strategy") and hasattr(self.gp.variational_strategy, "_clear_cache"):
             self.gp.variational_strategy._clear_cache()
-
-        # 2) NO usar no_grad (optimize_acqf necesita gradientes w.r.t X)
+        
         mvn = self.gp(X)
+        # it can include observation noise
         if observation_noise:
             mvn = self.likelihood(mvn)
-
+            
         post = GPyTorchPosterior(mvn)
         if posterior_transform is not None:
             return posterior_transform(post)
         return post
-
-    def condition_on_observations(
-        self,
-        X: torch.Tensor,
-        Y: torch.Tensor,
-        noise: torch.Tensor | None = None,
-        **kwargs,
-    ) -> "BoTorchVFEWrapper":
+    
+    
+    def condition_on_observations(self, X: torch.Tensor, Y: torch.Tensor, noise: torch.Tensor | None = None,
+        **kwargs,) -> "BoTorchVFEWrapper":
         """
         For variational sparse GP there is no closed-form conditioning like exact GP.
-        We do a warm-start refit on the augmented dataset (fast, few Adam steps).
-        This is enough to make JES run.
+        This function provides a fast approximate posterior update
         """
         X = X.double()
         Y = Y.double()
+        
+        # Correct target size
         if Y.ndim == 1:
             Y = Y.unsqueeze(-1)
         if Y.shape[-1] != 1:
-            # JES in your setup is 1-output
             Y = Y[..., :1]
-
-        # old training data (from gpytorch model)
-        # Retrieve stored training data (we store it in fit_model_vfe_sparse)
+            
+        # Retrieves stored training data (we store it in fit_model_vfe_sparse)
         if not hasattr(self.gp, "_train_X") or not hasattr(self.gp, "_train_Y"):
             raise RuntimeError(
                 "VFESparseGP has no stored training data. "
                 "Make sure fit_model_vfe_sparse sets model._train_X and model._train_Y."
             )
-
+            
         train_X_old = self.gp._train_X.detach().double()
         train_y_old = self.gp._train_Y.detach().double()
         if train_y_old.ndim == 1:
             train_y_old = train_y_old.unsqueeze(-1)
-
+            
         # new points
         X_new = X.view(-1, train_X_old.shape[-1])
         Y_new = Y.view(-1, 1)
-
+        
         train_X = torch.cat([train_X_old, X_new], dim=0)
         train_Y = torch.cat([train_y_old.view(-1, 1), Y_new], dim=0)
-
-        # warm-start state
+        
+        # Warm-start state
         state = {"model": self.gp.state_dict(), "likelihood": self.likelihood.state_dict()}
-
-        # refit quickly (calls your own fit function already defined in this file)
-        gp_new, lik_new = fit_model_vfe_sparse(
-            train_X=train_X,
-            train_Y=train_Y,
-            state_dict=state,
+        
+        # Refit with small number of steps
+        gp_new, lik_new = fit_model_vfe_sparse(train_X=train_X, train_Y=train_Y, state_dict=state,
             M=min(self.gp.variational_strategy.inducing_points.shape[0], train_X.shape[0]),
-            training_iter=self.cond_training_iter,
-            lr=self.cond_lr,
-            noise_eps=self.cond_noise_eps,
-            verbose=False,
-            y_star=self.y_star,
-            Xc=self.Xc,
-            num_constraint_points=self.num_constraint_points,
-            tau=self.tau,
-            mc_samples=self.mc_samples,
-            constraint_weight=self.constraint_weight,
-        )
+            training_iter=self.cond_training_iter, lr=self.cond_lr, noise_eps=self.cond_noise_eps,
+            verbose=False,y_star=self.y_star, Xc=self.Xc, num_constraint_points=self.num_constraint_points,
+            tau=self.tau, mc_samples=self.mc_samples, constraint_weight=self.constraint_weight,)
         gp_new.likelihood = lik_new
         
-        return BoTorchVFEWrapper(
-            gp=gp_new,
-            likelihood=lik_new,
-            cond_training_iter=self.cond_training_iter,
-            cond_lr=self.cond_lr,
-            cond_noise_eps=self.cond_noise_eps,
-
-            y_star=self.y_star,
-            Xc=self.Xc,
-            num_constraint_points=self.num_constraint_points,
-            tau=self.tau,
-            mc_samples=self.mc_samples,
-            constraint_weight=self.constraint_weight,
-        )
+        # Returns a new wrapped model instance
+        return BoTorchVFEWrapper(gp=gp_new, likelihood=lik_new, cond_training_iter=self.cond_training_iter,
+            cond_lr=self.cond_lr, cond_noise_eps=self.cond_noise_eps, y_star=self.y_star,
+            Xc=self.Xc, num_constraint_points=self.num_constraint_points, tau=self.tau,
+            mc_samples=self.mc_samples, constraint_weight=self.constraint_weight,)
 
 
-def as_botorch_model(
-    model: torch.nn.Module,
-    y_star=None,
-    Xc = None,
-    num_constraint_points: int = 100,
-    tau: float = 0.05,
-    mc_samples: int = 16,
-    constraint_weight: float = 1.0,
-) -> Model:
+def as_botorch_model(model: torch.nn.Module, y_star=None, Xc = None, num_constraint_points: int = 100,
+    tau: float = 0.05, mc_samples: int = 16, constraint_weight: float = 1.0,) -> Model:
+    """Converts a trained VFESparseGP model into a botorch compatible model"""
+    
     if not hasattr(model, "likelihood"):
-        raise RuntimeError("Model has no .likelihood. In fit_model, do: model.likelihood = likelihood")
-    return BoTorchVFEWrapper(
-        gp=model,
-        likelihood=model.likelihood,
-        y_star=y_star,
-        Xc=Xc,
-        num_constraint_points=num_constraint_points,
-        tau=tau,
-        mc_samples=mc_samples,
-        constraint_weight=constraint_weight,
-    )
+        raise RuntimeError("Model has no likelihood")
+    
+    return BoTorchVFEWrapper(gp=model, likelihood=model.likelihood, y_star=y_star, Xc=Xc,
+        num_constraint_points=num_constraint_points, tau=tau, mc_samples=mc_samples,
+        constraint_weight=constraint_weight,)
