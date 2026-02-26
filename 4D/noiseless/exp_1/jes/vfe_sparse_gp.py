@@ -45,7 +45,6 @@ class VFESparseGP(ApproximateGP):
     GP approach. It uses inducing points to approximate the full GP and
     is it designed to be trained with the modified ELBO, which includes
     the step constraint term."""
-    
     def __init__(self, inducing_points: torch.Tensor):
         # Zero mean and RBF kernel for covariances
         mean_module = gpytorch.means.ZeroMean()
@@ -75,7 +74,7 @@ class VFESparseGP(ApproximateGP):
         
         # Avoids internal random reinitialization of the variational parameters, because we have already
         # initialized them with the prior like distribution above
-        variational_strategy.variational_params_initialized = torch.tensor(1)
+        variational_strategy.variational_params_initialized = torch.tensor(1, device=inducing_points.device)
         
         # Initializes base ApproximateGP class
         super().__init__(variational_strategy)
@@ -83,7 +82,6 @@ class VFESparseGP(ApproximateGP):
         # Stores mean and covariances
         self.mean_module = mean_module
         self.covar_module = covar_module
-        
         
     # Defines the GP prior for a given input x
     def forward(self, x: torch.Tensor):
@@ -128,13 +126,10 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
         loss.backward()
         return loss
     
-    # Gets number of training points
-    N = train_x.shape[0]
-    
     # Main training loop, we call the closure function here to compute loss
     # and gradients, and then we use the optimizer to update the parameters
     for i in range(training_iter):
-        loss = closure() * N
+        loss = closure()
         if verbose:
             print(f"Iter {i+1}/{training_iter} - Loss: {loss.item():.6f}")
         losses[i] = loss.detach()
@@ -173,7 +168,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
         self.epsilon = float(epsilon)
         self.constraint_weight = float(constraint_weight)
         
-        
     def _step_term(self) -> torch.Tensor:
         #TODO: functionexplanation
         """  """
@@ -200,28 +194,28 @@ class StepConstraintVariationalELBO(VariationalELBO):
         term = log_eps * p_greater + log_1m * p_less
         # Sums over constraint points to get the total step constraint term
         return term.sum()
-    
-    
+        
     @torch.no_grad()
     def _step_term_eval(self) -> torch.Tensor:
         """ Computes the step term in eval mode without gradients"""
         self.model.eval()
         return self._step_term()
     
-    
     def _log_likelihood_term(self, variational_dist_f, target, **kwargs):
         """ Overrides the standard log likelihood term in the ELBO to add
         the step constraint term."""
+        # Standard expected log likelihood term from VariationalELBO
         base = super()._log_likelihood_term(variational_dist_f, target, **kwargs)
+        # Additional step constraint term
         step = self._step_term()
+        
+        # Combines both contributions
         return base + self.constraint_weight * step
     
-    
     def forward(self, variational_dist_f, target, **kwargs):
-        """
-        Use parent forward which combines:
-        expected log likelihood term - KL term, with our overridden log-likelihood term.
-        """
+        """ This function computes the ELBO = expected log likelihood - KL
+        divergence, but with our modified log likelihood term that includes
+        the step constraint"""
         return super().forward(variational_dist_f, target, **kwargs)
 
 
