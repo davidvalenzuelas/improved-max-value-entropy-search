@@ -12,6 +12,7 @@ from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
 from gpytorch.variational import VariationalStrategy
 from gpytorch.mlls import VariationalELBO
+from gpytorch.constraints.constraints import GreaterThan
 
 
 def sample_unit_box(num_constraint_points: int, d: int,
@@ -73,7 +74,7 @@ class VFESparseGP(ApproximateGP):
         
         # Avoids internal random reinitialization of the variational parameters, because we have already
         # initialized them with the prior like distribution above
-        variational_strategy.variational_params_initialized = torch.tensor(1, device=inducing_points.device)
+        variational_strategy.variational_params_initialized = torch.tensor(1, device=inducing_points.device, dtype=inducing_points.dtype)
         
         # Initializes base ApproximateGP class
         super().__init__(variational_strategy)
@@ -109,7 +110,7 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
     
     # Determines which hyperparameters to optimize
     if likelihood is None:
-        params = model.parameters()
+        params = list(model.parameters())
     else:
         params = list(model.parameters()) + list(likelihood.parameters())
         
@@ -191,21 +192,15 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Computes the step constraint term
         term = log_eps * p_greater + log_1m * p_less
-        # Sums over constraint points to get the total step constraint term
-        return term.sum()
-        
-    @torch.no_grad()
-    def _step_term_eval(self) -> torch.Tensor:
-        """ Computes the step term in eval mode without gradients"""
-        self.model.eval()
-        return self._step_term()
-
+        # Mean over constraint points to get the total step constraint term
+        return term.mean()
+    
     def _log_likelihood_term(self, variational_dist_f, target, **kwargs):
         """ Overrides the standard log likelihood term in the ELBO to add
         the step constraint term."""
         # Standard expected log likelihood term from VariationalELBO
         base = super()._log_likelihood_term(variational_dist_f, target, **kwargs)
-        # Additional step constraint term
+        # Additional (normalized) step constraint term
         step = self._step_term()
         
         # Combines both contributions
@@ -268,14 +263,22 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100
     train_X = train_X.double()
     train_Y = train_Y.double()
     
-    # Ensures train_y is a 1D vector
+    # Ensure inputs are 2D, (N, d). 
+    # For 1D inputs, make them (N, 1).
+    if train_X.ndim == 1:
+        train_X = train_X.unsqueeze(-1)
+    
     if train_Y.ndim == 2 and train_Y.shape[-1] == 1:
         y_vec = train_Y.squeeze(-1)
     else:
         y_vec = train_Y
         
     # Creates gaussian likelihood
-    likelihood = gpytorch.likelihoods.GaussianLikelihood()
+    likelihood = gpytorch.likelihoods.GaussianLikelihood(
+        noise_constraint=GreaterThan(1e-8)
+    )
+    likelihood = likelihood.to(dtype=train_X.dtype, device=train_X.device)
+    
     # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
     if fix_noise:
@@ -291,6 +294,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100
     
     # Instantiates the VFE sparse GP model with the selected inducing points
     model = VFESparseGP(inducing_points=inducing_points)
+    model = model.to(dtype=train_X.dtype, device=train_X.device)
     
     # If no constraint is provided, trains with standar ELBO
     # If y* is provided, trains with the step constraint term ELBO
