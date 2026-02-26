@@ -14,29 +14,28 @@ from gpytorch.variational import VariationalStrategy
 from gpytorch.mlls import VariationalELBO
 
 
-def sample_unit_box(
-    n: int,
-    d: int,
+def sample_unit_box(num_constraint_points: int, d: int,
     method: Literal["rand", "sobol"] = "sobol",
     device: Optional[torch.device] = None,
-    dtype: Optional[torch.dtype] = None,
-) -> torch.Tensor:
-    """
-    Sample n points uniformly from [0,1]^d.
-    - method="rand": torch.rand
-    - method="sobol": SobolEngine (scrambled for quasi-random)
-    """
+    dtype: Optional[torch.dtype] = None) -> torch.Tensor:
+    """ This method samples n points uniformly from the unit box [0,1]^d,
+    using either standard random or Sobol quasi-random sampling, depending
+    on the method argument."""
+    
     device = device or torch.device("cpu")
     dtype = dtype or torch.float64
-
+    
+    # Standard iid random sampling from uniform distribution in [0,1]^d
     if method == "rand":
-        return torch.rand(n, d, device=device, dtype=dtype)
-
-    if method == "sobol":
+        return torch.rand(num_constraint_points, d, device=device, dtype=dtype)
+    
+    # Quasi-random Sobol sampling for better space filling coverage
+    elif method == "sobol":
         engine = torch.quasirandom.SobolEngine(dimension=d, scramble=True)
-        X = engine.draw(n).to(device=device, dtype=dtype)
+        X = engine.draw(num_constraint_points).to(device=device, dtype=dtype)
         return X
-
+    
+    # Raises error for unknown sampling method
     raise ValueError(f"Unknown sampling method: {method}")
 
 
@@ -277,61 +276,51 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100
         
     # Creates gaussian likelihood
     likelihood = gpytorch.likelihoods.GaussianLikelihood()
+    # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
     if fix_noise:
         likelihood.raw_noise.requires_grad_(False)
-
-    # Inducing points: random subset of training inputs (as in notebook)
+        
+    # Number of training points
     N = train_X.shape[0]
+    # The number of inducing points cannot exceed the number of training points
     M_eff = min(int(M), int(N))
+    # Subsamples inducing points from training data
     perm = torch.randperm(N, device=train_X.device)
     inducing_points = train_X[perm[:M_eff]].contiguous()
-
+    
+    # Instantiates the VFE sparse GP model with the selected inducing points
     model = VFESparseGP(inducing_points=inducing_points)
-
+    
+    # If no constraint is provided, trains with standar ELBO
+    # If y* is provided, trains with the step constraint term ELBO
     if y_star is None:
         mll = VariationalELBO(likelihood, model, num_data=N)
     else:
+        # Gets the dimension of the input space from training data
         d = train_X.shape[-1]
+        
+        # If constraint points are not previded, we sample them uniformly from the
+        # unit box [0,1]^d
         if Xc is None:
-            Xc = sample_unit_box(
-                num_constraint_points,
-                d,
-                method=constraint_sampling,
-                device=train_X.device,
-                dtype=train_X.dtype,
-            )
+            Xc = sample_unit_box(num_constraint_points, d, method=constraint_sampling,
+                device=train_X.device, dtype=train_X.dtype)
         else:
             Xc = Xc.to(device=train_X.device, dtype=train_X.dtype)
-
+        
+        # Converts y* to a tensor if it is a scalar
         y_star_t = torch.as_tensor(y_star, device=train_X.device, dtype=train_X.dtype)
-
-        mll = StepConstraintVariationalELBO(
-            likelihood=likelihood,
-            model=model,
-            num_data=N,
-            Xc=Xc,
-            y_star=y_star_t,
-            epsilon=epsilon,
-            constraint_weight=constraint_weight,
-        )
-
-    losses = train_model_ADAM(
-        model=model,
-        mll=mll,
-        train_x=train_X,
-        train_y=y_vec,
-        training_iter=training_iter,
-        likelihood=likelihood,
-        lr=lr,
-        verbose=verbose,
-    )
-
-    return FitResult(
-        model=model,
-        likelihood=likelihood,
-        mll=mll,
-        losses=losses,
-        inducing_points=inducing_points,
-        Xc=Xc if y_star is not None else None,
-    )
+        
+        # Uses the modified ELBO with the step constraint term
+        mll = StepConstraintVariationalELBO(likelihood=likelihood, model=model,
+            num_data=N, Xc=Xc, y_star=y_star_t, epsilon=epsilon,
+            constraint_weight=constraint_weight,)
+        
+    # Trains model by minimizing the -ELBO with ADAM optimizer  
+    losses = train_model_ADAM(model=model, mll=mll, train_x=train_X, train_y=y_vec,
+        training_iter=training_iter, likelihood=likelihood, lr=lr,
+        verbose=verbose)
+    
+    # Returns the results after fitting the vfe sparse GP
+    return FitResult(model=model, likelihood=likelihood, mll=mll, losses=losses,
+        inducing_points=inducing_points, Xc=Xc if y_star is not None else None)
