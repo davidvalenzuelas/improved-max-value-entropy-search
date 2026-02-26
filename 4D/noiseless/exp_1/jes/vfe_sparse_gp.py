@@ -200,7 +200,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         """ Computes the step term in eval mode without gradients"""
         self.model.eval()
         return self._step_term()
-    
+
     def _log_likelihood_term(self, variational_dist_f, target, **kwargs):
         """ Overrides the standard log likelihood term in the ELBO to add
         the step constraint term."""
@@ -211,7 +211,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Combines both contributions
         return base + self.constraint_weight * step
-    
+
     def forward(self, variational_dist_f, target, **kwargs):
         """ This function computes the ELBO = expected log likelihood - KL
         divergence, but with our modified log likelihood term that includes
@@ -220,66 +220,62 @@ class StepConstraintVariationalELBO(VariationalELBO):
 
 
 @torch.no_grad()
-def predictive_distribution(
-    model: VFESparseGP,
-    likelihood: gpytorch.likelihoods._GaussianLikelihoodBase,
-    test_x: torch.Tensor,
-    observation_noise: bool = False,
-) -> gpytorch.distributions.MultivariateNormal:
-    """
-    Returns predictive distribution at test_x.
-    If observation_noise=True, returns p(y* | x*, D) (includes likelihood noise).
-    Otherwise returns p(f* | x*, D).
-    """
+def predictive_distribution(model: VFESparseGP,
+    likelihood: gpytorch.likelihoods.Likelihood, test_x: torch.Tensor,
+    observation_noise: bool = False) -> gpytorch.distributions.MultivariateNormal:
+    #TODO: improve docstring
+    """ Returns the predictive distribution at test_x."""
+    
+    # Sets model and likelihood in eval mode
     model.eval()
     likelihood.eval()
-    test_x = test_x.to(dtype=next(model.parameters()).dtype, device=next(model.parameters()).device)
-
+    test_x = test_x.to(
+        dtype=next(model.parameters()).dtype,
+        device=next(model.parameters()).device
+    )
+    
+    # Uses faster variance computations for predictive distribution
     with gpytorch.settings.fast_pred_var():
+        # Computes latent predictive distribution q()
         latent = model(test_x)
         return likelihood(latent) if observation_noise else latent
 
 
 @dataclass
 class FitResult:
+    """ This class stores the results of fitting the VFE sparse GP model"""
     model: VFESparseGP
-    likelihood: gpytorch.likelihoods._GaussianLikelihoodBase
+    likelihood: gpytorch.likelihoods.Likelihood
     mll: gpytorch.mlls.MarginalLogLikelihood
     losses: torch.Tensor
     inducing_points: torch.Tensor
     Xc: Optional[torch.Tensor] = None
 
 
-def fit_vfe_sparse_gp(
-    train_X: torch.Tensor,
-    train_Y: torch.Tensor,
-    M: int = 25,
-    training_iter: int = 500,
-    lr: float = 1e-2,
-    noise: float = 1e-6,
-    fix_noise: bool = True,
-    verbose: bool = True,
-    # Optional step-constraint params:
+def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100,
+    training_iter: int = 200, lr: float = 1e-2, noise: float = 1e-6,
+    fix_noise: bool = True, verbose: bool = True,
+    # We allow to train with the modified ELBO with the step constraint term if
+    # y* is provided, otherwise we train with the standard ELBO
     y_star: Optional[float | torch.Tensor] = None,
-    epsilon: float = 0.05,
-    constraint_weight: float = 1.0,
+    epsilon: float = 0.05, constraint_weight: float = 1.0,
     num_constraint_points: int = 100,
-    constraint_sampling: Literal["rand", "sobol"] = "sobol",
-    Xc: Optional[torch.Tensor] = None,
-) -> FitResult:
-    """
-    Fits a VFE Sparse GP. If y_star is provided, trains with the step-constraint term.
-
-    Assumptions:
-    - train_X is (N, d)
-    - train_Y is (N,) or (N,1)
-    - Constraint points live in [0,1]^d (unit box).
-    """
+    constraint_sampling: Literal["rand", "sobol"] = "rand",
+    Xc: Optional[torch.Tensor] = None) -> FitResult:
+    """ This function fits a VFE sparse GP to the given training data, using
+    the Adam optimizer to maximize the ELBO. If y_star is provided, it trains
+    with the modified ELBO that includes the step constraint term """
+    # Converts training data to double precision
     train_X = train_X.double()
     train_Y = train_Y.double()
-    y_vec = train_Y.squeeze(-1) if train_Y.ndim == 2 and train_Y.shape[-1] == 1 else train_Y
-
-    # Likelihood (Gaussian) in *noiseless* setting: use tiny fixed noise for numerical stability
+    
+    # Ensures train_y is a 1D vector
+    if train_Y.ndim == 2 and train_Y.shape[-1] == 1:
+        y_vec = train_Y.squeeze(-1)
+    else:
+        y_vec = train_Y
+        
+    # Creates gaussian likelihood
     likelihood = gpytorch.likelihoods.GaussianLikelihood()
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
     if fix_noise:
