@@ -1,0 +1,2 @@
+* Diferencias entre whitened y unwhitened
+* noisy y noiseless
