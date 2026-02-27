@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # coding: utf-8
+"""
+This file implements a VFE sparse GP with an additional probabilistic
+step constraint term in the ELBO, which encourages th model to satisfy
+a soft inequality constraint over some constraint points.
 
+Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
+"""
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, Optional
@@ -16,12 +22,12 @@ from gpytorch.constraints.constraints import GreaterThan
 
 
 def sample_unit_box(num_constraint_points: int, d: int,
-    method: Literal["rand", "sobol"] = "sobol",
+    method: Literal["rand", "sobol"] = "rand",
     device: Optional[torch.device] = None,
     dtype: Optional[torch.dtype] = None) -> torch.Tensor:
-    """ This method samples n points uniformly from the unit box [0,1]^d,
-    using either standard random or Sobol quasi-random sampling, depending
-    on the method argument."""
+    """ This method samples points uniformly from the unit box [0,1]^d,
+    using either standard random or Sobol quasi random sampling, depending
+    on the specified method argument."""
     
     device = device or torch.device("cpu")
     dtype = dtype or torch.float64
@@ -30,21 +36,20 @@ def sample_unit_box(num_constraint_points: int, d: int,
     if method == "rand":
         return torch.rand(num_constraint_points, d, device=device, dtype=dtype)
     
-    # Quasi-random Sobol sampling for better space filling coverage
+    # Quasi random Sobol sampling for better space filling coverage
     elif method == "sobol":
         engine = torch.quasirandom.SobolEngine(dimension=d, scramble=True)
         X = engine.draw(num_constraint_points).to(device=device, dtype=dtype)
         return X
     
-    # Raises error for unknown sampling method
     raise ValueError(f"Unknown sampling method: {method}")
 
 
 class VFESparseGP(ApproximateGP):
     """ This class defines our approximate GP model using the VFE sparse
     GP approach. It uses inducing points to approximate the full GP and
-    is it designed to be trained with the modified ELBO, which includes
-    the step constraint term."""
+    it is designed to be trained with the modified ELBO, which includes
+    a step constraint term."""
     def __init__(self, inducing_points: torch.Tensor):
         # Zero mean and RBF kernel for covariances
         mean_module = gpytorch.means.ZeroMean()
@@ -148,7 +153,9 @@ def _normal_cdf(z: torch.Tensor) -> torch.Tensor:
 
 
 class StepConstraintVariationalELBO(VariationalELBO):
-    # TODO: add comments to this class and its methods
+    """This class implements the Variational ELBO with an added step constraint
+    term, which encourages the VFE sparse GP to satisfy a constraint P(f(Xc) < y*)
+    over some constraint points Xc."""
     def __init__(self, likelihood: gpytorch.likelihoods.Likelihood,
         model: ApproximateGP, num_data: int, Xc: torch.Tensor,
         y_star: torch.Tensor, epsilon: float = 0.05,
@@ -169,8 +176,8 @@ class StepConstraintVariationalELBO(VariationalELBO):
         self.constraint_weight = float(constraint_weight)
         
     def _step_term(self) -> torch.Tensor:
-        #TODO: functionexplanation
-        """  """
+        """This method calculates the average soft penalty term for the step
+        constraint"""
         # Computes the variational posterior at the constraint points, which is a
         # Gaussian distribution
         qf = self.model(self.Xc)
@@ -217,7 +224,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
 def predictive_distribution(model: VFESparseGP,
     likelihood: gpytorch.likelihoods.Likelihood, test_x: torch.Tensor,
     observation_noise: bool = False) -> gpytorch.distributions.MultivariateNormal:
-    #TODO: improve docstring
     """ Returns the predictive distribution at test_x."""
     
     # Sets model and likelihood in eval mode
@@ -246,18 +252,19 @@ class FitResult:
     Xc: Optional[torch.Tensor] = None
 
 
-def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100,
-    training_iter: int = 200, lr: float = 1e-2, noise: float = 1e-6,
-    fix_noise: bool = True, verbose: bool = True,
-    # We allow to train with the modified ELBO with the step constraint term if
-    # y* is provided, otherwise we train with the standard ELBO
+def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
+    noise: float, train_noise: bool, M: int = 100, verbose: bool = True, 
+    training_iter: int = 200, lr: float = 1e-2,
+    # We allow to train vfe sparse gp with the modified ELBO (contains
+    # the step constraint term) if y* is provided, otherwise we train
+    # it with the standard ELBO.
     y_star: Optional[float | torch.Tensor] = None,
     epsilon: float = 0.05, constraint_weight: float = 1.0,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
     Xc: Optional[torch.Tensor] = None) -> FitResult:
     """ This function fits a VFE sparse GP to the given training data, using
-    the Adam optimizer to maximize the ELBO. If y_star is provided, it trains
+    the Adam optimizer to maximize the ELBO. If y* is provided, it trains
     with the modified ELBO that includes the step constraint term """
     # Converts training data to double precision
     train_X = train_X.double()
@@ -267,7 +274,6 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100
     # For 1D inputs, make them (N, 1).
     if train_X.ndim == 1:
         train_X = train_X.unsqueeze(-1)
-    
     if train_Y.ndim == 2 and train_Y.shape[-1] == 1:
         y_vec = train_Y.squeeze(-1)
     else:
@@ -281,7 +287,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor, M: int = 100
     
     # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
-    if fix_noise:
+    if train_noise:
         likelihood.raw_noise.requires_grad_(False)
         
     # Number of training points
