@@ -99,7 +99,7 @@ class VFESparseGP(ApproximateGP):
 
 
 def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikelihood,
-    train_x: torch.Tensor, train_y: torch.Tensor, training_iter: int = 200,
+    train_x: torch.Tensor, train_y: torch.Tensor, training_iter: int = 400,
     likelihood: Optional[torch.nn.Module] = None, lr: float = 1e-2,
     verbose: bool = True) -> torch.Tensor:
     """ This function trains the VFE sparse GP model using the Adam optimizer, by 
@@ -254,7 +254,7 @@ class FitResult:
 
 def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     noise: float, train_noise: bool, M: int = 100, verbose: bool = True, 
-    training_iter: int = 200, lr: float = 1e-2,
+    training_iter: int = 400, lr: float = 1e-2,
     # We allow to train vfe sparse gp with the modified ELBO (contains
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
@@ -321,14 +321,14 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         inducing_points = fixed_inducing_points.to(
             device=train_X.device, dtype=train_X.dtype
         ).contiguous()
-        inducing_points = inducing_points[:M_eff]
+        inducing_points = inducing_points[:M_eff].contiguous()
         
     # Instantiates the VFE sparse GP model with the selected inducing points
     model = VFESparseGP(inducing_points=inducing_points)
     model = model.to(dtype=train_X.dtype, device=train_X.device)
     
     # If no constraint is provided, trains with standar ELBO
-    # If y* is provided, trains with the step constraint term ELBO
+    # If y* is provided, trains with standard ELBO + step constraint term
     if y_star is None:
         mll = VariationalELBO(likelihood, model, num_data=N)
     else:
@@ -346,7 +346,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         # Converts y* to a tensor if it is a scalar
         y_star_t = torch.as_tensor(y_star, device=train_X.device, dtype=train_X.dtype)
         
-        # Uses the modified ELBO with the step constraint term
+        # Uses the standard ELBO with the added step constraint term
         mll = StepConstraintVariationalELBO(likelihood=likelihood, model=model,
             num_data=N, Xc=Xc, y_star=y_star_t, epsilon=epsilon,
             constraint_weight=constraint_weight,)
