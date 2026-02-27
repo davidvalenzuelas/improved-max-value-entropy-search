@@ -287,8 +287,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     
     # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
-    if train_noise:
-        likelihood.raw_noise.requires_grad_(False)
+    likelihood.raw_noise.requires_grad_(train_noise)
         
     # Number of training points
     N = train_X.shape[0]
