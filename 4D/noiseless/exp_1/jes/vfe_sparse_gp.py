@@ -262,7 +262,11 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     epsilon: float = 0.05, constraint_weight: float = 1.0,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
-    Xc: Optional[torch.Tensor] = None) -> FitResult:
+    Xc: Optional[torch.Tensor] = None,
+    # For testing
+    fixed_inducing_points: Optional[torch.Tensor] = None,
+    seed_for_init: Optional[int] = None,
+    inducing_seed: Optional[int] = None,)-> FitResult:
     """ This function fits a VFE sparse GP to the given training data, using
     the Adam optimizer to maximize the ELBO. If y* is provided, it trains
     with the modified ELBO that includes the step constraint term """
@@ -288,15 +292,37 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
     likelihood.raw_noise.requires_grad_(train_noise)
+    
+    # Optional reproducible init
+    if seed_for_init is not None:
+        torch.manual_seed(seed_for_init)
         
     # Number of training points
     N = train_X.shape[0]
     # The number of inducing points cannot exceed the number of training points
     M_eff = min(int(M), int(N))
-    # Subsamples inducing points from training data
-    perm = torch.randperm(N, device=train_X.device)
-    inducing_points = train_X[perm[:M_eff]].contiguous()
     
+    # Selects inducing points
+    if fixed_inducing_points is None:
+        # Random (optionally deterministic) subsampling
+        if inducing_seed is not None:
+            # Uses a separate generator for inducing point selection
+            g = torch.Generator(device=train_X.device)
+            g.manual_seed(int(inducing_seed))
+            # Selects the points using the generator for reproducibility
+            perm = torch.randperm(N, generator=g, device=train_X.device)
+        else:
+            # No seed provided, uses standard random permutation
+            perm = torch.randperm(N, device=train_X.device)
+        # Selects the first M_eff points from the permuted indices as inducing points
+        inducing_points = train_X[perm[:M_eff]].contiguous()
+    else:
+        # Uses the provided fixed inducing points
+        inducing_points = fixed_inducing_points.to(
+            device=train_X.device, dtype=train_X.dtype
+        ).contiguous()
+        inducing_points = inducing_points[:M_eff]
+        
     # Instantiates the VFE sparse GP model with the selected inducing points
     model = VFESparseGP(inducing_points=inducing_points)
     model = model.to(dtype=train_X.dtype, device=train_X.device)
