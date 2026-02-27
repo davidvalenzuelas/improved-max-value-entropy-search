@@ -145,7 +145,7 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
     return losses
 
 
-def _normal_cdf(z: torch.Tensor) -> torch.Tensor:
+def normal_cdf(z: torch.Tensor) -> torch.Tensor:
     """ This function computes the CDF of the standard normal distribution at z, using
     the error function."""
     # phi(z) = 0.5 * (1 + erf(z/sqrt(2)))
@@ -191,7 +191,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         z = (self.y_star - m) / s
         
         # Computes probabilities under gaussian posterior
-        p_less = _normal_cdf(z) # P(f(Xc) < y*)
+        p_less = normal_cdf(z) # P(f(Xc) < y*)
         p_greater = 1.0 - p_less # P(f(Xc) > y*)
         # Log probabilities for the step constraint term
         log_eps = torch.log(torch.as_tensor(self.epsilon, device=m.device, dtype=m.dtype))
