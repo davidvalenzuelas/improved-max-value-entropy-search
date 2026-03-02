@@ -9,6 +9,7 @@ Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
 """
 from __future__ import annotations
 from dataclasses import dataclass
+from pyexpat import model
 from typing import Literal, Optional
 
 import torch
@@ -79,7 +80,9 @@ class VFESparseGP(ApproximateGP):
         
         # Avoids internal random reinitialization of the variational parameters, because we have already
         # initialized them with the prior like distribution above
-        variational_strategy.variational_params_initialized = torch.tensor(1, device=inducing_points.device, dtype=inducing_points.dtype)
+        variational_strategy.variational_params_initialized = torch.tensor(
+            True, device=inducing_points.device, dtype=torch.bool
+        )
         
         # Initializes base ApproximateGP class
         super().__init__(variational_strategy)
@@ -251,13 +254,12 @@ class FitResult:
 
 
 def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
-    noise: float, train_noise: bool, M: int = 100, verbose: bool = True, 
-    training_iter: int = 400, lr: float = 1e-2,
+    noise: float, train_noise: bool, M: int, epsilon: float,
+    verbose: bool = True, training_iter: int = 400, lr: float = 0.01,
     # We allow to train vfe sparse gp with the modified ELBO (contains
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
     y_star: Optional[float | torch.Tensor] = None,
-    epsilon: float = 0.05,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
     Xc: Optional[torch.Tensor] = None,
@@ -324,6 +326,10 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # Instantiates the VFE sparse GP model with the selected inducing points
     model = VFESparseGP(inducing_points=inducing_points)
     model = model.to(dtype=train_X.dtype, device=train_X.device)
+    
+    # If inducing points are fixed, we don't want them to be updated during training
+    if fixed_inducing_points is not None:
+        model.variational_strategy.inducing_points.requires_grad_(False)
     
     # If no constraint is provided, trains with standar ELBO
     # If y* is provided, trains with standard ELBO + step constraint term
