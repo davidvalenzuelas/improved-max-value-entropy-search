@@ -9,7 +9,6 @@ Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
 """
 from __future__ import annotations
 from dataclasses import dataclass
-from pyexpat import model
 from typing import Literal, Optional
 
 import torch
@@ -177,7 +176,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         self.epsilon = float(epsilon)
         
     def _step_term(self) -> torch.Tensor:
-        """This method calculates the average soft penalty term for the step
+        """This method calculates the summed soft penalty term for the step
         constraint"""
         # Computes the variational posterior at the constraint points, which is a
         # Gaussian distribution
@@ -254,8 +253,8 @@ class FitResult:
 
 
 def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
-    noise: float, train_noise: bool, M: int, epsilon: float,
-    verbose: bool = True, training_iter: int = 400, lr: float = 0.01,
+    noise: float, train_noise: bool, M: int, verbose: bool = True, 
+    epsilon: float = 1e-6, training_iter: int = 200, lr: float = 0.01,
     # We allow to train vfe sparse gp with the modified ELBO (contains
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
@@ -285,7 +284,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         
     # Creates gaussian likelihood
     likelihood = gpytorch.likelihoods.GaussianLikelihood(
-        noise_constraint=GreaterThan(1e-8)
+        noise_constraint=GreaterThan(1e-6)
     )
     likelihood = likelihood.to(dtype=train_X.dtype, device=train_X.device)
     
