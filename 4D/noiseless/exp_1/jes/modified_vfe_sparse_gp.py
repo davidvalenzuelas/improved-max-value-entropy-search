@@ -158,8 +158,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
     over some constraint points Xc."""
     def __init__(self, likelihood: gpytorch.likelihoods.Likelihood,
         model: ApproximateGP, num_data: int, Xc: torch.Tensor,
-        y_star: torch.Tensor, epsilon: float = 0.05,
-        constraint_weight: float = 1.0):
+        y_star: torch.Tensor, epsilon: float = 0.05):
         
         # Initializes the parent VariationalELBO class
         super().__init__(likelihood, model, num_data=num_data)
@@ -173,7 +172,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
         self.y_star = y_star
         # We need smooth step
         self.epsilon = float(epsilon)
-        self.constraint_weight = float(constraint_weight)
         
     def _step_term(self) -> torch.Tensor:
         """This method calculates the average soft penalty term for the step
@@ -199,20 +197,20 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Computes the step constraint term
         term = log_eps * p_greater + log_1m * p_less
-        # Mean over constraint points to get the total step constraint term
-        return term.mean()
+        # Sums over constraint points to get the added step constraint term
+        return term.sum()
     
     def _log_likelihood_term(self, variational_dist_f, target, **kwargs):
         """ Overrides the standard log likelihood term in the ELBO to add
         the step constraint term."""
         # Standard expected log likelihood term from VariationalELBO
         base = super()._log_likelihood_term(variational_dist_f, target, **kwargs)
-        # Additional (normalized) step constraint term
+        # Additional step constraint term
         step = self._step_term()
         
         # Combines both contributions
-        return base + self.constraint_weight * step
-
+        return base + step
+    
     def forward(self, variational_dist_f, target, **kwargs):
         """ This function computes the ELBO = expected log likelihood - KL
         divergence, but with our modified log likelihood term that includes
@@ -259,7 +257,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
     y_star: Optional[float | torch.Tensor] = None,
-    epsilon: float = 0.05, constraint_weight: float = 1.0,
+    epsilon: float = 0.05,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
     Xc: Optional[torch.Tensor] = None,
@@ -348,8 +346,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         
         # Uses the standard ELBO with the added step constraint term
         mll = StepConstraintVariationalELBO(likelihood=likelihood, model=model,
-            num_data=N, Xc=Xc, y_star=y_star_t, epsilon=epsilon,
-            constraint_weight=constraint_weight,)
+            num_data=N, Xc=Xc, y_star=y_star_t, epsilon=epsilon)
         
     # Trains model by minimizing the -ELBO with ADAM optimizer  
     losses = train_model_ADAM(model=model, mll=mll, train_x=train_X, train_y=y_vec,
