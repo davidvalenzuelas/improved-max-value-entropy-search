@@ -15,7 +15,7 @@ import requests
 import torch
 import matplotlib.pyplot as plt
 
-from vfe_sparse_gp import fit_vfe_sparse_gp, predictive_distribution, normal_cdf
+from modified_vfe_sparse_gp import fit_vfe_sparse_gp, predictive_distribution, normal_cdf
 
 
 def load_snelson():
@@ -133,13 +133,13 @@ def main():
     
     # Sets up hyperparameters
     M = 10
-    training_iter = 500
+    training_iter = 400
     lr = 5e-3
     noise = 1e-2
     train_noise = True
     y_star = -1.0
     epsilon = 0.05
-    constraint_weight = 500.0
+    constraint_weight = 1000.0
     num_constraint_points = 100
     
     # Fixes inducing points once for both models
