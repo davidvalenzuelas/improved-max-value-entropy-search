@@ -16,7 +16,7 @@ import gpytorch
 
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
-from gpytorch.variational import VariationalStrategy
+from gpytorch.variational import UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 from gpytorch.constraints.constraints import GreaterThan
 
@@ -73,7 +73,7 @@ class VFESparseGP(ApproximateGP):
         
         # Variational strategy, defining how the inducing points ares used to
         # approximate the full GP
-        variational_strategy = VariationalStrategy(self, inducing_points, variational_distribution,
+        variational_strategy = UnwhitenedVariationalStrategy(self, inducing_points, variational_distribution,
             learn_inducing_locations=True, # this makes inducing points trainable
         )
         
