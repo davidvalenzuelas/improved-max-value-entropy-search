@@ -34,7 +34,7 @@ def sample_Xc(num_constraint_points: int, d: int,
     device = device or torch.device("cpu")
     dtype = dtype or torch.float64
     
-    # Firstly, samples ared made in the box [0,1]^d
+    # Firstly, samples are made in the box [0,1]^d
     if method == "rand":
         X = torch.rand(num_constraint_points, d, device=device, dtype=dtype)
     elif method == "sobol":
@@ -121,7 +121,7 @@ class VFESparseGP(ApproximateGP):
             )
         variational_distribution.initialize_variational_distribution(init_dist)
         
-        # Variational strategy, defining how the inducing points ares used to
+        # Variational strategy, defining how the inducing points are used to
         # approximate the full GP
         variational_strategy = VariationalStrategy(self, inducing_points, variational_distribution,
             learn_inducing_locations=True, # this makes the inducing points trainable
@@ -214,8 +214,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
         num_constraint_points: Optional[int] = None,
         d: Optional[int] = None,
         constraint_sampling: Literal["rand", "sobol"] = "rand",
-        # Allows to resample Xc at each evaluation of the ELBO
-        resample_Xc_each_eval: bool = False,
         # Optional bounds for sampling Xc
         lower_bound: Optional[torch.Tensor] = None,
         upper_bound: Optional[torch.Tensor] = None):
@@ -239,7 +237,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Extra info for optional sampling of Xc
         self.constraint_sampling = constraint_sampling
-        self.resample_Xc_each_eval = bool(resample_Xc_each_eval)
         
         if self.Xc is None and (self.num_constraint_points is None or self.d is None):
             raise ValueError(
@@ -276,7 +273,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         v = qf.variance.clamp_min(1e-12)
         # Standard deviation
         s = v.sqrt()
-        # Standarize distance to y*
+        # Standardize distance to y*
         z = (self.y_star - m) / s
         
         # Computes probabilities under gaussian posterior
@@ -469,7 +466,6 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
             num_constraint_points=num_constraint_points,
             d=d,
             constraint_sampling=constraint_sampling,
-            resample_Xc_each_eval=resample_Xc_each_eval,
             lower_bound=x_lower,
             upper_bound=x_upper,
         )
