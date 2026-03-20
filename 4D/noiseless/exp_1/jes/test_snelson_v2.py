@@ -2,13 +2,10 @@
 # coding: utf-8
 """
 Snelson 1D test for comparing:
-1) the standard sparse GP (before adding the constraint)
-2) the old constrained setting
-3) the new constrained setting with:
-   - variational init from base_gp=res_std.model
-   - dynamic resampling of Xc in the training domain
-
-Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
+1) the standard sparse GP (before adding the step term constraint)
+2) the old step term constraint
+3) the new step term constraint setting with base_gp and resampling of Xc
+in each evaluation.
 """
 
 import io
@@ -224,7 +221,7 @@ def main():
     mad_std_old, maxad_std_old = evaluate_mean_difference(res_std, res_con_old, x_train)
     mad_std_new, maxad_std_new = evaluate_mean_difference(res_std, res_con_new, x_train)
 
-    print("\n=== Summary ===")
+    print("\nSummary:")
     print(f"Standard sparse GP time          : {t_std:.3f} s")
     print(f"Old constrained model time      : {t_old:.3f} s")
     print(f"New constrained model time      : {t_new:.3f} s")
