@@ -80,16 +80,13 @@ def plot_heat(ax, values, n_per_dim, title, x_train, vmin=None, vmax=None):
 
 def main():
     torch.manual_seed(0)
-
+    
     x_train, y_train, _, _ = make_branin_dataset(n_train=80, noise_std=0.05, seed=7)
-
+    
     y_star = 0.5
     M = 40
-    epsilon = 1e-6
     num_constraint_points = 300
-    training_iter = 250
-    lr = 1e-2
-
+    
     print("Training 2D standard sparse GP...")
     t0 = time.perf_counter()
     res_std = fit_vfe_sparse_gp(
@@ -100,8 +97,6 @@ def main():
         M=M,
         verbose=False,
         y_star=None,
-        training_iter=training_iter,
-        lr=lr,
         seed_for_init=2024,
         inducing_seed=2025,
     )
@@ -119,11 +114,8 @@ def main():
         M=M,
         verbose=False,
         y_star=y_star,
-        epsilon=epsilon,
         num_constraint_points=num_constraint_points,
         constraint_sampling="sobol",
-        training_iter=training_iter,
-        lr=lr,
         seed_for_init=2024,
         inducing_seed=2025,
         base_gp=res_std.model,
