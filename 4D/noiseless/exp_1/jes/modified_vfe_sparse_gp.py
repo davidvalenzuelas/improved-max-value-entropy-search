@@ -13,6 +13,7 @@ from typing import Literal, Optional
 
 import torch
 import gpytorch
+import math
 
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
@@ -112,12 +113,27 @@ class VFESparseGP(ApproximateGP):
         variational_distribution = CholeskyVariationalDistribution(
             inducing_points.size(0), mean_init_std=0.0)
         
-        # If an initial distribution isn't provided, we initialize q with a distribution
-        # with mean zero and covariance given by the kernel at the inducing points
+        # If an initial distribution isn't provided
         if init_dist is None:
+            init_covar = covar_module(inducing_points).evaluate()
+            # Ensures the covariance matrix is symmetric
+            init_covar = 0.5 * (init_covar + init_covar.transpose(-1, -2))
+            init_covar = init_covar * 1e-5
+            # Small jitter added to the diagonal so that the matrix is positive definite
+            init_covar = init_covar + 1e-8 * torch.eye(
+                inducing_points.size(0),
+                dtype=inducing_points.dtype,
+                device=inducing_points.device,
+            )
+            # Builds the initial distribution for q with zero mean and the kernel covariance
+            # at the inducing points
             init_dist = gpytorch.distributions.MultivariateNormal(
-                torch.zeros(inducing_points.size(0), dtype=inducing_points.dtype,
-                    device=inducing_points.device),covar_module(inducing_points) * 1e-5
+                torch.zeros(
+                    inducing_points.size(0),
+                    dtype=inducing_points.dtype,
+                    device=inducing_points.device,
+                ),
+                init_covar,
             )
         variational_distribution.initialize_variational_distribution(init_dist)
         
@@ -201,8 +217,7 @@ def normal_cdf(z: torch.Tensor) -> torch.Tensor:
     """ This function computes the CDF of the standard normal distribution at z, using
     the error function."""
     # phi(z) = 0.5 * (1 + erf(z/sqrt(2)))
-    return 0.5 * (1.0 + torch.erf(z / torch.sqrt(torch.tensor(2.0, device=z.device, dtype=z.dtype))))
-
+    return 0.5 * (1.0 + torch.erf(z / math.sqrt(2.0)))
 
 class StepConstraintVariationalELBO(VariationalELBO):
     """This class implements the Variational ELBO with an added step constraint
