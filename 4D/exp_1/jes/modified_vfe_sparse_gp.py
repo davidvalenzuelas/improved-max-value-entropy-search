@@ -84,11 +84,12 @@ def build_init_dist_from_base_gp(base_gp, inducing_points: torch.Tensor,
     mean_u = mean_u.to(device=inducing_points.device, dtype=inducing_points.dtype)
     
     # Extracts posterior covariance matrix
+    #TODO: asegurarme de que es una matriz 
     cov_u = post_u.covariance_matrix
     cov_u = cov_u.to(device=inducing_points.device, dtype=inducing_points.dtype)
     # We want to ensure that the covariance matrix is symmetric and positive definite,
     # so we add a small jitter to the diagonal
-    cov_u = 0.5 * (cov_u + cov_u.transpose(-1, -2))
+    # cov_u = 0.5 * (cov_u + cov_u.transpose(-1, -2))
     # Identity matrix
     eye = torch.eye(cov_u.size(-1), dtype=cov_u.dtype, device=cov_u.device)
     cov_u = cov_u + jitter * eye
@@ -117,7 +118,7 @@ class VFESparseGP(ApproximateGP):
         if init_dist is None:
             init_covar = covar_module(inducing_points).evaluate()
             # Ensures the covariance matrix is symmetric
-            init_covar = 0.5 * (init_covar + init_covar.transpose(-1, -2))
+            # init_covar = 0.5 * (init_covar + init_covar.transpose(-1, -2))
             init_covar = init_covar * 1e-5
             # Small jitter added to the diagonal so that the matrix is positive definite
             init_covar = init_covar + 1e-8 * torch.eye(

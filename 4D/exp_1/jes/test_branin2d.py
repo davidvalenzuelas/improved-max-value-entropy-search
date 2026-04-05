@@ -187,16 +187,16 @@ def main():
     std_vmin = min(v.min().item() for v in std_maps)
     std_vmax = max(v.max().item() for v in std_maps)
 
-    fig, axes = plt.subplots(3, 2, figsize=(12, 14), sharex=True, sharey=True, constrained_layout=True)
+    fig, axes = plt.subplots(3, 2, figsize=(10, 12), sharex=True, sharey=True, constrained_layout=True)
 
-    img00 = plot_heat(axes[0, 0], mean_maps[0], n_grid, "Mean - standard sparse GP", x_train, mean_vmin, mean_vmax)
-    img01 = plot_heat(axes[0, 1], mean_maps[1], n_grid, "Mean - step-term GP", x_train, mean_vmin, mean_vmax)
+    img00 = plot_heat(axes[0, 0], mean_maps[0], n_grid, "Mean sparse GP", x_train, mean_vmin, mean_vmax)
+    img01 = plot_heat(axes[0, 1], mean_maps[1], n_grid, "Mean step term GP", x_train, mean_vmin, mean_vmax)
 
-    img10 = plot_heat(axes[1, 0], std_maps[0], n_grid, "Std - standard sparse GP", x_train, std_vmin, std_vmax)
-    img11 = plot_heat(axes[1, 1], std_maps[1], n_grid, "Std - step-term GP", x_train, std_vmin, std_vmax)
+    img10 = plot_heat(axes[1, 0], std_maps[0], n_grid, "Std sparse GP", x_train, std_vmin, std_vmax)
+    img11 = plot_heat(axes[1, 1], std_maps[1], n_grid, "Std step term GP", x_train, std_vmin, std_vmax)
 
-    img20 = plot_heat(axes[2, 0], prob_maps[0], n_grid, "P(f(x) < y*) - standard GP", x_train, 0.0, 1.0)
-    img21 = plot_heat(axes[2, 1], prob_maps[1], n_grid, "P(f(x) < y*) - step-term GP", x_train, 0.0, 1.0)
+    img20 = plot_heat(axes[2, 0], prob_maps[0], n_grid, "P(f(x)<y*) sparse GP", x_train, 0.0, 1.0)
+    img21 = plot_heat(axes[2, 1], prob_maps[1], n_grid, "P(f(x)<y*) step term G", x_train, 0.0, 1.0)
 
     cbar_mean = fig.colorbar(img01, ax=axes[0, :], shrink=0.85)
     cbar_mean.set_label("Posterior mean")
