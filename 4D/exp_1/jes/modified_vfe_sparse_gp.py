@@ -14,10 +14,11 @@ from typing import Literal, Optional
 import torch
 import gpytorch
 import math
+import copy
 
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
-from gpytorch.variational import VariationalStrategy
+from gpytorch.variational import UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 from gpytorch.constraints.constraints import GreaterThan
 
@@ -74,7 +75,7 @@ def build_init_dist_from_base_gp(base_gp, inducing_points: torch.Tensor,
     param0 = next(base_gp.parameters())
     Z_base = inducing_points.to(device=param0.device, dtype=param0.dtype)
     
-    # Evaluates the latent GP posterior p(f(Z) | D) at the inducing points
+    # Evaluates the latent GP posterior p(f(Z)|D) at the inducing points
     post_u = base_gp(Z_base)
     
     # Extracts posterior mean
@@ -84,13 +85,11 @@ def build_init_dist_from_base_gp(base_gp, inducing_points: torch.Tensor,
     mean_u = mean_u.to(device=inducing_points.device, dtype=inducing_points.dtype)
     
     # Extracts posterior covariance matrix
-    #TODO: asegurarme de que es una matriz 
     cov_u = post_u.covariance_matrix
     cov_u = cov_u.to(device=inducing_points.device, dtype=inducing_points.dtype)
-    # We want to ensure that the covariance matrix is symmetric and positive definite,
-    # so we add a small jitter to the diagonal
-    # cov_u = 0.5 * (cov_u + cov_u.transpose(-1, -2))
-    # Identity matrix
+    
+    # We want to ensure that the covariance matrix is positive definite, so we add
+    # a small jitter to the diagonal
     eye = torch.eye(cov_u.size(-1), dtype=cov_u.dtype, device=cov_u.device)
     cov_u = cov_u + jitter * eye
     
@@ -104,10 +103,13 @@ class VFESparseGP(ApproximateGP):
     it is designed to be trained with the modified ELBO, which includes
     a step constraint term."""
     def __init__(self, inducing_points: torch.Tensor,
-        init_dist: Optional[gpytorch.distributions.MultivariateNormal] = None):
-        # Zero mean and RBF kernel for covariances
-        mean_module = gpytorch.means.ZeroMean()
-        covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
+        init_dist: Optional[gpytorch.distributions.MultivariateNormal] = None,
+        mean_module: Optional[gpytorch.means.Mean] = None,
+        covar_module: Optional[gpytorch.kernels.Kernel] = None):
+        
+        # If not provided, uses zero mean and RBF kernel for covariances
+        mean_module = copy.deepcopy(mean_module) if mean_module is not None else gpytorch.means.ZeroMean()
+        covar_module = copy.deepcopy(covar_module) if covar_module is not None else gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel())
         
         # Variational approximate distribution q
         # We use a Cholesky factorization to represent its parameters
@@ -116,9 +118,11 @@ class VFESparseGP(ApproximateGP):
         
         # If an initial distribution isn't provided
         if init_dist is None:
+            init_mean = mean_module(inducing_points)
+            if init_mean.ndim > 1 and init_mean.shape[-1] == 1:
+                init_mean = init_mean.squeeze(-1)
+                
             init_covar = covar_module(inducing_points).evaluate()
-            # Ensures the covariance matrix is symmetric
-            # init_covar = 0.5 * (init_covar + init_covar.transpose(-1, -2))
             init_covar = init_covar * 1e-5
             # Small jitter added to the diagonal so that the matrix is positive definite
             init_covar = init_covar + 1e-8 * torch.eye(
@@ -126,21 +130,16 @@ class VFESparseGP(ApproximateGP):
                 dtype=inducing_points.dtype,
                 device=inducing_points.device,
             )
-            # Builds the initial distribution for q with zero mean and the kernel covariance
-            # at the inducing points
+            # Builds the initial distribution for q at the inducing points
             init_dist = gpytorch.distributions.MultivariateNormal(
-                torch.zeros(
-                    inducing_points.size(0),
-                    dtype=inducing_points.dtype,
-                    device=inducing_points.device,
-                ),
+                init_mean,
                 init_covar,
             )
         variational_distribution.initialize_variational_distribution(init_dist)
         
-        # Variational strategy, defining how the inducing points are used to
+        # Unwhitened variational strategy, defining how the inducing points are used to
         # approximate the full GP
-        variational_strategy = VariationalStrategy(self, inducing_points, variational_distribution,
+        variational_strategy = UnwhitenedVariationalStrategy(self, inducing_points, variational_distribution,
             learn_inducing_locations=True, # this makes the inducing points trainable
         )
         
@@ -396,7 +395,6 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     
     # Sets tiny noise level
     likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
-    likelihood.raw_noise.requires_grad_(train_noise)
     
     # Optional reproducible init
     if seed_for_init is not None:
@@ -431,13 +429,30 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # Builds the initial distribution for q from the posterior of a base GP if this
     # GP is provided
     init_dist = None
+    mean_module = None
+    covar_module = None
     if base_gp is not None:
         init_dist = build_init_dist_from_base_gp(
             base_gp=base_gp, inducing_points=inducing_points,
         )
+        
+        mean_module = base_gp.mean_module
+        covar_module = base_gp.covar_module
+        
+        if hasattr(base_gp, "likelihood") and base_gp.likelihood is not None:
+            likelihood.noise = base_gp.likelihood.noise.detach().to(
+                dtype=train_X.dtype, device=train_X.device
+            )
+            
+    likelihood.raw_noise.requires_grad_(train_noise)
     
     # Instantiates the VFE sparse GP model with the selected inducing points
-    model = VFESparseGP(inducing_points=inducing_points, init_dist=init_dist)
+    model = VFESparseGP(
+        inducing_points=inducing_points, 
+        init_dist=init_dist, 
+        mean_module=mean_module,
+        covar_module=covar_module
+    )
     model = model.to(dtype=train_X.dtype, device=train_X.device)
     
     # If inducing points are fixed, we don't want them to be updated during training
