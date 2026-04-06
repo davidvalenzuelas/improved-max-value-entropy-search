@@ -17,10 +17,17 @@ import requests
 import torch
 import matplotlib.pyplot as plt
 
-from modified_vfe_sparse_gp import fit_vfe_sparse_gp, predictive_distribution, normal_cdf
+from modified_vfe_sparse_gp import (
+    fit_vfe_sparse_gp,
+    predictive_distribution,
+    normal_cdf,
+    VFESparseGP,
+    build_init_dist_from_base_gp,
+)
 
 
 def load_snelson():
+    """This function downloads the Snelson 1D dataset"""
     # Downloads dataset from URL and loads it into numpy arrays
     url = "http://arantxa.ii.uam.es/~dhernan/MLAS2023/EdSnelson.npy"
     r = requests.get(url, timeout=30)
@@ -53,6 +60,98 @@ def prob_f_below_y_star(model, Xc, y_star):
     z = (y_star - m) / s
     p_less = normal_cdf(z)
     return p_less.mean().item(), p_less.min().item(), p_less.max().item()
+
+
+@torch.no_grad()
+def build_sparse_model_just_initialized(base_gp, inducing_points):
+    """This function builds a sparse GP model with the same mean and covariance modules
+    as the base GP, and with a variational distribution initialized from the posterior
+    of the base GP at the inducing points"""
+    
+    # Builds variational distribution at inducing points from base GP posterior
+    init_dist = build_init_dist_from_base_gp(base_gp, inducing_points)
+    
+    # Builds sparse GP model
+    model = VFESparseGP(inducing_points=inducing_points, init_dist=init_dist,
+        mean_module=base_gp.mean_module, covar_module=base_gp.covar_module)
+    model = model.to(dtype=inducing_points.dtype, device=inducing_points.device)
+
+    # Fixed inducing points here
+    model.variational_strategy.inducing_points.requires_grad_(False)
+    return model
+
+
+@torch.no_grad()
+def compare_predictive_distributions(model_a, likelihood_a, model_b, likelihood_b, x_train, name_a, name_b):
+    """Compares the predictive distributions of two models by computing the mean and variance"""
+    # Grid for comparison
+    test_x = torch.linspace(x_train.min().item(), x_train.max().item(), 400,
+        dtype=x_train.dtype,device=x_train.device).unsqueeze(-1)
+    
+    # Obtains predictive distributions without observation noise
+    pred_a = predictive_distribution(model_a, likelihood_a, test_x, observation_noise=False)
+    pred_b = predictive_distribution(model_b, likelihood_b, test_x, observation_noise=False)
+    
+    # Computes mean and variance differences
+    mean_diff = (pred_a.mean - pred_b.mean).abs()
+    var_diff = (pred_a.variance - pred_b.variance).abs()
+    
+    print(f"\nComparing {name_a} vs {name_b} just after initialization:")
+    print(f"Mean abs diff (avg): {mean_diff.mean().item():.6e}")
+    print(f"Mean abs diff (max): {mean_diff.max().item():.6e}")
+    print(f"Var abs diff (avg): {var_diff.mean().item():.6e}")
+    print(f"Var abs diff (max): {var_diff.max().item():.6e}")
+    
+
+@torch.no_grad()
+def plot_two_predictive_distributions(model_a, likelihood_a, model_b, likelihood_b,
+    x_train, y_train, inducing_points, title, label_a="Base GP", label_b="Sparse init",
+    y_star=None):
+    
+    test_x = torch.linspace(x_train.min().item(), x_train.max().item(), 400,
+        dtype=x_train.dtype, device=x_train.device).unsqueeze(-1)
+    
+    # Obtains predictive distributions without observation noise
+    pred_a = predictive_distribution(model_a, likelihood_a, test_x, observation_noise=False)
+    pred_b = predictive_distribution(model_b, likelihood_b, test_x, observation_noise=False)
+    
+    # Computes mean and std for both models
+    mean_a = pred_a.mean.cpu()
+    std_a = pred_a.variance.sqrt().cpu()
+    mean_b = pred_b.mean.cpu()
+    std_b = pred_b.variance.sqrt().cpu()
+    
+    # Plots training data, inducing points, and predictive means with confidence bands
+    plt.figure(figsize=(9, 4))
+    plt.plot(x_train.squeeze(-1).cpu().numpy(), y_train.cpu().numpy(), "k*", markersize=4, label="Training data")
+    
+    Z = inducing_points.detach().cpu()
+    plt.plot(Z.squeeze(-1).numpy(), np.zeros(Z.shape[0]), "rx", markersize=5, mew=1.5, label="Inducing points")
+    
+    plt.plot(test_x.squeeze(-1).cpu().numpy(), mean_a.numpy(), label=label_a)
+    plt.fill_between(
+        test_x.squeeze(-1).cpu().numpy(),
+        (mean_a - 2 * std_a).numpy(),
+        (mean_a + 2 * std_a).numpy(),
+        alpha=0.20,
+    )
+    
+    plt.plot(test_x.squeeze(-1).cpu().numpy(), mean_b.numpy(), "--", label=label_b)
+    plt.fill_between(
+        test_x.squeeze(-1).cpu().numpy(),
+        (mean_b - 2 * std_b).numpy(),
+        (mean_b + 2 * std_b).numpy(),
+        alpha=0.20,
+    )
+    
+    # Plots y* if provided
+    if y_star is not None:
+        plt.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
+        
+    plt.title(title)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 
 def plot_mean_and_band(model, likelihood, x_train, y_train, 
@@ -145,16 +244,15 @@ def main():
     # Samples constraint points uniformly in the input space
     d = x_train.shape[1]
     torch.manual_seed(123)
+    
     # If we want to sample uniformly in the box [0,1]^d
     # Xc = torch.rand(num_constraint_points, d, dtype=x_train.dtype, device=x_train.device)
-    
     # If we want to sample uniformly in the box defined by the training data
     x_min, x_max = x_train.min(), x_train.max()
-    Xc = x_min + (x_max - x_min) * torch.rand(
-        num_constraint_points, d,
-        dtype=x_train.dtype,
-        device=x_train.device
-    )
+    Xc = x_min + (x_max - x_min) * torch.rand(num_constraint_points, d, dtype=x_train.dtype,
+        device=x_train.device)
+    # If we want to check the constraint only at the inducing points, we can set Xc to them
+    # Xc = fixed_inducing
     
     # Fits standard VFE sparse GP model
     init_noise = 1e-2
@@ -165,10 +263,43 @@ def main():
     # Fixes noise for constrained model
     noise_star = float(res_std.likelihood.noise.detach().cpu().item())
     
+    # Creates base GP model and obtains its posterior to use it as initialization for
+    # the constrained model
+    base_gp = res_std.model
+    base_gp.likelihood = res_std.likelihood
+    
+    # Builds sparse GP model just after initialization from the base GP posterior at
+    # the inducing points
+    init_model = build_sparse_model_just_initialized(base_gp, res_std.inducing_points)
+    
+    plot_two_predictive_distributions(
+        base_gp,
+        res_std.likelihood,
+        init_model,
+        res_std.likelihood,
+        x_train,
+        y_train,
+        res_std.inducing_points,
+        title="Base GP vs sparse GP just after initialization",
+        label_a="Base GP",
+        label_b="Sparse GP after init",
+        y_star=y_star,
+    )
+    
+    compare_predictive_distributions(
+        base_gp,
+        res_std.likelihood,
+        init_model,
+        res_std.likelihood,
+        x_train,
+        "Base GP",
+        "Sparse GP after init",
+    )
+    
     # Fits constrained VFE sparse GP model
     res_con = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=noise_star,
         train_noise=False, M=M, y_star=y_star, Xc=Xc, fixed_inducing_points=fixed_inducing,
-        seed_for_init=2024)
+        seed_for_init=2024, base_gp=base_gp)
     
     # Plots
     plot_mean_and_band(res_std.model, res_std.likelihood, x_train, y_train,
