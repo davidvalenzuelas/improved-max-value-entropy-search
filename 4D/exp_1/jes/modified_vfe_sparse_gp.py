@@ -18,6 +18,7 @@ import copy
 
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
+from gpytorch.variational import VariationalStrategy
 from gpytorch.variational import UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 from gpytorch.constraints.constraints import GreaterThan
@@ -73,6 +74,7 @@ def build_init_dist_from_base_gp(base_gp, inducing_points: torch.Tensor,
     
     # Matches inducing points to the device and dtype of the base GP
     param0 = next(base_gp.parameters())
+    # Z_base contains the inducing points 
     Z_base = inducing_points.to(device=param0.device, dtype=param0.dtype)
     
     # Evaluates the latent GP posterior p(f(Z)|D) at the inducing points
@@ -370,7 +372,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # Allows to initialize q from the posterior of a provided base GP
     base_gp = None,
     # Allows to resample Xc at each evaluation of the ELBO
-    resample_Xc_each_eval: bool = False) -> FitResult:
+    resample_Xc_each_eval: bool = True) -> FitResult:
     """ This function fits a VFE sparse GP to the given training data, using
     the Adam optimizer to maximize the ELBO. If y* is provided, it trains
     with the modified ELBO that includes the step constraint term """
