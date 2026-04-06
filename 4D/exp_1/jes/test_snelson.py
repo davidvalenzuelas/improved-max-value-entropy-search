@@ -238,7 +238,7 @@ def main():
     # Sets inducing points to training data locations
     fixed_inducing = x_train.contiguous()
     # Some parameters for the constrained model
-    y_star = 0.3
+    y_star = 0.4
     num_constraint_points = 100
     
     # Samples constraint points uniformly in the input space
@@ -249,10 +249,10 @@ def main():
     # Xc = torch.rand(num_constraint_points, d, dtype=x_train.dtype, device=x_train.device)
     # If we want to sample uniformly in the box defined by the training data
     x_min, x_max = x_train.min(), x_train.max()
-    Xc = x_min + (x_max - x_min) * torch.rand(num_constraint_points, d, dtype=x_train.dtype,
+    Xc_eval = x_min + (x_max - x_min) * torch.rand(num_constraint_points, d, dtype=x_train.dtype,
         device=x_train.device)
-    # If we want to check the constraint only at the inducing points, we can set Xc to them
-    # Xc = fixed_inducing
+    # If we want to check the constraint only at the inducing points, we can set Xc_eval to them
+    # Xc_eval = fixed_inducing
     
     # Fits standard VFE sparse GP model
     init_noise = 1e-2
@@ -298,7 +298,7 @@ def main():
     
     # Fits constrained VFE sparse GP model
     res_con = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=noise_star,
-        train_noise=False, M=M, y_star=y_star, Xc=Xc, fixed_inducing_points=fixed_inducing,
+        train_noise=False, M=M, y_star=y_star, fixed_inducing_points=fixed_inducing,
         seed_for_init=2024, base_gp=base_gp)
     
     # Plots
@@ -315,8 +315,8 @@ def main():
     
     # Computes P(f(Xc) < y*) under both models
     y_star_t = torch.tensor(y_star, dtype=x_train.dtype, device=x_train.device)
-    p_std = prob_f_below_y_star(res_std.model, Xc, y_star_t)
-    p_con = prob_f_below_y_star(res_con.model, Xc, y_star_t)
+    p_std = prob_f_below_y_star(res_std.model, Xc_eval, y_star_t)
+    p_con = prob_f_below_y_star(res_con.model, Xc_eval, y_star_t)
     # Prints results
     print("\nP(f(Xc) < y*) under q(f):")
     print(f"  Standard   : mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")

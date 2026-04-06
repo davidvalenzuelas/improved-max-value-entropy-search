@@ -18,7 +18,6 @@ import copy
 
 from gpytorch.models import ApproximateGP
 from gpytorch.variational import CholeskyVariationalDistribution
-from gpytorch.variational import VariationalStrategy
 from gpytorch.variational import UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 from gpytorch.constraints.constraints import GreaterThan
@@ -357,7 +356,7 @@ class FitResult:
 
 def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     noise: float, train_noise: bool, M: int, verbose: bool = True, 
-    epsilon: float = 1e-10, training_iter: int = 200, lr: float = 0.01,
+    epsilon: float = 1e-6, training_iter: int = 500, lr: float = 0.01,
     # We allow to train vfe sparse gp with the modified ELBO (contains
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
