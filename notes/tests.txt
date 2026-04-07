@@ -1,0 +1,2 @@
+Los tests se ejecutan desde el directorio jes/ del siguiente modo:
+    > python3 -m tests.<nombre del test sin el .py>

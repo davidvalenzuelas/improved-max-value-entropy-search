@@ -1,3 +1,4 @@
 tfgvenv/
 
 __pycache__/
+__pytest__cache__/
