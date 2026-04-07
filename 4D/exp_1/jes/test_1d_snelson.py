@@ -8,6 +8,9 @@ using as many inducing points as data points and placing them on the observed
 data. The noise is learned in the standard model and fixed in the constrained
 one.
 
+It is not the best test for the constrained model, due to the large number of
+training points we're using here.
+
 Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
 """
 
@@ -238,7 +241,7 @@ def main():
     # Sets inducing points to training data locations
     fixed_inducing = x_train.contiguous()
     # Some parameters for the constrained model
-    y_star = 0.4
+    y_star = 0.8
     num_constraint_points = 100
     
     # Samples constraint points uniformly in the input space
