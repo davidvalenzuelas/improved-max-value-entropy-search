@@ -77,7 +77,7 @@ def generate_3obs_problem(num_grid: int = 1000, jitter: float=1e-7,
     
     # Randomly selects training points from the grid
     rng = np.random.default_rng(seed_train)
-    p_sel = np.sort(rng.choice(np.arange(num_grid), size=NUM_TRAIN, replace=False))
+    p_sel = np.sort(rng.choice(np.arange(num_grid),size=NUM_TRAIN,replace=False))
     p_sel = torch.tensor(p_sel, dtype=torch.long)
     
     # Extracts the training inputs and their outputs
@@ -143,36 +143,41 @@ def obtain_mean_difference(res_std, res_con, x_grid):
 def sample_solution_outputs_from_model(model, likelihood, x_grid,
     num_samples: int = 512, seed_posterior_samples: int=1):
     """ This function samples posterior optima (x*,y*) on the grid,
-    by sampling from the predictive distribution of the fitted model
-    and then selecting the maximum output sample."""
+    by sampling functions from the predictive distribution of the fitted
+    model and taking the maximum output value for each of them"""
     
-    pred = predictive_distribution(model, likelihood, x_grid, observation_noise=False)
+    # Computes predictive distribution on the grid
+    pred = predictive_distribution(model, likelihood, x_grid)
     torch.manual_seed(seed_posterior_samples)
+    # Samples functions from the predictive distribution
     samples = pred.rsample(torch.Size([num_samples]))
-
+    
+    # For each sampled function, finds the maximum output value
     sampled_y_stars, idxs = samples.max(dim=-1)
     sampled_x_stars = x_grid[idxs].squeeze(-1)
-
-    return sampled_x_stars.clone(), sampled_y_stars.clone()
+    
+    # Returns the sampled (x*,y*) pairs
+    return sampled_x_stars, sampled_y_stars
 
 
 @torch.no_grad()
 def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
     seed_star_selection: int = 1):
+    """ This function selects one y* value from the sampled posterior optima"""
+    # Number of sampled optima
     n = sampled_y_stars.numel()
     
-    if seed_star_selection is None:
-        chosen_idx = torch.randint(low=0, high=n, size=(1,)).item()
-    else:
-        g = torch.Generator(device=sampled_y_stars.device)
-        g.manual_seed(seed_star_selection)
-        chosen_idx = torch.randint(low=0, high=n, size=(1,), generator=g).item()
+    # Makes the selection of the pair (x*,y*) reproducible
+    g = torch.Generator(device=sampled_y_stars.device)
+    g.manual_seed(seed_star_selection)
+    chosen_idx = torch.randint(low=0, high=n, size=(1,), generator=g).item()
 
     return {
-        "chosen_idx": int(chosen_idx),
+        "chosen_idx": int(chosen_idx), 
         "x_star": float(sampled_x_stars[chosen_idx].item()),
         "y_star": float(sampled_y_stars[chosen_idx].item()),    
-        "num_samples": int(n)}
+        "num_samples": int(n)
+    }
 
 
 # -------------------------
