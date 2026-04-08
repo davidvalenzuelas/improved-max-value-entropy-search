@@ -1,18 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-1D test with 3 observations for the constrained VFE sparse GP
+1D test with 3 observations for the constrained VFE sparse GP.
 
-It compares standard ELBO vs standard ELBO with added step constraint term
-using only 3 observations. The synthetic problem is generated in the same
-spirit as script_BO.R: we sample a latent 1D function from a GP on [-5, 5]
-and then keep only 3 randomly selected observations.
-
-The y* value is sampled from posterior optimum samples of the standard sparse
-model, without using BoTorch. For visualization we select a lower quantile of
-those sampled optimum outputs, so the step constraint is not trivial.
-
-The structure of this file follows the Snelson 1D test as closely as possible.
+It compares the standard ELBO against the ELBO with the added step
+constraint term on a simple synthetic 1D problem with only 3 observations.
 
 Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
 """
@@ -304,6 +296,8 @@ def main():
     num_constraint_points = 100
     # Noise level for the std sparse GP model
     init_noise = 1e-4
+    # Epsilon for step constrain term
+    epsilon = 1e-1
     
     x_min, x_max = x_grid.min(), x_grid.max()
     # Samples constraint points uniformly from the grid range, used to
@@ -341,11 +335,9 @@ def main():
     
     # Fits constrained VFE sparse GP model
     res_con = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=noise_star,
-        train_noise=False, M=M, y_star=y_star, epsilon=1e-1,
-        Xc=Xc_eval,
-        fixed_inducing_points=fixed_inducing,
-        seed_for_init=2024,
-        base_gp=base_gp)
+        train_noise=False, M=M, y_star=y_star, epsilon=epsilon,
+        lower_bound=x_grid.min(dim=0).values, upper_bound=x_grid.max(dim=0).values,
+        fixed_inducing_points=fixed_inducing, seed_for_init=2024, base_gp=base_gp)
     
     print("\nPrinting some results...")
     print("Training x:", x_train.squeeze(-1).cpu().numpy())

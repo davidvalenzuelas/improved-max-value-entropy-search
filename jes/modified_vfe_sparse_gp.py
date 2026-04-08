@@ -364,6 +364,9 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
     Xc: Optional[torch.Tensor] = None,
+    # If we want to sample Xc from a particular box
+    lower_bound: Optional[torch.Tensor] = None,
+    upper_bound: Optional[torch.Tensor] = None,
     # For testing
     fixed_inducing_points: Optional[torch.Tensor] = None,
     seed_for_init: Optional[int] = None,
@@ -469,8 +472,15 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         d = train_X.shape[-1]
         
         # Determines the bounds for sampling Xc
-        x_lower = train_X.min(dim=0).values
-        x_upper = train_X.max(dim=0).values
+        if lower_bound is None:
+            x_lower = train_X.min(dim=0).values
+        else:
+            x_lower = lower_bound.to(device=train_X.device, dtype=train_X.dtype)
+        
+        if upper_bound is None:
+            x_upper = train_X.max(dim=0).values
+        else:
+            x_upper = upper_bound.to(device=train_X.device, dtype=train_X.dtype)
         
         if Xc is not None:
             # If Xc is provided, we will use them as fixed constraint points
