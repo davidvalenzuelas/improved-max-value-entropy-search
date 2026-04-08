@@ -36,12 +36,13 @@ NUM_TRAIN = 3
 
 INIT_NOISE = 1e-4
 NUM_CONSTRAINT_POINTS = 100
-EPSILON = 1e-4
+EPSILON = 1e-2
 TRAINING_ITER = 500
 LR = 1e-2
-NUM_SOLUTION_SAMPLES = 512
-YSTAR_POSTERIOR_QUANTILE = 0.2
 PLOT_STD_MULT = 1.0
+
+# Reproducibility seeds
+SEED_CONSTRAINT_POINTS = 789
 
 
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
@@ -58,24 +59,28 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
 
 
 @torch.no_grad()
-def generate_3obs_problem(num_grid: int = 1000, jitter: float=1e-7):
-    """ This function generates the synthetic 1D problem used in this test.
-    It samples a latent function from a GP with an RBF kernel on [-5, 5]
-    and selects some training points uniformly at random from the sampled
-    function """
+def generate_3obs_problem(num_grid: int = 1000, jitter: float=1e-7,
+    seed_latent: int = 123, seed_train: int = 2):
+    """ This function generates the synthetic 1D problem used in the test.
+    It samples a latent function from a GP with an RBF kernel on [-5,5]
+    and selects 3 grid points uniformly at random as training points"""
     dtype = torch.float64
-    # Creates a grid of points in [-5, 5]
+    # Creates a grid of points in [-5,5]
     x_grid = torch.linspace(-5.0, 5.0, num_grid, dtype=dtype).unsqueeze(-1)
     
     # Builds the GP covariance matrix on the grid
     sigma = kernel(x_grid, x_grid) + jitter * torch.eye(num_grid, dtype=dtype)
     # Cholesky decomposition for sampling from the GP prior
     L = torch.linalg.cholesky(sigma)
+    
     # Draws one latent function sample
-    f_true = L @ torch.randn(num_grid, dtype=dtype)
+    g_latent = torch.Generator(device="cpu")
+    g_latent.manual_seed(seed_latent)
+    f_true = L @ torch.randn(num_grid, dtype=dtype, generator=g_latent)
     
     # Randomly selects training points from the grid
-    p_sel = np.sort(np.random.choice(np.arange(num_grid), size=NUM_TRAIN, replace=False))
+    rng = np.random.default_rng(seed_train)
+    p_sel = np.sort(rng.choice(np.arange(num_grid), size=NUM_TRAIN, replace=False))
     p_sel = torch.tensor(p_sel, dtype=torch.long)
     
     # Extracts the training inputs and their outputs
@@ -139,14 +144,10 @@ def obtain_mean_difference(res_std, res_con, x_grid):
 
 @torch.no_grad()
 def sample_solution_outputs_from_model(model, likelihood, x_grid,
-    num_samples: int = NUM_SOLUTION_SAMPLES):
-    """This function samples posterior solutions (x*, y*) on a dense 1D grid.
-
-    The spirit is the same as in loop_BO.py: sample possible optima from the
-    posterior after fitting the model. Here we do it directly from the latent
-    posterior on a dense 1D grid, without using BoTorch.
-    """
+    num_samples: int = 512, seed_posterior_samples: int=1):
+    
     pred = predictive_distribution(model, likelihood, x_grid, observation_noise=False)
+    torch.manual_seed(seed_posterior_samples)
     samples = pred.rsample(torch.Size([num_samples]))
 
     sampled_y_stars, idxs = samples.max(dim=-1)
@@ -156,30 +157,22 @@ def sample_solution_outputs_from_model(model, likelihood, x_grid,
 
 
 @torch.no_grad()
-def choose_visual_y_star(sampled_x_stars: torch.Tensor,
-    sampled_y_stars: torch.Tensor,
-    quantile: float = YSTAR_POSTERIOR_QUANTILE):
-    """This function selects y* from the sampled optimum outputs.
-
-    To keep the test visually informative, it takes a lower quantile of the
-    sampled optimum outputs instead of taking an arbitrary sample that could be
-    too optimistic. The selected y* still comes from the posterior optimum
-    samples of the standard sparse model.
-    """
-    sorted_idx = torch.argsort(sampled_y_stars)
-    rank = int(quantile * (sorted_idx.numel() - 1))
-    chosen_idx = sorted_idx[rank]
+def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
+    seed_star_selection: int = 1):
+    n = sampled_y_stars.numel()
+    
+    if seed_star_selection is None:
+        chosen_idx = torch.randint(low=0, high=n, size=(1,)).item()
+    else:
+        g = torch.Generator(device=sampled_y_stars.device)
+        g.manual_seed(seed_star_selection)
+        chosen_idx = torch.randint(low=0, high=n, size=(1,), generator=g).item()
 
     return {
-        "chosen_idx": int(chosen_idx.item()),
+        "chosen_idx": int(chosen_idx),
         "x_star": float(sampled_x_stars[chosen_idx].item()),
-        "y_star": float(sampled_y_stars[chosen_idx].item()),
-        "rank": int(rank),
-        "num_samples": int(sorted_idx.numel()),
-    }
-
-
-
+        "y_star": float(sampled_y_stars[chosen_idx].item()),    
+        "num_samples": int(n)}
 
 
 # -------------------------
@@ -354,12 +347,11 @@ def main():
         res_std.model,
         res_std.likelihood,
         x_grid,
-        num_samples=NUM_SOLUTION_SAMPLES,
+        num_samples=512,
     )
-    y_star_info = choose_visual_y_star(
+    y_star_info = choose_y_star(
         sampled_x_stars,
-        sampled_y_stars,
-        quantile=YSTAR_POSTERIOR_QUANTILE,
+        sampled_y_stars
     )
     y_star = y_star_info["y_star"]
     x_star = y_star_info["x_star"]
@@ -401,11 +393,11 @@ def main():
     #print("Latent sample flipped for visualization:", flipped_for_demo)
     print(f"Sampled optimum x*: {x_star:.6f}")
     print(f"Selected y*: {y_star:.6f}")
-    print(
-        f"Selected y* comes from posterior optimum quantile "
-        f"q={YSTAR_POSTERIOR_QUANTILE:.2f} (rank {y_star_info['rank'] + 1}/"
-        f"{y_star_info['num_samples']})"
-    )
+    # print(
+    #     f"Selected y* comes from posterior optimum quantile "
+    #     f"q={YSTAR_POSTERIOR_QUANTILE:.2f} (rank {y_star_info['rank'] + 1}/"
+    #     f"{y_star_info['num_samples']})"
+    # )
     print(
         f"Sampled optimum outputs: mean={sampled_y_stars.mean().item():.6f}, "
         f"std={sampled_y_stars.std().item():.6f}, "
