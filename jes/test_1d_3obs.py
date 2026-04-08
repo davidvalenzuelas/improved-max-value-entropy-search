@@ -180,87 +180,82 @@ def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
     }
 
 
-# -------------------------
-# Plotting helpers
-# -------------------------
+# Plotter helpers
 @torch.no_grad()
 def plot_two_predictive_distributions(ax, model_a, likelihood_a, model_b,
     likelihood_b, x_grid, f_true, x_train, y_train, inducing_points, title,
-    label_a="Base GP", label_b="Sparse GP after init", y_star=None,
+    label_a="Base GP", label_b=" VFE sparse GP after init", y_star=None,
     x_star=None):
-    """This function plots two predictive distributions on the same axis"""
-    pred_a = predictive_distribution(model_a, likelihood_a, x_grid,
-        observation_noise=False)
-    pred_b = predictive_distribution(model_b, likelihood_b, x_grid,
-        observation_noise=False)
-
+    
+    """This function plots two predictive distributions for comparison"""
+    # Computes predictive distributions on the grid for both models
+    pred_a = predictive_distribution(model_a, likelihood_a, x_grid)
+    pred_b = predictive_distribution(model_b, likelihood_b, x_grid)
+    
+    # Obtains mean and std deviation for both models
     mean_a = pred_a.mean.cpu()
     std_a = pred_a.variance.sqrt().cpu()
     mean_b = pred_b.mean.cpu()
     std_b = pred_b.variance.sqrt().cpu()
-
+    
     x_np = x_grid.squeeze(-1).cpu().numpy()
-    ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=1.0,
+    ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
         label="True latent f")
     ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.cpu().numpy(), "k*",
         markersize=8, label="Training data")
-
+    
     Z = inducing_points.detach().cpu()
     ax.plot(Z.squeeze(-1).numpy(), np.zeros(Z.shape[0]), "rx", markersize=6,
         mew=2, label="Inducing points")
-
+    
     ax.plot(x_np, mean_a.numpy(), label=label_a)
     ax.fill_between(x_np, (mean_a - PLOT_STD_MULT * std_a).numpy(),
         (mean_a + PLOT_STD_MULT * std_a).numpy(), alpha=0.20)
-
+    
     ax.plot(x_np, mean_b.numpy(), "--", label=label_b)
     ax.fill_between(x_np, (mean_b - PLOT_STD_MULT * std_b).numpy(),
         (mean_b + PLOT_STD_MULT * std_b).numpy(), alpha=0.20)
-
+    
     if y_star is not None:
         ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
     if x_star is not None:
-        ax.axvline(float(x_star), color="0.4", linestyle=":", linewidth=1.0,
-            label="sampled x*")
-
+        ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*") 
     ax.set_title(title)
-    ax.legend(fontsize=9)
+    ax.legend(fontsize=6)
 
 
 @torch.no_grad()
 def plot_mean_and_band(ax, model, likelihood, x_grid, f_true, x_train, y_train,
     inducing_points, title, y_star=None, x_star=None):
     """This function plots the predictive mean and confidence band of a model"""
-    pred = predictive_distribution(model, likelihood, x_grid,
-        observation_noise=False)
+    # Computes predictive distribution on the grid
+    pred = predictive_distribution(model, likelihood, x_grid)
+    # Obtains mean and std deviation
     mean = pred.mean.cpu()
     std = pred.variance.sqrt().cpu()
-
+    
     x_np = x_grid.squeeze(-1).cpu().numpy()
-    ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=1.0,
+    ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
         label="True latent f")
     ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.cpu().numpy(), "k*",
         markersize=8, label="Training data")
-
+    
     Z = inducing_points.detach().cpu()
     ax.plot(Z.squeeze(-1).numpy(), np.zeros(Z.shape[0]), "rx", markersize=6,
         mew=2, label="Inducing points")
-
+    
     ax.plot(x_np, mean.numpy(), label="Mean")
     ax.fill_between(x_np, (mean - PLOT_STD_MULT * std).numpy(),
         (mean + PLOT_STD_MULT * std).numpy(), alpha=0.30,
-        label=f"Confidence (±{PLOT_STD_MULT:.0f}σ)")
-
+        label=f"Confidence (±{PLOT_STD_MULT:.0f}std)")
+    
     if y_star is not None:
         ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
     if x_star is not None:
-        ax.axvline(float(x_star), color="0.4", linestyle=":", linewidth=1.0,
-            label="sampled x*")
-
+        ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
+        
     ax.set_title(title)
-    ax.legend(fontsize=9)
-
-
+    ax.legend(fontsize=6, loc="best")
 
 
 @torch.no_grad()
