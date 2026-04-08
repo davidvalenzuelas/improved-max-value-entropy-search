@@ -33,12 +33,7 @@ from modified_vfe_sparse_gp import (
 
 # Number of training points (observations) we keep from the sampled function
 NUM_TRAIN = 3
-
-INIT_NOISE = 1e-4
-NUM_CONSTRAINT_POINTS = 100
-EPSILON = 1e-1
-TRAINING_ITER = 500
-LR = 1e-2
+# Multiplier for the standard deviation when plotting confidence bands
 PLOT_STD_MULT = 1.0
 
 
@@ -255,26 +250,19 @@ def plot_mean_and_band(ax, model, likelihood, x_grid, f_true, x_train, y_train,
         ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
         
     ax.set_title(title)
-    ax.legend(fontsize=6, loc="best")
+    ax.legend(fontsize=6, loc="lower left")
 
 
 @torch.no_grad()
-def get_common_plot_limits(x_grid, f_true, x_train, y_train, res_std, res_con,
+def get_common_plot_limits(x_grid, f_true, y_train, res_std, res_con,
     init_model, y_star=None):
-    """This function computes common x/y limits for the three subplots.
-
-    We use the same vertical scale in all panels so the visual comparison
-    between initialization, standard ELBO and constrained ELBO is fair.
-    """
+    """This function computes common x/y limits for the three subplots"""
     x_np = x_grid.squeeze(-1).cpu().numpy()
-
-    pred_std = predictive_distribution(res_std.model, res_std.likelihood, x_grid,
-        observation_noise=False)
-    pred_con = predictive_distribution(res_con.model, res_con.likelihood, x_grid,
-        observation_noise=False)
-    pred_init = predictive_distribution(init_model, res_std.likelihood, x_grid,
-        observation_noise=False)
-
+    
+    pred_init = predictive_distribution(init_model, res_std.likelihood, x_grid)
+    pred_std = predictive_distribution(res_std.model, res_std.likelihood, x_grid)
+    pred_con = predictive_distribution(res_con.model, res_con.likelihood, x_grid)
+    
     curves = [
         f_true.cpu().numpy(),
         y_train.cpu().numpy(),
@@ -288,200 +276,121 @@ def get_common_plot_limits(x_grid, f_true, x_train, y_train, res_std, res_con,
         (pred_init.mean - PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
         (pred_init.mean + PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
     ]
-
+    
     if y_star is not None:
         curves.append(np.array([float(y_star)]))
-
+    
     y_min = min(float(np.min(c)) for c in curves)
     y_max = max(float(np.max(c)) for c in curves)
     y_pad = 0.08 * max(1e-6, y_max - y_min)
-
+    
     x_min = float(x_np.min())
     x_max = float(x_np.max())
-
+    
     return (x_min, x_max), (y_min - y_pad, y_max + y_pad)
 
 
-# -------------------------
-# Main
-# -------------------------
 def main():
     # Generates synthetic 1D problem with only 3 observations
     x_grid, f_true, x_train, y_train, p_sel = generate_3obs_problem()
-
+    
     # Number of data points and inducing points
     N = x_train.shape[0]
     M = N
-
-    # Sets inducing points to training data locations, as in Snelson
+    
+    # Sets inducing points to training data locations
     fixed_inducing = x_train.contiguous()
-
-    # Samples fixed constraint points uniformly on the full domain [-5, 5]
+    # Number of points for evaluating the constraint term
+    num_constraint_points = 100
+    # Noise level for the std sparse GP model
+    init_noise = 1e-4
+    
     x_min, x_max = x_grid.min(), x_grid.max()
+    # Samples constraint points uniformly from the grid range, used to
+    # evaluate the step constraint term
     Xc_eval = x_min + (x_max - x_min) * torch.rand(
-        NUM_CONSTRAINT_POINTS, 1, dtype=x_grid.dtype, device=x_grid.device
+        num_constraint_points, 1, dtype=x_grid.dtype, device=x_grid.device
     )
-
-    # Fits standard VFE sparse GP model using the same training routine as in
-    # the Snelson test
-    res_std = fit_vfe_sparse_gp(
-        train_X=x_train,
-        train_Y=y_train,
-        noise=INIT_NOISE,
-        train_noise=True,
-        M=M,
-        y_star=None,
-        fixed_inducing_points=fixed_inducing,
-        seed_for_init=2024,
-        training_iter=TRAINING_ITER,
-        lr=LR,
-        verbose=False,
-    )
-
+    
+    # Fits standard VFE sparse GP model
+    res_std = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=init_noise,
+        train_noise=True, M=M, y_star=None, fixed_inducing_points=fixed_inducing,
+        seed_for_init=2024)
+    
     # Fixes noise for constrained model
     noise_star = float(res_std.likelihood.noise.detach().cpu().item())
-
-    # Samples posterior optima from the standard sparse model and selects a
-    # convenient y* for visualization
+    
+    # Samples posterior optima from the std sparse GP model to select y* for the
+    # step term constraint, without botorch
     sampled_x_stars, sampled_y_stars = sample_solution_outputs_from_model(
-        res_std.model,
-        res_std.likelihood,
-        x_grid,
-        num_samples=512,
-    )
-    y_star_info = choose_y_star(
-        sampled_x_stars,
-        sampled_y_stars
-    )
+        res_std.model, res_std.likelihood, x_grid)
+    
+    # Selects one of the sampled pairs (x*,y*)
+    y_star_info = choose_y_star(sampled_x_stars,sampled_y_stars)
     y_star = y_star_info["y_star"]
     x_star = y_star_info["x_star"]
-
+    
     # Creates base GP model and obtains its posterior to use it as initialization
     # for the constrained model
     base_gp = res_std.model
     base_gp.likelihood = res_std.likelihood
-
-    # Builds sparse GP model just after initialization from the base GP posterior
+    
+    # Builds a sparse GP model just after initialization from the base GP posterior
     # at the inducing points
     init_model = build_sparse_model_just_initialized(base_gp, res_std.inducing_points)
     
     # Fits constrained VFE sparse GP model
-    res_con = fit_vfe_sparse_gp(
-        train_X=x_train,
-        train_Y=y_train,
-        noise=noise_star,
-        train_noise=False,
-        M=M,
-        y_star=y_star,
-        epsilon=EPSILON,
+    res_con = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=noise_star,
+        train_noise=False, M=M, y_star=y_star, epsilon=1e-1,
         Xc=Xc_eval,
-        num_constraint_points=NUM_CONSTRAINT_POINTS,
         fixed_inducing_points=fixed_inducing,
         seed_for_init=2024,
-        base_gp=base_gp,
-        training_iter=TRAINING_ITER,
-        lr=LR,
-        verbose=False,
-        resample_Xc_each_eval=False,
-    )
-
-    # Obtains mean difference between models
+        base_gp=base_gp)
+    
     print("\nPrinting some results...")
-    print("Selected training grid indices:", p_sel.cpu().numpy())
     print("Training x:", x_train.squeeze(-1).cpu().numpy())
     print("Training y:", y_train.cpu().numpy())
-    #print("Latent sample flipped for visualization:", flipped_for_demo)
-    print(f"Sampled optimum x*: {x_star:.6f}")
-    print(f"Selected y*: {y_star:.6f}")
-    # print(
-    #     f"Selected y* comes from posterior optimum quantile "
-    #     f"q={YSTAR_POSTERIOR_QUANTILE:.2f} (rank {y_star_info['rank'] + 1}/"
-    #     f"{y_star_info['num_samples']})"
-    # )
-    print(
-        f"Sampled optimum outputs: mean={sampled_y_stars.mean().item():.6f}, "
-        f"std={sampled_y_stars.std().item():.6f}, "
-        f"min={sampled_y_stars.min().item():.6f}, "
-        f"max={sampled_y_stars.max().item():.6f}"
-    )
-
+    print(f"Selected sampled x*: {x_star:.6f}")
+    print(f"Selected sampled y*: {y_star:.6f}")
+    
+    print("Mean difference between constrained and standard model on the grid:")
     obtain_mean_difference(res_std, res_con, x_grid)
-
-    # Computes P(f(Xc) < y*) under both models
+    
+    # Computes P(f(Xc)<y*) under both models
     y_star_t = torch.tensor(y_star, dtype=x_grid.dtype, device=x_grid.device)
     p_std = prob_f_below_y_star(res_std.model, Xc_eval, y_star_t)
     p_con = prob_f_below_y_star(res_con.model, Xc_eval, y_star_t)
 
-    print("\nP(f(Xc) < y*) under q(f):")
-    print(f"  Standard   : mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
-    print(f"  Constraint : mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
+    print("\nP(f(Xc)<y*) under q(f):")
+    print(f"Standard   : mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
+    print(f"Constraint : mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
+    
     print("\nNoise:")
     print("  Standard learned:", noise_star)
     print("  Constraint fixed :", res_con.likelihood.noise.item())
-
-    # Three Snelson-style plots in one row
+    
+    # Three plots in one row
     fig, axes = plt.subplots(1, 3, figsize=(19, 5.2), sharex=True, sharey=True)
-
-    plot_two_predictive_distributions(
-        axes[0],
-        base_gp,
-        res_std.likelihood,
-        init_model,
-        res_std.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        res_std.inducing_points,
-        title="Base GP vs sparse GP just after initialization",
-        label_a="Base GP",
-        label_b="Sparse GP after init",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    plot_mean_and_band(
-        axes[1],
-        res_std.model,
-        res_std.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        res_std.inducing_points,
-        title="Standard ELBO",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    plot_mean_and_band(
-        axes[2],
-        res_con.model,
-        res_con.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        res_con.inducing_points,
-        title="Standard ELBO + Step constraint term",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    x_limits, y_limits = get_common_plot_limits(
-        x_grid=x_grid,
-        f_true=f_true,
-        x_train=x_train,
-        y_train=y_train,
-        res_std=res_std,
-        res_con=res_con,
-        init_model=init_model,
-        y_star=y_star,
-    )
+    
+    plot_two_predictive_distributions(axes[0], base_gp, res_std.likelihood, init_model,
+        res_std.likelihood, x_grid, f_true,x_train, y_train, res_std.inducing_points,
+        title="Base GP vs sparse GP just after initialization", label_a="Base GP",
+        label_b="Sparse GP after init", y_star=y_star, x_star=x_star)
+    
+    plot_mean_and_band(axes[1], res_std.model, res_std.likelihood, x_grid, f_true,
+        x_train, y_train, res_std.inducing_points, title="Standard ELBO", y_star=y_star,
+        x_star=x_star)
+    
+    plot_mean_and_band(axes[2], res_con.model, res_con.likelihood, x_grid, f_true,
+        x_train, y_train, res_con.inducing_points, title="Standard ELBO + step constraint term",
+        y_star=y_star, x_star=x_star)
+    
+    x_limits, y_limits = get_common_plot_limits(x_grid=x_grid, f_true=f_true, y_train=y_train,
+        res_std=res_std, res_con=res_con, init_model=init_model, y_star=y_star)
     for ax in axes:
         ax.set_xlim(*x_limits)
         ax.set_ylim(*y_limits)
-
+        
     fig.suptitle("1D test with 3 observations", fontsize=16)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
