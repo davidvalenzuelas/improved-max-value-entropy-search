@@ -52,15 +52,16 @@ YSTAR_POSTERIOR_QUANTILE = 0.2
 PLOT_STD_MULT = 1.0
 
 
-# -------------------------
-# Data generation utilities
-# -------------------------
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
     variance: float = 1.0) -> torch.Tensor:
-    """This function defines the RBF kernel used in the test"""
+    """This function defines a RBF kernel"""
+    # Scales inputs by lengthscale
     x_scaled = x / lengthscale
     y_scaled = y / lengthscale
-    sqdist = (x_scaled[:, None, :] - y_scaled[None, :, :]).pow(2).sum(dim=-1)
+    
+    # Computes squared distance matrix
+    sqdist = (x_scaled[:,None,:] - y_scaled[None,:,:]).pow(2).sum(dim=-1)
+    # Returns the RBF kernel matrix
     return variance * torch.exp(-0.5 * sqdist)
 
 
