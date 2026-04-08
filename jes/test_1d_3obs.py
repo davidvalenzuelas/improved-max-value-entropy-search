@@ -31,18 +31,10 @@ from modified_vfe_sparse_gp import (
     build_init_dist_from_base_gp,
 )
 
-
-# -------------------------
-# Configuration
-# -------------------------
-NUM_GRID = 100
+# Number of training points (observations) we keep from the sampled function
 NUM_TRAIN = 3
 
-LENGTHSCALE_TRUE = 2.0
-VARIANCE_TRUE = 1.0
-JITTER_TRUE = 1e-7
-
-INIT_NOISE = 1e-3
+INIT_NOISE = 1e-4
 NUM_CONSTRAINT_POINTS = 100
 EPSILON = 1e-4
 TRAINING_ITER = 500
@@ -66,47 +58,31 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
 
 
 @torch.no_grad()
-def orient_sample_to_inverted_u_demo(f_true: torch.Tensor):
-    """This function flips the sampled latent function if its broad trend looks
-    like a U instead of an inverted U. This makes the predictive distribution
-    easier to inspect visually in this maximization-style test."""
-    n = f_true.shape[0]
-    edge_k = max(1, n // 6)
-    center_half = max(1, n // 8)
-    center_slice = slice(n // 2 - center_half, n // 2 + center_half + 1)
-
-    center_mean = f_true[center_slice].mean()
-    edge_mean = torch.cat([f_true[:edge_k], f_true[-edge_k:]]).mean()
-
-    flipped = bool(center_mean < edge_mean)
-    if flipped:
-        f_true = -f_true
-
-    return f_true, flipped
-
-
-@torch.no_grad()
-def generate_3obs_problem(num_grid: int = NUM_GRID):
-    """This function generates a synthetic 1D problem used in this test.
+def generate_3obs_problem(num_grid: int = 1000, jitter: float=1e-7):
+    """ This function generates the synthetic 1D problem used in this test.
     It samples a latent function from a GP with an RBF kernel on [-5, 5]
-    and selects 3 training points uniformly at random from the sampled
-    function, just like sort(sample(1:100, 3)) in script_BO.R."""
+    and selects some training points uniformly at random from the sampled
+    function """
     dtype = torch.float64
+    # Creates a grid of points in [-5, 5]
     x_grid = torch.linspace(-5.0, 5.0, num_grid, dtype=dtype).unsqueeze(-1)
-
-    Sigma = kernel(x_grid, x_grid, LENGTHSCALE_TRUE, VARIANCE_TRUE) + \
-        JITTER_TRUE * torch.eye(num_grid, dtype=dtype)
-    L = torch.linalg.cholesky(Sigma)
+    
+    # Builds the GP covariance matrix on the grid
+    sigma = kernel(x_grid, x_grid) + jitter * torch.eye(num_grid, dtype=dtype)
+    # Cholesky decomposition for sampling from the GP prior
+    L = torch.linalg.cholesky(sigma)
+    # Draws one latent function sample
     f_true = L @ torch.randn(num_grid, dtype=dtype)
-    f_true, flipped_for_demo = orient_sample_to_inverted_u_demo(f_true)
-
+    
+    # Randomly selects training points from the grid
     p_sel = np.sort(np.random.choice(np.arange(num_grid), size=NUM_TRAIN, replace=False))
     p_sel = torch.tensor(p_sel, dtype=torch.long)
-
+    
+    # Extracts the training inputs and their outputs
     x_train = x_grid[p_sel].contiguous()
     y_train = f_true[p_sel].contiguous()
-
-    return x_grid, f_true, x_train, y_train, p_sel, flipped_for_demo
+    
+    return x_grid, f_true, x_train, y_train, p_sel
 
 
 # -------------------------
@@ -354,7 +330,7 @@ def get_common_plot_limits(x_grid, f_true, x_train, y_train, res_std, res_con,
 # -------------------------
 def main():
     # Generates synthetic 1D problem with only 3 observations
-    x_grid, f_true, x_train, y_train, p_sel, flipped_for_demo = generate_3obs_problem(
+    x_grid, f_true, x_train, y_train, p_sel = generate_3obs_problem(
         num_grid=NUM_GRID
     )
 
@@ -450,7 +426,7 @@ def main():
     print("Selected training grid indices:", p_sel.cpu().numpy())
     print("Training x:", x_train.squeeze(-1).cpu().numpy())
     print("Training y:", y_train.cpu().numpy())
-    print("Latent sample flipped for visualization:", flipped_for_demo)
+    #print("Latent sample flipped for visualization:", flipped_for_demo)
     print(f"Sampled optimum x*: {x_star:.6f}")
     print(f"Selected y*: {y_star:.6f}")
     print(
