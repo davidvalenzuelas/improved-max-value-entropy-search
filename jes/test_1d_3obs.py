@@ -36,13 +36,10 @@ NUM_TRAIN = 3
 
 INIT_NOISE = 1e-4
 NUM_CONSTRAINT_POINTS = 100
-EPSILON = 1e-2
+EPSILON = 1e-1
 TRAINING_ITER = 500
 LR = 1e-2
 PLOT_STD_MULT = 1.0
-
-# Reproducibility seeds
-SEED_CONSTRAINT_POINTS = 789
 
 
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
@@ -145,6 +142,9 @@ def obtain_mean_difference(res_std, res_con, x_grid):
 @torch.no_grad()
 def sample_solution_outputs_from_model(model, likelihood, x_grid,
     num_samples: int = 512, seed_posterior_samples: int=1):
+    """ This function samples posterior optima (x*,y*) on the grid,
+    by sampling from the predictive distribution of the fitted model
+    and then selecting the maximum output sample."""
     
     pred = predictive_distribution(model, likelihood, x_grid, observation_noise=False)
     torch.manual_seed(seed_posterior_samples)
