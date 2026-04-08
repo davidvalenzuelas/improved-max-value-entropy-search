@@ -85,18 +85,18 @@ def generate_3obs_problem(num_grid: int = 1000, jitter: float=1e-7):
     return x_grid, f_true, x_train, y_train, p_sel
 
 
-# -------------------------
-# Model helpers
-# -------------------------
 @torch.no_grad()
-def prob_f_below_y_star(model, Xc, y_star):
-    """ This function calculates the mean/min/max P(f(Xc) < y*) under the
+def prob_f_below_y_star(model, Xc, y_star): 
+    """ This function calculates the mean/min/max P(f(Xc)<y*) under the
     variational distribution of the model, where Xc are constraint points
     and y* is the threshold for the constraint"""
     model.eval()
+    # Evaluates posterior at constraint points
     qf = model(Xc)
+    # Obtains mean and std
     m = qf.mean
     s = qf.variance.clamp_min(1e-12).sqrt()
+    # Standardizes and computes probabilities under gaussian posterior
     z = (y_star - m) / s
     p_less = normal_cdf(z)
     return p_less.mean().item(), p_less.min().item(), p_less.max().item()
@@ -107,39 +107,34 @@ def build_sparse_model_just_initialized(base_gp, inducing_points):
     """This function builds a sparse GP model with the same mean and covariance
     modules as the base GP, and with a variational distribution initialized
     from the posterior of the base GP at the inducing points"""
+    
+    # Builds variational distribution at inducing points from base GP posterior
     init_dist = build_init_dist_from_base_gp(base_gp, inducing_points)
-
-    model = VFESparseGP(
-        inducing_points=inducing_points,
-        init_dist=init_dist,
-        mean_module=base_gp.mean_module,
-        covar_module=base_gp.covar_module,
-    )
+    
+    # Builds sparse GP model
+    model = VFESparseGP(inducing_points=inducing_points, init_dist=init_dist,
+        mean_module=base_gp.mean_module, covar_module=base_gp.covar_module)
     model = model.to(dtype=inducing_points.dtype, device=inducing_points.device)
-
-    # Fixed inducing points here
+    
+    # Inducing points are fixed for this test
     model.variational_strategy.inducing_points.requires_grad_(False)
     return model
 
 
 @torch.no_grad()
-def compare_predictive_distributions(model_a, likelihood_a, model_b,
-    likelihood_b, x_grid, name_a, name_b):
-    """Compares the predictive distributions of two models by computing the
-    mean and variance differences on a dense grid"""
-    pred_a = predictive_distribution(model_a, likelihood_a, x_grid,
-        observation_noise=False)
-    pred_b = predictive_distribution(model_b, likelihood_b, x_grid,
-        observation_noise=False)
-
-    mean_diff = (pred_a.mean - pred_b.mean).abs()
-    var_diff = (pred_a.variance - pred_b.variance).abs()
-
-    print(f"\nComparing {name_a} vs {name_b} just after initialization:")
-    print(f"Mean abs diff (avg): {mean_diff.mean().item():.6e}")
-    print(f"Mean abs diff (max): {mean_diff.max().item():.6e}")
-    print(f"Var abs diff (avg): {var_diff.mean().item():.6e}")
-    print(f"Var abs diff (max): {var_diff.max().item():.6e}")
+def obtain_mean_difference(res_std, res_con, x_grid):
+    """This function obtains the mean difference between the constrained
+    and the standard model on the grid"""
+    # Computes predictive mean on the grid for both models
+    mean_std = predictive_distribution(res_std.model, res_std.likelihood,
+        x_grid).mean
+    mean_con = predictive_distribution(res_con.model, res_con.likelihood,
+        x_grid).mean
+    
+    # Computes and prints mean and max absolute difference
+    diff = mean_con - mean_std
+    print("Mean absolute difference:", diff.abs().mean().item())
+    print("Max absolute difference:", diff.abs().max().item())
 
 
 @torch.no_grad()
@@ -184,18 +179,7 @@ def choose_visual_y_star(sampled_x_stars: torch.Tensor,
     }
 
 
-@torch.no_grad()
-def obtain_mean_difference(res_std, res_con, x_grid):
-    """This method obtains the mean difference between constrained
-    and standard models"""
-    mean_std = predictive_distribution(res_std.model, res_std.likelihood,
-        x_grid, observation_noise=False).mean
-    mean_con = predictive_distribution(res_con.model, res_con.likelihood,
-        x_grid, observation_noise=False).mean
 
-    diff = mean_con - mean_std
-    print("Mean absolute difference:", diff.abs().mean().item())
-    print("Max absolute difference:", diff.abs().max().item())
 
 
 # -------------------------
@@ -330,9 +314,7 @@ def get_common_plot_limits(x_grid, f_true, x_train, y_train, res_std, res_con,
 # -------------------------
 def main():
     # Generates synthetic 1D problem with only 3 observations
-    x_grid, f_true, x_train, y_train, p_sel = generate_3obs_problem(
-        num_grid=NUM_GRID
-    )
+    x_grid, f_true, x_train, y_train, p_sel = generate_3obs_problem()
 
     # Number of data points and inducing points
     N = x_train.shape[0]
@@ -390,17 +372,7 @@ def main():
     # Builds sparse GP model just after initialization from the base GP posterior
     # at the inducing points
     init_model = build_sparse_model_just_initialized(base_gp, res_std.inducing_points)
-
-    compare_predictive_distributions(
-        base_gp,
-        res_std.likelihood,
-        init_model,
-        res_std.likelihood,
-        x_grid,
-        "Base GP",
-        "Sparse GP after init",
-    )
-
+    
     # Fits constrained VFE sparse GP model
     res_con = fit_vfe_sparse_gp(
         train_X=x_train,
