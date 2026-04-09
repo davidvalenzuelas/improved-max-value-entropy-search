@@ -31,7 +31,7 @@ PLOT_STD_MULT = 1.0
 
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
     variance: float = 1.0) -> torch.Tensor:
-    """This function defines a RBF kernel"""
+    """This function defines the RBF kernel used in this test"""
     # Scales inputs by lengthscale
     x_scaled = x / lengthscale
     y_scaled = y / lengthscale
