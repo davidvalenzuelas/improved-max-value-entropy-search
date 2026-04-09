@@ -43,7 +43,7 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
 
 @torch.no_grad()
 def generate_5obs_problem(num_grid: int = 1000, jitter: float=1e-7,
-    seed_latent: int = 123, seed_train: int = 10):
+    seed_latent: int = 123, seed_train: int = 5):
     """ This function generates the synthetic 1D problem used in the test.
     It samples a latent function from a GP with a RBF kernel on [-5,5]
     and selects 5 grid points uniformly at random as training points"""
@@ -185,7 +185,7 @@ def sample_solution_outputs_from_model(base_gp, bounds,
     # Returns the sampled x* and y* values
     return sampled_x_stars, sampled_y_stars
 
-
+# 4 seed star , 10 para train es buena
 @torch.no_grad()
 def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
     seed_star_selection: int = 4):
@@ -336,7 +336,7 @@ def main():
     # Number of points for evaluating the constraint term
     num_constraint_points = 100
     # Noise level for the base GP model
-    init_noise = 1e-4
+    init_noise = 1e-6
     # Epsilon for step constrain term
     epsilon = 1e-4
     
@@ -381,12 +381,12 @@ def main():
         fixed_inducing_points=fixed_inducing, seed_for_init=2024,base_gp=base_gp)
     
     print("\nPrinting some results...")
-    print("Training x:", x_train.squeeze(-1).cpu().numpy())
-    print("Training y:", y_train.cpu().numpy())
-    print(f"Selected sampled x*: {x_star:.6f}")
-    print(f"Selected sampled y*: {y_star:.6f}")
+    print(" Training x:", x_train.squeeze(-1).cpu().numpy())
+    print(" Training y:", y_train.cpu().numpy())
+    print(f" Selected sampled x*: {x_star:.6f}")
+    print(f" Selected sampled y*: {y_star:.6f}")
 
-    print("Mean difference between constrained and standard model on the grid:")
+    print("\nMean difference between constrained and standard model on the grid:")
     obtain_mean_difference(res_std, res_con, x_grid)
 
     y_star_t = torch.tensor(y_star, dtype=x_grid.dtype, device=x_grid.device)
@@ -394,13 +394,13 @@ def main():
     p_con = prob_f_below_y_star(res_con.model, Xc_eval, y_star_t)
 
     print("\nP(f(Xc)<y*) under q(f):")
-    print(f"Standard: mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
-    print(f"Constraint: mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
+    print(f" Standard: mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
+    print(f" Constraint: mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
 
     print("\nNoise:")
-    print("Base GP fixed noise:", float(base_gp.likelihood.noise.detach().cpu().item()))
-    print("Standard sparse GP fixed noise:", res_std.likelihood.noise.item())
-    print("Constraint sparse GP fixed noise:", res_con.likelihood.noise.item())
+    print(" Base GP fixed noise:", float(base_gp.likelihood.noise.detach().cpu().item()))
+    print(" Standard sparse GP fixed noise:", res_std.likelihood.noise.item())
+    print(" Constraint sparse GP fixed noise:", res_con.likelihood.noise.item())
 
     fig, axes = plt.subplots(1, 3, figsize=(19, 5.2), sharex=True, sharey=True)
 
