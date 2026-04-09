@@ -77,7 +77,7 @@ def build_init_dist_from_base_gp(base_gp, inducing_points: torch.Tensor,
     Z_base = inducing_points.to(device=param0.device, dtype=param0.dtype)
     
     # Evaluates the latent GP posterior p(f(Z)|D) at the inducing points
-    post_u = base_gp(Z_base)
+    post_u = base_gp.posterior(Z_base, observation_noise=False)
     
     # Extracts posterior mean
     mean_u = post_u.mean

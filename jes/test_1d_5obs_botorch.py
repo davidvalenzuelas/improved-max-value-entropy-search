@@ -14,7 +14,7 @@ from modified_vfe_sparse_gp import (
     predictive_distribution as sparse_predictive_distribution,
     normal_cdf,
     VFESparseGP,
-    build_init_dist_from_base_gp,
+    build_init_dist_from_base_gp
 )
 
 from botorch.models.gp_regression import SingleTaskGP
@@ -42,11 +42,11 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
 
 
 @torch.no_grad()
-def generate_4obs_problem(num_grid: int = 1000, jitter: float=1e-7,
+def generate_5obs_problem(num_grid: int = 1000, jitter: float=1e-7,
     seed_latent: int = 123, seed_train: int = 10):
     """ This function generates the synthetic 1D problem used in the test.
     It samples a latent function from a GP with a RBF kernel on [-5,5]
-    and selects 4 grid points uniformly at random as training points"""
+    and selects 5 grid points uniformly at random as training points"""
     dtype = torch.float64
     # Creates a grid of points in [-5,5]
     x_grid = torch.linspace(-5.0, 5.0, num_grid, dtype=dtype).unsqueeze(-1)
@@ -74,15 +74,14 @@ def generate_4obs_problem(num_grid: int = 1000, jitter: float=1e-7,
 
 
 @torch.no_grad()
-def predictive_distribution(model, likelihood, test_x: torch.Tensor,
-    observation_noise: bool = False):
-    """This function returns the latent predictive distribution in
-    the original output scale."""
+def predictive_distribution(model, likelihood, grid: torch.Tensor,
+    observation_noise: bool=False):
+    """This function obtains the predictive distribution of a model
+    on the given grid"""
     if hasattr(model, "posterior"):
-        return model.posterior(test_x, observation_noise=observation_noise)
-    return sparse_predictive_distribution(
-        model, likelihood, test_x, observation_noise=observation_noise
-    )
+        return model.posterior(grid, observation_noise=observation_noise)
+    return sparse_predictive_distribution(model, likelihood, grid,
+        observation_noise=observation_noise)
     
 
 @torch.no_grad()
@@ -324,8 +323,8 @@ def get_common_plot_limits(x_grid, f_true, y_train, res_std, res_con,
 
 
 def main():
-    # Generates synthetic 1D problem with 4 observations
-    x_grid, f_true, x_train, y_train = generate_4obs_problem()
+    # Generates the synthetic 1D problem with 5 observations
+    x_grid, f_true, x_train, y_train = generate_5obs_problem()
     
     # Number of training points
     N = x_train.shape[0]
@@ -337,7 +336,7 @@ def main():
     # Number of points for evaluating the constraint term
     num_constraint_points = 100
     # Noise level for the base GP model
-    init_noise = 1e-3
+    init_noise = 1e-4
     # Epsilon for step constrain term
     epsilon = 1e-4
     
@@ -364,40 +363,23 @@ def main():
     y_star = y_star_info["y_star"]
     x_star = y_star_info["x_star"]
     
-    # Builds a sparse GP model just after initialization from the base GP posterior
+    # Builds a sparse GP model just after initializing the base GP posterior
     init_model = build_sparse_model_just_initialized(base_gp, fixed_inducing)
     
-    # Fits standard sparse GP initialized from the SingleTaskGP posterior.
-    res_std = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train,
-        noise=float(base_gp.likelihood.noise.detach().cpu().item()),
-        train_noise=False,
-        M=M,
-        y_star=None,
-        fixed_inducing_points=fixed_inducing,
-        seed_for_init=2024,
-        base_gp=base_gp,
-        verbose=False,
-    )
+    # Obtains the noise level learned by the base GP
+    base_gp_noise = float(base_gp.likelihood.noise.detach().cpu().item())
     
-    noise_star = float(res_std.likelihood.noise.detach().cpu().item())
-
-    # Fit constrained sparse GP initialized from the same SingleTaskGP.
-    res_con = fit_vfe_sparse_gp(
-        train_X=x_train,
-        train_Y=y_train,
-        noise=noise_star,
-        train_noise=False,
-        M=M,
-        y_star=y_star,
-        epsilon=epsilon,
-        lower_bound=x_grid.min(dim=0).values,
-        upper_bound=x_grid.max(dim=0).values,
-        fixed_inducing_points=fixed_inducing,
-        seed_for_init=2024,
-        base_gp=base_gp,
-        verbose=False,
-    )
-
+    # Fits std sparse GP initialized from the SingleTaskGP posterior
+    res_std = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train,
+        noise=base_gp_noise, train_noise=False, M=M, y_star=None,
+        fixed_inducing_points=fixed_inducing, seed_for_init=2024, base_gp=base_gp)
+    
+    # Fits constrained sparse GP initialized from the same SingleTaskGP.
+    res_con = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
+        train_noise=False, M=M, y_star=y_star, epsilon=epsilon,
+        lower_bound=x_grid.min(dim=0).values, upper_bound=x_grid.max(dim=0).values,
+        fixed_inducing_points=fixed_inducing, seed_for_init=2024,base_gp=base_gp)
+    
     print("\nPrinting some results...")
     print("Training x:", x_train.squeeze(-1).cpu().numpy())
     print("Training y:", y_train.cpu().numpy())
@@ -412,76 +394,37 @@ def main():
     p_con = prob_f_below_y_star(res_con.model, Xc_eval, y_star_t)
 
     print("\nP(f(Xc)<y*) under q(f):")
-    print(f"Standard   : mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
-    print(f"Constraint : mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
+    print(f"Standard: mean={p_std[0]:.3f}, min={p_std[1]:.3f}, max={p_std[2]:.3f}")
+    print(f"Constraint: mean={p_con[0]:.3f}, min={p_con[1]:.3f}, max={p_con[2]:.3f}")
 
     print("\nNoise:")
-    print("  Base GP learned:", float(base_gp.likelihood.noise.detach().cpu().item()))
-    print("  Standard sparse:", noise_star)
-    print("  Constraint fixed:", res_con.likelihood.noise.item())
+    print("Base GP fixed noise:", float(base_gp.likelihood.noise.detach().cpu().item()))
+    print("Standard sparse GP fixed noise:", res_std.likelihood.noise.item())
+    print("Constraint sparse GP fixed noise:", res_con.likelihood.noise.item())
 
     fig, axes = plt.subplots(1, 3, figsize=(19, 5.2), sharex=True, sharey=True)
 
-    plot_two_predictive_distributions(
-        axes[0],
-        base_gp,
-        base_gp.likelihood,
-        init_model,
-        base_gp.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        fixed_inducing,
-        title="SingleTaskGP vs sparse GP just after initialization",
-        label_a="SingleTaskGP",
-        label_b="Sparse GP after init",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    plot_mean_and_band(
-        axes[1],
-        res_std.model,
-        res_std.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        res_std.inducing_points,
-        title="Standard ELBO",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    plot_mean_and_band(
-        axes[2],
-        res_con.model,
-        res_con.likelihood,
-        x_grid,
-        f_true,
-        x_train,
-        y_train,
-        res_con.inducing_points,
-        title="Standard ELBO + step constraint term",
-        y_star=y_star,
-        x_star=x_star,
-    )
-
-    x_limits, y_limits = get_common_plot_limits(
-        x_grid=x_grid,
-        f_true=f_true,
-        y_train=y_train,
-        res_std=res_std,
-        res_con=res_con,
-        init_model=init_model,
-        y_star=y_star,
-    )
+    plot_two_predictive_distributions(axes[0], base_gp, base_gp.likelihood,
+        init_model, base_gp.likelihood, x_grid, f_true, x_train, y_train,
+        fixed_inducing, title="SingleTaskGP vs Sparse GP just after initialization",
+        label_a="SingleTaskGP", label_b="Sparse GP after init",
+        y_star=y_star,x_star=x_star)
+    
+    plot_mean_and_band(axes[1], res_std.model, res_std.likelihood, x_grid, f_true,
+        x_train, y_train, res_std.inducing_points, title="Standard ELBO",
+        y_star=y_star, x_star=x_star)
+    
+    plot_mean_and_band(axes[2], res_con.model, res_con.likelihood, x_grid, f_true,
+        x_train, y_train, res_con.inducing_points, title="Standard ELBO + Step constraint term",
+        y_star=y_star, x_star=x_star)
+    
+    x_limits, y_limits = get_common_plot_limits(x_grid=x_grid, f_true=f_true, y_train=y_train,
+        res_std=res_std, res_con=res_con, init_model=init_model, y_star=y_star)
     for ax in axes:
         ax.set_xlim(*x_limits)
         ax.set_ylim(*y_limits)
-
-    fig.suptitle("1D test with 3 observations (BoTorch base GP)", fontsize=16)
+        
+    fig.suptitle("1D test with 5 observations", fontsize=16)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     plt.show()
 
