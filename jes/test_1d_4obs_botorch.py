@@ -70,7 +70,7 @@ def generate_4obs_problem(num_grid: int = 1000, jitter: float=1e-7,
     x_train = x_grid[p_sel].contiguous()
     y_train = f_true[p_sel].contiguous()
     
-    return x_grid, f_true, x_train, y_train, p_sel
+    return x_grid, f_true, x_train, y_train
 
 
 @torch.no_grad()
@@ -195,42 +195,46 @@ def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
     }
 
 
+# Plotter helpers
 @torch.no_grad()
 def plot_two_predictive_distributions(ax, model_a, likelihood_a, model_b,
     likelihood_b, x_grid, f_true, x_train, y_train, inducing_points, title,
-    label_a="Base GP", label_b="VFE sparse GP after init", y_star=None,
+    label_a="Base GP", label_b=" VFE sparse GP after init", y_star=None,
     x_star=None):
-    """Plots two predictive distributions for comparison."""
+    
+    """This function plots two predictive distributions for comparison"""
+    # Computes predictive distributions on the grid for both models
     pred_a = predictive_distribution(model_a, likelihood_a, x_grid)
     pred_b = predictive_distribution(model_b, likelihood_b, x_grid)
-
+    
+    # Obtains mean and std deviation for both models
     mean_a = pred_a.mean.cpu()
     std_a = pred_a.variance.sqrt().cpu()
     mean_b = pred_b.mean.cpu()
     std_b = pred_b.variance.sqrt().cpu()
-
+    
     x_np = x_grid.squeeze(-1).cpu().numpy()
     ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
         label="True latent f")
     ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.cpu().numpy(), "k*",
         markersize=8, label="Training data")
-
+    
     Z = inducing_points.detach().cpu()
     ax.plot(Z.squeeze(-1).numpy(), np.zeros(Z.shape[0]), "rx", markersize=6,
         mew=2, label="Inducing points")
-
+    
     ax.plot(x_np, mean_a.numpy(), label=label_a)
     ax.fill_between(x_np, (mean_a - PLOT_STD_MULT * std_a).numpy(),
         (mean_a + PLOT_STD_MULT * std_a).numpy(), alpha=0.20)
-
+    
     ax.plot(x_np, mean_b.numpy(), "--", label=label_b)
     ax.fill_between(x_np, (mean_b - PLOT_STD_MULT * std_b).numpy(),
         (mean_b + PLOT_STD_MULT * std_b).numpy(), alpha=0.20)
-
+    
     if y_star is not None:
         ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
     if x_star is not None:
-        ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
+        ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*") 
     ax.set_title(title)
     ax.legend(fontsize=6)
 
@@ -238,31 +242,33 @@ def plot_two_predictive_distributions(ax, model_a, likelihood_a, model_b,
 @torch.no_grad()
 def plot_mean_and_band(ax, model, likelihood, x_grid, f_true, x_train, y_train,
     inducing_points, title, y_star=None, x_star=None):
-    """Plots the predictive mean and confidence band of a model."""
+    """This function plots the predictive mean and confidence band of a model"""
+    # Computes predictive distribution on the grid
     pred = predictive_distribution(model, likelihood, x_grid)
+    # Obtains mean and std deviation
     mean = pred.mean.cpu()
     std = pred.variance.sqrt().cpu()
-
+    
     x_np = x_grid.squeeze(-1).cpu().numpy()
     ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
         label="True latent f")
     ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.cpu().numpy(), "k*",
         markersize=8, label="Training data")
-
+    
     Z = inducing_points.detach().cpu()
     ax.plot(Z.squeeze(-1).numpy(), np.zeros(Z.shape[0]), "rx", markersize=6,
         mew=2, label="Inducing points")
-
+    
     ax.plot(x_np, mean.numpy(), label="Mean")
     ax.fill_between(x_np, (mean - PLOT_STD_MULT * std).numpy(),
         (mean + PLOT_STD_MULT * std).numpy(), alpha=0.30,
         label=f"Confidence (±{PLOT_STD_MULT:.0f}std)")
-
+    
     if y_star is not None:
         ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
     if x_star is not None:
         ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
-
+        
     ax.set_title(title)
     ax.legend(fontsize=6, loc="lower left")
 
@@ -270,13 +276,13 @@ def plot_mean_and_band(ax, model, likelihood, x_grid, f_true, x_train, y_train,
 @torch.no_grad()
 def get_common_plot_limits(x_grid, f_true, y_train, res_std, res_con,
     init_model, y_star=None):
-    """Computes common x/y limits for the three subplots."""
+    """This function computes common x/y limits for the three subplots"""
     x_np = x_grid.squeeze(-1).cpu().numpy()
-
+    
     pred_init = predictive_distribution(init_model, res_std.likelihood, x_grid)
     pred_std = predictive_distribution(res_std.model, res_std.likelihood, x_grid)
     pred_con = predictive_distribution(res_con.model, res_con.likelihood, x_grid)
-
+    
     curves = [
         f_true.cpu().numpy(),
         y_train.cpu().numpy(),
@@ -290,61 +296,66 @@ def get_common_plot_limits(x_grid, f_true, y_train, res_std, res_con,
         (pred_init.mean - PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
         (pred_init.mean + PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
     ]
-
+    
     if y_star is not None:
         curves.append(np.array([float(y_star)]))
-
+    
     y_min = min(float(np.min(c)) for c in curves)
     y_max = max(float(np.max(c)) for c in curves)
     y_pad = 0.08 * max(1e-6, y_max - y_min)
-
+    
     x_min = float(x_np.min())
     x_max = float(x_np.max())
-
+    
     return (x_min, x_max), (y_min - y_pad, y_max + y_pad)
 
 
 def main():
-    x_grid, f_true, x_train, y_train, p_sel = generate_4obs_problem()
-
+    # Generates synthetic 1D problem with 4 observations
+    x_grid, f_true, x_train, y_train = generate_4obs_problem()
+    
+    # Number of training points
     N = x_train.shape[0]
+    # Number of inducing points (same as training points here)
     M = N
-
+    
+    # Uses training points as inducing points, fixing them
     fixed_inducing = x_train.contiguous()
+    # Number of points for evaluating the constraint term
     num_constraint_points = 100
+    # Noise level for the base GP model
     init_noise = 1e-4
-    epsilon = 1e-4
-
+    # Epsilon for step constrain term
+    epsilon = 1e-1
+    
     x_min, x_max = x_grid.min(), x_grid.max()
+    # Samples constraint points uniformly from the grid range, used to
+    # evaluate the step constraint term
     Xc_eval = x_min + (x_max - x_min) * torch.rand(
         num_constraint_points, 1, dtype=x_grid.dtype, device=x_grid.device
     )
 
-    # Fit the BoTorch base GP used for y* sampling and sparse initialization.
+    # Fits the base GP used for y* sampling and sparse initialization
     base_gp = fit_singletask_gp(x_train, y_train, init_noise=init_noise)
-
+    
+    # Defines bounds for optimization as the min and max of the grid
     bounds = torch.stack(
-        [x_grid.min(dim=0).values, x_grid.max(dim=0).values],
-        dim=0,
-    )
-
+        [x_grid.min(dim=0).values, x_grid.max(dim=0).values], dim=0)
+    
+    # Samples candidate optimal pairs (x*,y*) from the posterior of the base GP
     sampled_x_stars, sampled_y_stars = sample_solution_outputs_from_model(
-        base_gp,
-        bounds,
-        num_samples=512,
-        seed_posterior_samples=1,
-    )
-
+        base_gp=base_gp,bounds=bounds)
+    
+    # Selects one pair (x*,y*) from the sampled candidates for the constraint term
     y_star_info = choose_y_star(sampled_x_stars, sampled_y_stars)
     y_star = y_star_info["y_star"]
     x_star = y_star_info["x_star"]
-
+    
+    # Builds a sparse GP model just after initialization from the base GP posterior
     init_model = build_sparse_model_just_initialized(base_gp, fixed_inducing)
-
-    # Fit standard sparse GP initialized from the SingleTaskGP posterior.
-    res_std = fit_vfe_sparse_gp(
-        train_X=x_train,
-        train_Y=y_train,
+    
+    # Fits standard sparse GP initialized from the SingleTaskGP posterior.
+    res_std = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train,
         noise=float(base_gp.likelihood.noise.detach().cpu().item()),
         train_noise=False,
         M=M,
