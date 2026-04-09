@@ -145,43 +145,53 @@ def fit_singletask_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     base_gp.likelihood.noise = torch.as_tensor(
         init_noise, dtype=train_X.dtype, device=train_X.device
     )
-
+    
+    # Exact marginal log likelihood for fitting the model
     mll = ExactMarginalLogLikelihood(base_gp.likelihood, base_gp)
     fit_gpytorch_mll(mll)
+    
+    # Sets model and likelihood to eval mode for posterior sampling
     base_gp.eval()
     base_gp.likelihood.eval()
+    # Returns the fitted base GP
     return base_gp
 
 
 def sample_solution_outputs_from_model(base_gp, bounds,
     num_samples: int = 512, seed_posterior_samples: int = 1):
-    """Samples posterior optima (x*, y*) with BoTorch get_optimal_samples."""
+    """This function samples posterior optimal pairs (x*, y*) from the
+    GP model."""
     torch.manual_seed(seed_posterior_samples)
-    optimal_inputs, optimal_outputs = get_optimal_samples(
-        model=base_gp,
-        bounds=bounds,
-        num_optima=num_samples,
-    )
-
+    
+    # Samples optimal inputs/outputs from the posterior of the base GP 
+    # within the given bounds
+    optimal_inputs, optimal_outputs = get_optimal_samples(model=base_gp,
+        bounds=bounds,num_optima=num_samples)
+    
+    # Reshapes and detaches the sampled optima
     sampled_x_stars = optimal_inputs.reshape(num_samples, -1).squeeze(-1).detach()
     sampled_y_stars = optimal_outputs.reshape(num_samples).detach()
+    # Returns the sampled x* and y* values
     return sampled_x_stars, sampled_y_stars
 
 
 @torch.no_grad()
 def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
-    seed_star_selection: int = 1):
-    """Selects one y* value from the sampled posterior optima."""
+    seed_star_selection: int = 2):
+    """ This function selects one y* value from the sampled posterior optima"""
+    # Number of sampled optima
     n = sampled_y_stars.numel()
+    
+    # Makes the selection of the pair (x*,y*) reproducible
     g = torch.Generator(device=sampled_y_stars.device)
     g.manual_seed(seed_star_selection)
     chosen_idx = torch.randint(low=0, high=n, size=(1,), generator=g).item()
-
+    
     return {
-        "chosen_idx": int(chosen_idx),
+        "chosen_idx": int(chosen_idx), 
         "x_star": float(sampled_x_stars[chosen_idx].item()),
-        "y_star": float(sampled_y_stars[chosen_idx].item()),
-        "num_samples": int(n),
+        "y_star": float(sampled_y_stars[chosen_idx].item()),    
+        "num_samples": int(n)
     }
 
 
@@ -311,7 +321,7 @@ def main():
     )
 
     # Fit the BoTorch base GP used for y* sampling and sparse initialization.
-    base_gp = fit_base_gp_singletask(x_train, y_train, init_noise=init_noise)
+    base_gp = fit_singletask_gp(x_train, y_train, init_noise=init_noise)
 
     bounds = torch.stack(
         [x_grid.min(dim=0).values, x_grid.max(dim=0).values],
