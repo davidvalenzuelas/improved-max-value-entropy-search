@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 from modified_vfe_sparse_gp import (
     fit_vfe_sparse_gp,
-    predictive_distribution,
+    predictive_distribution as sparse_predictive_distribution,
     normal_cdf,
     VFESparseGP,
     build_init_dist_from_base_gp,
@@ -23,7 +23,7 @@ from botorch.acquisition.utils import get_optimal_samples
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
 
 # Number of training points (observations) we keep from the sampled function
-NUM_TRAIN = 4
+NUM_TRAIN = 5
 # Multiplier for the standard deviation when plotting confidence bands
 PLOT_STD_MULT = 1.0
 
@@ -43,7 +43,7 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
 
 @torch.no_grad()
 def generate_4obs_problem(num_grid: int = 1000, jitter: float=1e-7,
-    seed_latent: int = 123, seed_train: int = 2):
+    seed_latent: int = 123, seed_train: int = 10):
     """ This function generates the synthetic 1D problem used in the test.
     It samples a latent function from a GP with a RBF kernel on [-5,5]
     and selects 4 grid points uniformly at random as training points"""
@@ -72,6 +72,18 @@ def generate_4obs_problem(num_grid: int = 1000, jitter: float=1e-7,
     
     return x_grid, f_true, x_train, y_train
 
+
+@torch.no_grad()
+def predictive_distribution(model, likelihood, test_x: torch.Tensor,
+    observation_noise: bool = False):
+    """This function returns the latent predictive distribution in
+    the original output scale."""
+    if hasattr(model, "posterior"):
+        return model.posterior(test_x, observation_noise=observation_noise)
+    return sparse_predictive_distribution(
+        model, likelihood, test_x, observation_noise=observation_noise
+    )
+    
 
 @torch.no_grad()
 def prob_f_below_y_star(model, Xc, y_star): 
@@ -138,13 +150,13 @@ def fit_singletask_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         train_Y = train_Y.unsqueeze(-1)
     
     # Builds and fits the SingleTaskGP on the training data
-    base_gp = SingleTaskGP(train_X, train_Y)
+    base_gp = SingleTaskGP(train_X, train_Y, outcome_transform=None)
     base_gp = base_gp.to(dtype=train_X.dtype, device=train_X.device)
     
-    # Starts from a small noise level
-    base_gp.likelihood.noise = torch.as_tensor(
-        init_noise, dtype=train_X.dtype, device=train_X.device
-    )
+    # Uses a tiny fixed observation noise
+    base_gp.likelihood.noise = torch.as_tensor(init_noise,
+        dtype=train_X.dtype, device=train_X.device)
+    base_gp.likelihood.noise_covar.raw_noise.requires_grad_(False)
     
     # Exact marginal log likelihood for fitting the model
     mll = ExactMarginalLogLikelihood(base_gp.likelihood, base_gp)
@@ -177,7 +189,7 @@ def sample_solution_outputs_from_model(base_gp, bounds,
 
 @torch.no_grad()
 def choose_y_star(sampled_x_stars: torch.Tensor, sampled_y_stars: torch.Tensor,
-    seed_star_selection: int = 2):
+    seed_star_selection: int = 4):
     """ This function selects one y* value from the sampled posterior optima"""
     # Number of sampled optima
     n = sampled_y_stars.numel()
@@ -207,11 +219,11 @@ def plot_two_predictive_distributions(ax, model_a, likelihood_a, model_b,
     pred_a = predictive_distribution(model_a, likelihood_a, x_grid)
     pred_b = predictive_distribution(model_b, likelihood_b, x_grid)
     
-    # Obtains mean and std deviation for both models
-    mean_a = pred_a.mean.cpu()
-    std_a = pred_a.variance.sqrt().cpu()
-    mean_b = pred_b.mean.cpu()
-    std_b = pred_b.variance.sqrt().cpu()
+    # Obtains mean and std deviation for both models as 1D vectors
+    mean_a = pred_a.mean.reshape(-1).cpu()
+    std_a = pred_a.variance.clamp_min(1e-12).sqrt().reshape(-1).cpu()
+    mean_b = pred_b.mean.reshape(-1).cpu()
+    std_b = pred_b.variance.clamp_min(1e-12).sqrt().reshape(-1).cpu()
     
     x_np = x_grid.squeeze(-1).cpu().numpy()
     ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
@@ -245,9 +257,10 @@ def plot_mean_and_band(ax, model, likelihood, x_grid, f_true, x_train, y_train,
     """This function plots the predictive mean and confidence band of a model"""
     # Computes predictive distribution on the grid
     pred = predictive_distribution(model, likelihood, x_grid)
-    # Obtains mean and std deviation
-    mean = pred.mean.cpu()
-    std = pred.variance.sqrt().cpu()
+
+    # Obtains mean and std deviation as 1D vectors
+    mean = pred.mean.reshape(-1).cpu()
+    std = pred.variance.clamp_min(1e-12).sqrt().reshape(-1).cpu()
     
     x_np = x_grid.squeeze(-1).cpu().numpy()
     ax.plot(x_np, f_true.cpu().numpy(), color="0.65", linewidth=0.5,
@@ -284,17 +297,17 @@ def get_common_plot_limits(x_grid, f_true, y_train, res_std, res_con,
     pred_con = predictive_distribution(res_con.model, res_con.likelihood, x_grid)
     
     curves = [
-        f_true.cpu().numpy(),
-        y_train.cpu().numpy(),
-        pred_std.mean.cpu().numpy(),
-        pred_con.mean.cpu().numpy(),
-        pred_init.mean.cpu().numpy(),
-        (pred_std.mean - PLOT_STD_MULT * pred_std.variance.sqrt()).cpu().numpy(),
-        (pred_std.mean + PLOT_STD_MULT * pred_std.variance.sqrt()).cpu().numpy(),
-        (pred_con.mean - PLOT_STD_MULT * pred_con.variance.sqrt()).cpu().numpy(),
-        (pred_con.mean + PLOT_STD_MULT * pred_con.variance.sqrt()).cpu().numpy(),
-        (pred_init.mean - PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
-        (pred_init.mean + PLOT_STD_MULT * pred_init.variance.sqrt()).cpu().numpy(),
+        f_true.reshape(-1).cpu().numpy(),
+        y_train.reshape(-1).cpu().numpy(),
+        pred_std.mean.reshape(-1).cpu().numpy(),
+        pred_con.mean.reshape(-1).cpu().numpy(),
+        pred_init.mean.reshape(-1).cpu().numpy(),
+        (pred_std.mean.reshape(-1) - PLOT_STD_MULT * pred_std.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
+        (pred_std.mean.reshape(-1) + PLOT_STD_MULT * pred_std.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
+        (pred_con.mean.reshape(-1) - PLOT_STD_MULT * pred_con.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
+        (pred_con.mean.reshape(-1) + PLOT_STD_MULT * pred_con.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
+        (pred_init.mean.reshape(-1) - PLOT_STD_MULT * pred_init.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
+        (pred_init.mean.reshape(-1) + PLOT_STD_MULT * pred_init.variance.clamp_min(1e-12).sqrt().reshape(-1)).cpu().numpy(),
     ]
     
     if y_star is not None:
@@ -324,9 +337,9 @@ def main():
     # Number of points for evaluating the constraint term
     num_constraint_points = 100
     # Noise level for the base GP model
-    init_noise = 1e-4
+    init_noise = 1e-3
     # Epsilon for step constrain term
-    epsilon = 1e-1
+    epsilon = 1e-4
     
     x_min, x_max = x_grid.min(), x_grid.max()
     # Samples constraint points uniformly from the grid range, used to
@@ -365,7 +378,7 @@ def main():
         base_gp=base_gp,
         verbose=False,
     )
-
+    
     noise_star = float(res_std.likelihood.noise.detach().cpu().item())
 
     # Fit constrained sparse GP initialized from the same SingleTaskGP.
