@@ -537,79 +537,45 @@ def main():
     # First plot: conditioned exact GP vs sparse GP just after initialization
     plot_mean_and_band(axes[0], x_grid=x_grid, mean=mean_init, std=std_init,
         f_true=f_true, x_obs=x_train, y_obs=y_train, inducing_points=fixed_inducing,
-        title="Conditioned exact GP vs Sparse GP after init",
+        title="Conditioned SingleTask GP vs Sparse GP after init",
         x_star=x_star, y_star=y_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1),
         mean_label="Sparse GP (after init) mean", band_label="Sparse GP (after init) band")
     
     axes[0].plot(x_np, mean_base_cond.reshape(-1).cpu().numpy(), linestyle="--",
-        label="Conditioned exact GP mean")
+        label="Conditioned SingleTask GP mean")
     axes[0].fill_between(
         x_np,
         (mean_base_cond - PLOT_STD_MULT * var_base_cond.sqrt()).reshape(-1).cpu().numpy(),
         (mean_base_cond + PLOT_STD_MULT * var_base_cond.sqrt()).reshape(-1).cpu().numpy(),
         alpha=0.12,
-        label="Conditioned exact GP band",
+        label="Conditioned SingleTask GP band",
     )
     axes[0].legend(fontsize=6, loc="lower left")
 
-    # Panel 2: standard sparse GP
-    plot_mean_and_band(
-        axes[1],
-        x_grid=x_grid,
-        mean=mean_std,
-        std=std_std,
-        f_true=f_true,
-        x_obs=x_train,
-        y_obs=y_train,
-        inducing_points=res_std.inducing_points,
-        title="Standard sparse GP\nafter conditioning on (x*, y*)",
-        x_star=x_star,
-        y_star=y_star,
-        x_pseudo=x_star_t,
-        y_pseudo=y_star_t_col.reshape(-1),
-    )
-
-    # Panel 3: JES-style truncation
-    plot_mean_and_band(
-        axes[2],
-        x_grid=x_grid,
-        mean=mean_jes,
-        std=std_jes,
-        f_true=f_true,
-        x_obs=x_train,
-        y_obs=y_train,
-        inducing_points=res_std.inducing_points,
-        title="JES-style truncation of the latent predictive Gaussian",
-        x_star=x_star,
-        y_star=y_star,
-        x_pseudo=x_star_t,
-        y_pseudo=y_star_t_col.reshape(-1),
-        band_label="Truncated moments (±1 std)",
-    )
-
-    # Panel 4: modified sparse GP
-    plot_mean_and_band(
-        axes[3],
-        x_grid=x_grid,
-        mean=mean_con,
-        std=std_con,
-        f_true=f_true,
-        x_obs=x_train,
-        y_obs=y_train,
-        inducing_points=res_con.inducing_points,
-        title="Modified sparse GP\n(Standard ELBO + step term)",
-        x_star=x_star,
-        y_star=y_star,
-        x_pseudo=x_star_t,
-        y_pseudo=y_star_t_col.reshape(-1),
-    )
-
+    # Second plot: standard sparse GP
+    plot_mean_and_band(axes[1], x_grid=x_grid, mean=mean_std, std=std_std, f_true=f_true,
+        x_obs=x_train, y_obs=y_train, inducing_points=res_std.inducing_points,
+        title="Standard sparse GP (after training with std ELBO)",
+        x_star=x_star, y_star=y_star, x_pseudo=x_star_t,y_pseudo=y_star_t_col.reshape(-1))
+    
+    # Third plot: JES-style truncation of the standard sparse GP predictive
+    plot_mean_and_band(axes[2], x_grid=x_grid, mean=mean_jes, std=std_jes, f_true=f_true,
+        x_obs=x_train, y_obs=y_train, inducing_points=res_std.inducing_points,
+        title="JES truncation of the std sparse GP predictive",
+        x_star=x_star, y_star=y_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1))
+    
+    # Figure 4: modified sparse GP with the step constraint term
+    plot_mean_and_band(axes[3], x_grid=x_grid, mean=mean_con, std=std_con, f_true=f_true,
+        x_obs=x_train, y_obs=y_train, inducing_points=res_con.inducing_points,
+        title="Modified sparse GP (after training with constraint ELBO)",
+        x_star=x_star, y_star=y_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1))
+    
     for ax in axes:
         ax.set_xlim(float(x_np.min()), float(x_np.max()))
         ax.set_ylim(y_lim_low, y_lim_high)
-
+        
     fig.suptitle(
-        "1D test: conditioning on (x*, y*) first, then comparing JES truncation with the modified VFE sparse GP",
+        "1D test with 5 observations",
         fontsize=15,
     )
     fig.tight_layout(rect=[0, 0, 1, 0.95])
