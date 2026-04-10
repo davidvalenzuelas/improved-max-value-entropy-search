@@ -555,7 +555,7 @@ def main():
     # Second plot: standard sparse GP
     plot_mean_and_band(axes[1], x_grid=x_grid, mean=mean_std, std=std_std, f_true=f_true,
         x_obs=x_train, y_obs=y_train, inducing_points=res_std.inducing_points,
-        title="Standard sparse GP (after training with std ELBO)",
+        title="Standard sparse GP \n(after training with std ELBO)",
         x_star=x_star, y_star=y_star, x_pseudo=x_star_t,y_pseudo=y_star_t_col.reshape(-1))
     
     # Third plot: JES-style truncation of the standard sparse GP predictive
@@ -567,7 +567,7 @@ def main():
     # Figure 4: modified sparse GP with the step constraint term
     plot_mean_and_band(axes[3], x_grid=x_grid, mean=mean_con, std=std_con, f_true=f_true,
         x_obs=x_train, y_obs=y_train, inducing_points=res_con.inducing_points,
-        title="Modified sparse GP (after training with constraint ELBO)",
+        title="Modified sparse GP \n(after training with constraint ELBO)",
         x_star=x_star, y_star=y_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1))
     
     for ax in axes:
