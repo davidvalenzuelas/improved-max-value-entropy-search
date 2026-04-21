@@ -162,7 +162,12 @@ def marginal_mean_variance(model, likelihood, grid: torch.Tensor,
     
     # Extracts the mean and the variance, and returns them
     mean = post.mean
+    if mean.ndim > 1 and mean.shape[-1] == 1:
+        mean = mean.squeeze(-1)
     variance = post.variance.clamp_min(1e-12)
+    if variance.ndim > 1 and variance.shape[-1] == 1:
+        variance = variance.squeeze(-1)
+        
     return mean, variance
 
 
@@ -228,6 +233,11 @@ def gaussian_entropy_reduction_acq(prior_variance: torch.Tensor,
     conditioned_variance: torch.Tensor) -> torch.Tensor:
     """This function approximates the acquisition function used in JES by the
     reduction in the entropy of a normal distribution"""
+    if prior_variance.ndim > 1 and prior_variance.shape[-1] == 1:
+        prior_variance = prior_variance.squeeze(-1)
+    if conditioned_variance.ndim > 1 and conditioned_variance.shape[-1] == 1:
+        conditioned_variance = conditioned_variance.squeeze(-1)
+        
     # Clamps both variances to avoid numerical issues
     prior_variance = prior_variance.clamp_min(1e-12)
     conditioned_variance = conditioned_variance.clamp_min(1e-12)
@@ -243,13 +253,17 @@ def summarize_acquisition_curve(name: str, x_grid: torch.Tensor,
     """This function summarizes the statistics of an acquisition curve"""
     # Finds the mean and max of the acquisition values, and the x value where the maximum is
     # obtained
+    
+    x_flat = x_grid.squeeze(-1).reshape(-1)
+
+    if acq.ndim > 1 and acq.shape[-1] == 1:
+        acq = acq.squeeze(-1)
     acq_flat = acq.reshape(-1)
+    
     idx = torch.argmax(acq_flat)
-    x_flat = x_grid.reshape(-1)
     
     print(
         f"{name}: "
-        f"mean={acq_flat.mean().item():.6f}, "
         f"max={acq_flat.max().item():.6f}, "
         f"x_argmax={x_flat[idx].item():.6f}"
     )

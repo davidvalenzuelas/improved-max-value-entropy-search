@@ -30,7 +30,9 @@ from my_utils import (
     jes_truncated_predictive_moments,
     summarize_prob_less_than,
     summarize_prob_less_than_from_moments,
-    format_diff_stats
+    format_diff_stats,
+    gaussian_entropy_reduction_acq,
+    summarize_acquisition_curve
 )
 
 # Number of training points (observations) we keep from the sampled function
@@ -226,6 +228,9 @@ def main():
         fixed_inducing_points=fixed_inducing, seed_for_init=2024,base_gp=conditioned_base_gp)
     
     # JES style truncation of the std sparse GP predictive
+    # Predictive moments of the standard sparse GP before condition on (x*,y*)
+    mean_base, var_base = marginal_mean_variance(base_gp, base_gp.likelihood, x_grid)
+    
     # Predictive moments of the exact GP conditioned on (x*,y*)
     mean_base_cond, var_base_cond = marginal_mean_variance(conditioned_base_gp,
         conditioned_base_gp.likelihood, x_grid)
@@ -243,6 +248,13 @@ def main():
     # including observation noise
     mean_jes_y, var_jes_y = jes_truncated_predictive_moments(res_std.model, res_std.likelihood,
         x_grid, y_star=y_star, observation_noise=True)
+    
+    # Approximate acquisition curves from gaussian entropy reduction
+    acq_exact = gaussian_entropy_reduction_acq(var_base, var_base_cond)
+    acq_init = gaussian_entropy_reduction_acq(var_base, var_init)
+    acq_std = gaussian_entropy_reduction_acq(var_base, var_std)
+    acq_jes = gaussian_entropy_reduction_acq(var_base, var_jes)
+    acq_con = gaussian_entropy_reduction_acq(var_base, var_con)
     
     print("\nPrinting some results...")
     print("Original observed x:", x_train.squeeze(-1).cpu().numpy())
@@ -359,11 +371,44 @@ def main():
         ax.set_xlim(float(x_np.min()), float(x_np.max()))
         ax.set_ylim(y_lim_low, y_lim_high)
         
-    fig.suptitle(
-        "1D test with 5 observations",
-        fontsize=15,
-    )
+    fig.suptitle("1D test with 5 observations",fontsize=15)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
+
+    # Approximate acquisition summaries (single sampled optimum)
+    print("\nApproximate acquisition summaries (single sampled optimum):")
+    summarize_acquisition_curve("   Conditioned SingleTask GP", x_grid, acq_exact)
+    summarize_acquisition_curve(
+        "   Standard sparse GP (after training with std ELBO)", x_grid, acq_std
+    )
+    summarize_acquisition_curve(
+        "   JES truncation of the standard sparse GP predictive", x_grid, acq_jes
+    )
+    summarize_acquisition_curve(
+        "   Modified sparse GP (after training with constraint ELBO)", x_grid, acq_con
+    )
+
+    # Figure with approximate acquisition curves
+    fig_acq, ax_acq = plt.subplots(1, 1, figsize=(10.8, 5.0))
+
+    ax_acq.plot(x_np, acq_exact.reshape(-1).cpu().numpy(), linewidth=2.2,
+        label="Conditioned SingleTask GP")
+    ax_acq.plot(x_np, acq_std.reshape(-1).cpu().numpy(), linewidth=1.9,
+        label="Standard sparse GP (after training with std ELBO)")
+    ax_acq.plot(x_np, acq_jes.reshape(-1).cpu().numpy(), linewidth=1.9,
+        label="JES truncation of the standard sparse GP predictive")
+    ax_acq.plot(x_np, acq_con.reshape(-1).cpu().numpy(), linewidth=2.1,
+        label="Modified sparse GP (after training with constraint ELBO)")
+    
+    ax_acq.axvline(float(x_star), color="lightgreen", linestyle=":", linewidth=1.8,
+        label="Sampled x*")
+    
+    ax_acq.set_xlim(float(x_np.min()), float(x_np.max()))
+    ax_acq.set_title("Approximate acquisition curves from Gaussian entropy reduction")
+    ax_acq.set_xlabel("x")
+    ax_acq.set_ylabel("Approximate acquisition")
+    ax_acq.legend(fontsize=8, loc="best")
+    fig_acq.tight_layout()
+
     plt.show()
 
 
