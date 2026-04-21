@@ -17,7 +17,6 @@ import math
 from botorch.models.gp_regression import SingleTaskGP
 from botorch.fit import fit_gpytorch_mll
 from botorch.acquisition.utils import get_optimal_samples
-from botorch.models.gp_regression import SingleTaskGP
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
 
 
