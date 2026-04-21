@@ -20,6 +20,7 @@ from botorch.acquisition.utils import get_optimal_samples
 from gpytorch.mlls.exact_marginal_log_likelihood import ExactMarginalLogLikelihood
 
 
+# Mathematical utilities, useful when working with the normal distribution
 def normal_cdf(z: torch.Tensor) -> torch.Tensor:
     """ This function computes the CDF of the standard normal distribution at z, using
     the error function."""
@@ -33,6 +34,7 @@ def normal_pdf(z: torch.Tensor) -> torch.Tensor:
     return torch.exp(-0.5 * z.pow(2)) / math.sqrt(2.0 * math.pi)
 
 
+# Helpers for fitting, sampling and conditioning GPs
 def fit_singletask_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     init_noise: float) -> SingleTaskGP:
     """ This function fits a SingleTaskGP used as base GP for initializing
@@ -133,6 +135,7 @@ def condition_base_gp_on_optimum(base_gp: SingleTaskGP, x_star: float, y_star: f
     return conditioned_gp, x_star_t, y_star_t
 
 
+# Helper for computing the predictive distribution and moments of a model
 @torch.no_grad()
 def get_predictive_distribution(model, likelihood, grid: torch.Tensor,
     observation_noise: bool = False):
@@ -173,6 +176,7 @@ def extract_noise_variance(model, likelihood, grid: torch.Tensor) -> torch.Tenso
     return (var_y - var_f).clamp_min(1e-12)
 
 
+# Helpers for computing truncated predictive moments and probabilities, useful for the JES approximation
 @torch.no_grad()
 def truncated_upper_normal_moments(mean: torch.Tensor, variance: torch.Tensor,
     upper: torch.Tensor):
@@ -218,7 +222,40 @@ def jes_truncated_predictive_moments(model, likelihood, grid: torch.Tensor,
     return mean_trunc, var_trunc + noise_var
 
 
-# Useful helpers for comparing probabilities
+# Helpers for computing and summarizing acquisition functions
+@torch.no_grad()
+def gaussian_entropy_reduction_acq(prior_variance: torch.Tensor, 
+    conditioned_variance: torch.Tensor) -> torch.Tensor:
+    """This function approximates the acquisition function used in JES by the
+    reduction in the entropy of a normal distribution"""
+    # Clamps both variances to avoid numerical issues
+    prior_variance = prior_variance.clamp_min(1e-12)
+    conditioned_variance = conditioned_variance.clamp_min(1e-12)
+    
+    # Calculates the reduction in the entropy of a normal distribution
+    # This is 1/2 * log(prior_variance/conditioned_variance))
+    return 0.5 * (torch.log(prior_variance) - torch.log(conditioned_variance))
+
+
+@torch.no_grad()
+def summarize_acquisition_curve(name: str, x_grid: torch.Tensor,
+    acq: torch.Tensor):
+    """This function summarizes the statistics of an acquisition curve"""
+    # Finds the mean and max of the acquisition values, and the x value where the maximum is
+    # obtained
+    acq_flat = acq.reshape(-1)
+    idx = torch.argmax(acq_flat)
+    x_flat = x_grid.reshape(-1)
+    
+    print(
+        f"{name}: "
+        f"mean={acq_flat.mean().item():.6f}, "
+        f"max={acq_flat.max().item():.6f}, "
+        f"x_argmax={x_flat[idx].item():.6f}"
+    )
+
+
+# Useful helpers for comparing probabilities and showing differences between approximations
 @torch.no_grad()
 def gaussian_prob_less_than(mean: torch.Tensor, variance: torch.Tensor, threshold: torch.Tensor):
     """This function computes the gaussian probability P(X<threshold) where X~N(mean, variance)"""
