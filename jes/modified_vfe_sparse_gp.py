@@ -5,7 +5,7 @@ This file implements a VFE sparse GP with an additional probabilistic
 step constraint term in the ELBO, which encourages the model to satisfy
 a soft inequality constraint over some constraint points.
 
-Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
+Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -13,7 +13,6 @@ from typing import Literal, Optional
 
 import torch
 import gpytorch
-import math
 import copy
 
 from gpytorch.models import ApproximateGP
@@ -21,6 +20,8 @@ from gpytorch.variational import CholeskyVariationalDistribution
 from gpytorch.variational import UnwhitenedVariationalStrategy
 from gpytorch.mlls import VariationalELBO
 from gpytorch.constraints.constraints import GreaterThan
+
+from my_utils import normal_cdf
 
 
 def sample_Xc(num_constraint_points: int, d: int,
@@ -214,12 +215,6 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
     return losses
 
 
-def normal_cdf(z: torch.Tensor) -> torch.Tensor:
-    """ This function computes the CDF of the standard normal distribution at z, using
-    the error function."""
-    # phi(z) = 0.5 * (1 + erf(z/sqrt(2)))
-    return 0.5 * (1.0 + torch.erf(z / math.sqrt(2.0)))
-
 class StepConstraintVariationalELBO(VariationalELBO):
     """This class implements the Variational ELBO with an added step constraint
     term, which encourages the VFE sparse GP to satisfy a constraint P(f(Xc) < y*)
@@ -323,10 +318,10 @@ class StepConstraintVariationalELBO(VariationalELBO):
 
 
 @torch.no_grad()
-def predictive_distribution(model: VFESparseGP,
+def sparse_predictive_distribution(model: VFESparseGP,
     likelihood: gpytorch.likelihoods.Likelihood, test_x: torch.Tensor,
     observation_noise: bool = False) -> gpytorch.distributions.MultivariateNormal:
-    """ Returns the predictive distribution at test_x."""
+    """ Returns the predictive distribution at test_x of a VFE sparse GP model"""
     
     # Sets model and likelihood in eval mode
     model.eval()
