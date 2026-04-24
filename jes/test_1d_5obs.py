@@ -250,11 +250,11 @@ def main():
         x_grid, y_star=y_star, observation_noise=True)
     
     # Approximate acquisition curves from gaussian entropy reduction
-    acq_exact = gaussian_entropy_reduction_acq(var_base, var_base_cond)
-    acq_init = gaussian_entropy_reduction_acq(var_base, var_init)
-    acq_std = gaussian_entropy_reduction_acq(var_base, var_std)
-    acq_jes = gaussian_entropy_reduction_acq(var_base, var_jes)
-    acq_con = gaussian_entropy_reduction_acq(var_base, var_con)
+    # acq_exact = gaussian_entropy_reduction_acq(var_base, var_base_cond)
+    # acq_init = gaussian_entropy_reduction_acq(var_base, var_init)
+    # acq_std = gaussian_entropy_reduction_acq(var_base, var_std)
+    # acq_jes = gaussian_entropy_reduction_acq(var_base, var_jes)
+    # acq_con = gaussian_entropy_reduction_acq(var_base, var_con)
     
     print("\nPrinting some results...")
     print("Original observed x:", x_train.squeeze(-1).cpu().numpy())
@@ -348,7 +348,7 @@ def main():
         label="Conditioned SingleTask GP band",
     )
     axes[0].legend(fontsize=6, loc="lower left")
-
+    
     # Second plot: standard sparse GP
     plot_mean_and_band(axes[1], x_grid=x_grid, mean=mean_std, std=std_std, f_true=f_true,
         x_obs=x_train, y_obs=y_train, inducing_points=res_std.inducing_points,
@@ -361,7 +361,7 @@ def main():
         title="JES truncation of the std sparse GP predictive",
         x_star=x_star, y_star=y_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1))
     
-    # Figure 4: modified sparse GP with the step constraint term
+    # Fourth plot: modified sparse GP with the step constraint term
     plot_mean_and_band(axes[3], x_grid=x_grid, mean=mean_con, std=std_con, f_true=f_true,
         x_obs=x_train, y_obs=y_train, inducing_points=res_con.inducing_points,
         title="Modified sparse GP \n(after training with constraint ELBO)",
@@ -373,41 +373,41 @@ def main():
         
     fig.suptitle("1D test with 5 observations",fontsize=15)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-
+    
     # Approximate acquisition summaries (single sampled optimum)
-    print("\nApproximate acquisition summaries (single sampled optimum):")
-    summarize_acquisition_curve("   Conditioned SingleTask GP", x_grid, acq_exact)
-    summarize_acquisition_curve(
-        "   Standard sparse GP (after training with std ELBO)", x_grid, acq_std
-    )
-    summarize_acquisition_curve(
-        "   JES truncation of the standard sparse GP predictive", x_grid, acq_jes
-    )
-    summarize_acquisition_curve(
-        "   Modified sparse GP (after training with constraint ELBO)", x_grid, acq_con
-    )
+    # print("\nApproximate acquisition summaries (single sampled optimum):")
+    # summarize_acquisition_curve("   Conditioned SingleTask GP", x_grid, acq_exact)
+    # summarize_acquisition_curve(
+    #     "   Standard sparse GP (after training with std ELBO)", x_grid, acq_std
+    # )
+    # summarize_acquisition_curve(
+    #     "   JES truncation of the standard sparse GP predictive", x_grid, acq_jes
+    # )
+    # summarize_acquisition_curve(
+    #     "   Modified sparse GP (after training with constraint ELBO)", x_grid, acq_con
+    # )
 
-    # Figure with approximate acquisition curves
-    fig_acq, ax_acq = plt.subplots(1, 1, figsize=(10.8, 5.0))
+    # # Figure with approximate acquisition curves
+    # fig_acq, ax_acq = plt.subplots(1, 1, figsize=(10.8, 5.0))
 
-    ax_acq.plot(x_np, acq_exact.reshape(-1).cpu().numpy(), linewidth=2.2,
-        label="Conditioned SingleTask GP")
-    ax_acq.plot(x_np, acq_std.reshape(-1).cpu().numpy(), linewidth=1.9,
-        label="Standard sparse GP (after training with std ELBO)")
-    ax_acq.plot(x_np, acq_jes.reshape(-1).cpu().numpy(), linewidth=1.9,
-        label="JES truncation of the standard sparse GP predictive")
-    ax_acq.plot(x_np, acq_con.reshape(-1).cpu().numpy(), linewidth=2.1,
-        label="Modified sparse GP (after training with constraint ELBO)")
+    # ax_acq.plot(x_np, acq_exact.reshape(-1).cpu().numpy(), linewidth=2.2,
+    #     label="Conditioned SingleTask GP")
+    # ax_acq.plot(x_np, acq_std.reshape(-1).cpu().numpy(), linewidth=1.9,
+    #     label="Standard sparse GP (after training with std ELBO)")
+    # ax_acq.plot(x_np, acq_jes.reshape(-1).cpu().numpy(), linewidth=1.9,
+    #     label="JES truncation of the standard sparse GP predictive")
+    # ax_acq.plot(x_np, acq_con.reshape(-1).cpu().numpy(), linewidth=2.1,
+    #     label="Modified sparse GP (after training with constraint ELBO)")
     
-    ax_acq.axvline(float(x_star), color="lightgreen", linestyle=":", linewidth=1.8,
-        label="Sampled x*")
+    # ax_acq.axvline(float(x_star), color="lightgreen", linestyle=":", linewidth=1.8,
+    #     label="Sampled x*")
     
-    ax_acq.set_xlim(float(x_np.min()), float(x_np.max()))
-    ax_acq.set_title("Approximate acquisition curves from Gaussian entropy reduction")
-    ax_acq.set_xlabel("x")
-    ax_acq.set_ylabel("Approximate acquisition")
-    ax_acq.legend(fontsize=8, loc="best")
-    fig_acq.tight_layout()
+    # ax_acq.set_xlim(float(x_np.min()), float(x_np.max()))
+    # ax_acq.set_title("Approximate acquisition curves from Gaussian entropy reduction")
+    # ax_acq.set_xlabel("x")
+    # ax_acq.set_ylabel("Approximate acquisition")
+    # ax_acq.legend(fontsize=8, loc="best")
+    # fig_acq.tight_layout()
 
     plt.show()
 
