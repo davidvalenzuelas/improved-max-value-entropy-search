@@ -27,7 +27,7 @@ from my_utils import (
     condition_base_gp_on_optimum,
     choose_y_star,
     marginal_mean_variance,
-    jes_truncated_predictive_moments,
+    upper_truncated_predictive_moments,
     summarize_prob_less_than,
     summarize_prob_less_than_from_moments,
     format_diff_stats,
@@ -242,11 +242,11 @@ def main():
     # Predictive moments of the constrained sparse GP after training with constraint ELBO
     mean_con, var_con = marginal_mean_variance(res_con.model, res_con.likelihood, x_grid)
     # JES truncation of the std sparse GP predictive moments after training with std ELBO
-    mean_jes, var_jes = jes_truncated_predictive_moments(res_std.model, res_std.likelihood,
+    mean_jes, var_jes = upper_truncated_predictive_moments(res_std.model, res_std.likelihood,
         x_grid, y_star=y_star, observation_noise=False)
     # JES truncation of the std sparse GP predictive moments after training with std ELBO,
     # including observation noise
-    mean_jes_y, var_jes_y = jes_truncated_predictive_moments(res_std.model, res_std.likelihood,
+    mean_jes_y, var_jes_y = upper_truncated_predictive_moments(res_std.model, res_std.likelihood,
         x_grid, y_star=y_star, observation_noise=True)
     
     # Approximate acquisition curves from gaussian entropy reduction
@@ -269,7 +269,7 @@ def main():
     p_con = summarize_prob_less_than(res_con.model, res_con.likelihood, Xc_eval, y_star_t)
     
     # JES truncated predictive moments on the evaluation points
-    mean_jes_Xc, var_jes_Xc = jes_truncated_predictive_moments(res_std.model, res_std.likelihood,
+    mean_jes_Xc, var_jes_Xc = upper_truncated_predictive_moments(res_std.model, res_std.likelihood,
         Xc_eval, y_star=y_star, observation_noise=False)
     # Calculates P(f(Xc)<y*) under the JES truncated predictive distribution
     p_jes_gaussian_moment_match = summarize_prob_less_than_from_moments(mean_jes_Xc, var_jes_Xc,

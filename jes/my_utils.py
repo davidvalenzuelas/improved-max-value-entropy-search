@@ -181,7 +181,7 @@ def extract_noise_variance(model, likelihood, grid: torch.Tensor) -> torch.Tenso
     return (var_y - var_f).clamp_min(1e-12)
 
 
-# Helpers for computing truncated predictive moments and probabilities, useful for the JES approximation
+# Helpers for computing truncated predictive moments and probabilities
 @torch.no_grad()
 def truncated_upper_normal_moments(mean: torch.Tensor, variance: torch.Tensor,
     upper: torch.Tensor):
@@ -206,16 +206,16 @@ def truncated_upper_normal_moments(mean: torch.Tensor, variance: torch.Tensor,
 
 
 @torch.no_grad()
-def jes_truncated_predictive_moments(model, likelihood, grid: torch.Tensor,
+def upper_truncated_predictive_moments(model, likelihood, grid: torch.Tensor,
     y_star: float | torch.Tensor, observation_noise: bool = False):
-    """ This function computes the JEs style predictive mean and variance after
+    """ This function computes the predictive mean and variance after
     upper truncation at y*"""
     # Obtains the marginal predictive mean and variance of the model on the grid
     mean_f, var_f = marginal_mean_variance(model, likelihood, grid,
         observation_noise=False)
     # Converts y_star to a tensor with correct dtype/device
     y_star_t = torch.as_tensor(y_star, dtype=mean_f.dtype, device=mean_f.device)
-    # Computes the truncated mean and variance using the JES formulas for upper truncation
+    # Computes the truncated mean and variance using the formulas for upper truncation
     mean_trunc, var_trunc = truncated_upper_normal_moments(mean_f, var_f, y_star_t)
     
     # If there is not observation noise, returns the truncated mean and variance directly
@@ -231,7 +231,7 @@ def jes_truncated_predictive_moments(model, likelihood, grid: torch.Tensor,
 @torch.no_grad()
 def gaussian_entropy_reduction_acq(prior_variance: torch.Tensor, 
     conditioned_variance: torch.Tensor) -> torch.Tensor:
-    """This function approximates the acquisition function used in JES by the
+    """This function approximates the acquisition function by the
     reduction in the entropy of a normal distribution"""
     if prior_variance.ndim > 1 and prior_variance.shape[-1] == 1:
         prior_variance = prior_variance.squeeze(-1)
