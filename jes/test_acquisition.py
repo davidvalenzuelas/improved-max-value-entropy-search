@@ -122,15 +122,15 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
         samples = samples.squeeze(-1)
         
     # Keeps only functions whose maximum lies in a neighbourhood of y*
-    maxima = samples.max(dim=-1).values
-    keep = (maxima - y_star_t).abs() <= float(max_tol)
+    max = samples.max(dim=-1).values
+    keep = (max - y_star_t).abs() <= float(max_tol)
     
     # If no function sample was accepted, returns None
     if not torch.any(keep):
         return None
-
+    
     accepted_functions = samples[keep]
-    accepted_maxima = maxima[keep]
+    accepted_maxima = max[keep]
     
     # Mean and variance of the accepted latent functions on the grid
     mean_f = accepted_functions.mean(dim=0)
