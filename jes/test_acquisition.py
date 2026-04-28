@@ -22,18 +22,12 @@ from my_utils import (
     format_diff_stats,
 )
 
-
 # Number of training points (observations) we keep from the sampled function
 NUM_TRAIN = 5
 # Multiplier for the standard deviation when plotting confidence bands
 PLOT_STD_MULT = 1.0
 # Noise level for the base GP model
 INIT_NOISE = 1e-6
-# Epsilon for the step constraint term
-EPSILON = 1e-4
-# Optimizer settings for the sparse models
-TRAINING_ITER = 500
-LR = 1e-2
 
 # Parameters for the rejection approximation to the exact conditional p(y|D,y*)
 EXACT_MAX_TOL = 0.1
@@ -225,13 +219,13 @@ def main():
     # Defines bounds for optimization as the min and max of the grid
     bounds = torch.stack([x_grid.min(dim=0).values, x_grid.max(dim=0).values], dim=0)
     # Samples candidate optimal pairs (x*, y*) from the posterior of the base GP
-    sampled_x_stars, sampled_y_stars = sample_solution_outputs_from_model(
-        base_gp=base_gp, bounds=bounds)
+    sampled_x_stars, sampled_y_stars = sample_solution_outputs_from_model(base_gp=base_gp, bounds=bounds)
+    
     # Selects one pair (x*, y*) from the sampled candidates
     y_star_info = choose_y_star(sampled_x_stars, sampled_y_stars)
     y_star = y_star_info["y_star"]
     x_star = y_star_info["x_star"]
-
+    
     print("\nPrinting some results...")
     print("Original observed x:", x_train.squeeze(-1).cpu().numpy())
     print("Original observed y:", y_train.cpu().numpy())
@@ -239,43 +233,29 @@ def main():
     print(f"Selected sampled y*: {y_star:.6f}")
     
     # Predictive comparison for p(y|D,y*)
-    # Fits the modified sparse GP trained only with the y* constraint,
-    # without conditioning on x*
+    # Fits the modified sparse GP trained only with the y* constraint, without conditioning
+    # on x*
     fixed_inducing_yonly = x_train.contiguous()
     M_yonly = fixed_inducing_yonly.shape[0]
-    res_con_yonly = fit_vfe_sparse_gp(
-        train_X=x_train,
-        train_Y=y_train,
-        noise=base_gp_noise,
-        train_noise=False,
-        M=M_yonly,
-        y_star=y_star,
-        epsilon=EPSILON,
-        lower_bound=x_grid.min(dim=0).values,
-        upper_bound=x_grid.max(dim=0).values,
-        fixed_inducing_points=fixed_inducing_yonly,
-        base_gp=base_gp, verbose=False)
-    
+    res_con_yonly = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
+        train_noise=False, M=M_yonly, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
+        upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_yonly,
+        base_gp=base_gp, old_model=base_gp, verbose=False)
+        
     # Gaussian truncation applied directly to the exact base GP predictive
-    mean_trunc_y, var_trunc_y = upper_truncated_predictive_moments(
-        base_gp, base_gp.likelihood, x_grid, y_star=y_star,
-        observation_noise=True)
+    mean_trunc_y, var_trunc_y = upper_truncated_predictive_moments(base_gp, base_gp.likelihood,
+        x_grid, y_star=y_star,observation_noise=True)
     
     # Predictive moments of the modified sparse GP trained only with y*
-    mean_con_y, var_con_y = marginal_mean_variance(
-        res_con_yonly.model, res_con_yonly.likelihood, x_grid,
-        observation_noise=True)
+    mean_con_y, var_con_y = marginal_mean_variance(res_con_yonly.model, res_con_yonly.likelihood,
+        x_grid,observation_noise=True)
     
     # Approximation to the exact conditional from accepted function draws
-    exact_cond = approximate_exact_conditional_from_function_samples(
-        base_gp=base_gp, grid=x_grid, y_star=y_star, noise_variance=base_gp_noise,
-        max_tol=EXACT_MAX_TOL, num_function_samples=EXACT_NUM_FUNCTION_SAMPLES)
+    exact_cond = approximate_exact_conditional_from_function_samples(base_gp=base_gp, grid=x_grid,
+        y_star=y_star, noise_variance=base_gp_noise, max_tol=EXACT_MAX_TOL, num_function_samples=EXACT_NUM_FUNCTION_SAMPLES)
     
     if exact_cond is None:
-        print(
-            "  No function samples were accepted with the current criterion "
-            f"|max(f)-y*| <= {EXACT_MAX_TOL:.3f}."
-        )
+        print(" No function samples were accepted with the current criterion ")
     else:
         format_diff_stats(
             "Exact conditional approx", exact_cond.mean_y, exact_cond.var_y,
@@ -284,7 +264,6 @@ def main():
             "Exact conditional approx", exact_cond.mean_y, exact_cond.var_y,
             "Modified sparse (y* only)", mean_con_y, var_con_y)
         
-    # Acquisition comparison with MES
     # Conditions the base GP on the selected optimum pair, obtaining a new GP posterior
     # that incorporates this information
     conditioned_base_gp, x_star_t, y_star_t_col = condition_base_gp_on_optimum(
@@ -296,22 +275,15 @@ def main():
         x_star_t.to(dtype=x_train.dtype, device=x_train.device)], dim=0)
     train_Y_aug = torch.cat([y_train,
         y_star_t_col.reshape(-1).to(dtype=y_train.dtype, device=y_train.device)], dim=0)
+    
     fixed_inducing_aug = train_X_aug.contiguous()
     M_aug = fixed_inducing_aug.shape[0]
     
     # Fits the conditioned modified sparse GP
-    res_con_xy = fit_vfe_sparse_gp(
-        train_X=train_X_aug,
-        train_Y=train_Y_aug,
-        noise=base_gp_noise,
-        train_noise=False,
-        M=M_aug,
-        y_star=y_star,
-        epsilon=EPSILON,
-        lower_bound=x_grid.min(dim=0).values,
-        upper_bound=x_grid.max(dim=0).values,
-        fixed_inducing_points=fixed_inducing_aug,
-        base_gp=conditioned_base_gp, verbose=False)
+    res_con_xy = fit_vfe_sparse_gp(train_X=train_X_aug, train_Y=train_Y_aug, noise=base_gp_noise,
+        train_noise=False, M=M_aug, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
+        upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_aug,
+        base_gp=conditioned_base_gp, old_model=conditioned_base_gp, verbose=False)
     
     # MES: no conditioning on (x*, y*)
     _, var_base = marginal_mean_variance(base_gp, base_gp.likelihood, x_grid,
