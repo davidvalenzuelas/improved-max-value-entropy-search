@@ -178,7 +178,7 @@ def plot_mean_and_band(ax, x_grid: torch.Tensor, mean: torch.Tensor, std: torch.
 @torch.no_grad()
 def plot_acquisition_comparison(ax, x_grid: torch.Tensor, x_star: float,
     acq_mes: torch.Tensor, acq_model_conditioned: torch.Tensor):
-    """This function plots the two acquisition functions requested by the tutor."""
+    """This function plots the two acquisition functions"""
     x_np = x_grid.squeeze(-1).cpu().numpy()
 
     ax.plot(x_np, acq_mes.reshape(-1).cpu().numpy(), linewidth=2.2,
