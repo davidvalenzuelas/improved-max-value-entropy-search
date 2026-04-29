@@ -219,9 +219,7 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
 class StepConstraintVariationalELBO(VariationalELBO):
     """This class implements the Variational ELBO with an added step constraint
     term, which encourages the VFE sparse GP to satisfy a constraint P(f(Xc) < y*)
-    over some constraint points Xc.
-    
-    It also includes a predic"""
+    over some constraint points Xc"""
     def __init__(self, likelihood: gpytorch.likelihoods.Likelihood,
         model: ApproximateGP, num_data: int, Xc: Optional[torch.Tensor],
         y_star: torch.Tensor, epsilon: float,
@@ -356,7 +354,6 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Penalty term
         penalty = p_compatible_old * ((m_old - m_new).pow(2) + (v_old - v_new).pow(2))
-        
         # Returns the summed penalty over the constraint points
         return penalty.sum()
     
@@ -366,16 +363,21 @@ class StepConstraintVariationalELBO(VariationalELBO):
         # Standard expected log likelihood term from VariationalELBO
         base = super()._log_likelihood_term(variational_dist_f, target, **kwargs)
         
-        # Uses the same Xc for both terms
+        # Uses different Xc for the step and matching terms
         Xc_eval = self._get_Xc()
+        Xc_eval_other = self._get_Xc()
         
         # Additional step constraint term
         step = self._step_term(Xc_eval=Xc_eval)
         # Additional predictive matching term
-        match = self._predictive_matching_term(Xc_eval=Xc_eval)
+        match = self._predictive_matching_term(Xc_eval=Xc_eval_other)
+        # target_old = self.old_model.posterior(Xc_eval_other, observation_noise=False).sample()
+        # dist = self.model(Xc_eval_other)
+        # match = super()._log_likelihood_term(dist, target_old, **kwargs)
         # import pdb; pdb.set_trace()
         # Combines contributions
-        return base + step - match
+        return base + step - match.sum()
+    
     
     def forward(self, variational_dist_f, target, **kwargs):
         """ This function computes the ELBO = expected log likelihood - KL
