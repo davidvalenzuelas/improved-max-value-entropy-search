@@ -237,11 +237,11 @@ def main():
     # Fits the modified sparse GP trained only with the y* constraint, without conditioning
     # on x*
     fixed_inducing_yonly = x_train.contiguous()
-    M_yonly = fixed_inducing_yonly.shape[0]
+    M_yonly = 10
     res_con_yonly = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
         train_noise=False, M=M_yonly, y_star=y_star, x_star = x_star, lower_bound=x_grid.min(dim=0).values,
         upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_yonly,
-        base_gp=base_gp, old_model=base_gp, verbose=True, training_iter=1000, lr = 0.5 * 1e-3)
+        base_gp=base_gp, verbose=True, training_iter=1000, lr = 0.5 * 1e-3)
         
     # Gaussian truncation applied directly to the exact base GP predictive
     mean_trunc_y, var_trunc_y = upper_truncated_predictive_moments(base_gp, base_gp.likelihood,
