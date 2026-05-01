@@ -30,8 +30,8 @@ PLOT_STD_MULT = 1.0
 INIT_NOISE = 1e-6
 
 # Parameters for the rejection approximation to the exact conditional p(y|D,y*)
-EXACT_MAX_TOL = 0.1
-EXACT_NUM_FUNCTION_SAMPLES = 1000
+EXACT_MAX_TOL = 0.01
+EXACT_NUM_FUNCTION_SAMPLES = 5000
 
 
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
@@ -105,7 +105,8 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
     base_gp.likelihood.eval()
     
     # Posterior of the latent function on the dense grid
-    posterior = base_gp.posterior(grid, observation_noise=False)
+    posterior = base_gp.posterior(grid, observation_noise=False) #XXX DHL devuelve marginales. Hay que samplear de Gaussiana Multivariable
+#    posterior = base_gp(grid) # XXX DHL this returns full posterior not marginals
     # Converts y* and noise variance to tensors with the correct dtype/device
     y_star_t = torch.as_tensor(y_star, dtype=grid.dtype, device=grid.device)
     noise_var_t = torch.as_tensor(noise_variance, dtype=grid.dtype, device=grid.device)
@@ -117,8 +118,8 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
         
     # Keeps only functions whose maximum lies in a neighbourhood of y*
     max = samples.max(dim=-1).values
-    keep = (max - y_star_t).abs() <= float(max_tol)
-    
+    keep = (max - y_star_t).abs()<= float(np.abs(y_star_t) * 0.01)
+
     # If no function sample was accepted, returns None
     if not torch.any(keep):
         return None
@@ -238,9 +239,9 @@ def main():
     fixed_inducing_yonly = x_train.contiguous()
     M_yonly = fixed_inducing_yonly.shape[0]
     res_con_yonly = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
-        train_noise=False, M=M_yonly, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
+        train_noise=False, M=M_yonly, y_star=y_star, x_star = x_star, lower_bound=x_grid.min(dim=0).values,
         upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_yonly,
-        base_gp=base_gp, old_model=base_gp, verbose=False)
+        base_gp=base_gp, old_model=base_gp, verbose=True, training_iter=1000, lr = 0.5 * 1e-3)
         
     # Gaussian truncation applied directly to the exact base GP predictive
     mean_trunc_y, var_trunc_y = upper_truncated_predictive_moments(base_gp, base_gp.likelihood,
@@ -280,10 +281,10 @@ def main():
     M_aug = fixed_inducing_aug.shape[0]
     
     # Fits the conditioned modified sparse GP
-    res_con_xy = fit_vfe_sparse_gp(train_X=train_X_aug, train_Y=train_Y_aug, noise=base_gp_noise,
-        train_noise=False, M=M_aug, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
-        upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_aug,
-        base_gp=conditioned_base_gp, old_model=conditioned_base_gp, verbose=False)
+#    res_con_xy = fit_vfe_sparse_gp(train_X=train_X_aug, train_Y=train_Y_aug, noise=base_gp_noise,
+#        train_noise=False, M=M_aug, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
+#        upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_aug,
+#        base_gp=conditioned_base_gp, old_model=conditioned_base_gp, verbose=True)
     
     # MES: no conditioning on (x*, y*)
     _, var_base = marginal_mean_variance(base_gp, base_gp.likelihood, x_grid,
@@ -292,14 +293,14 @@ def main():
         x_grid, y_star=y_star, observation_noise=False)
     
     # Our model: conditioned sparse approximation
-    _, var_con_xy = marginal_mean_variance(res_con_xy.model, res_con_xy.likelihood,
-        x_grid, observation_noise=False)
+#    _, var_con_xy = marginal_mean_variance(res_con_xy.model, res_con_xy.likelihood,
+#        x_grid, observation_noise=False)
     
     acq_mes = gaussian_entropy_reduction_acq(var_base, var_mes)
-    acq_model_conditioned = gaussian_entropy_reduction_acq(var_base, var_con_xy)
+#    acq_model_conditioned = gaussian_entropy_reduction_acq(var_base, var_con_xy)
     print("\nApproximate acquisition summaries:")
     summarize_acquisition_curve("   MES (sin condicionar a (x*,y*))", x_grid, acq_mes)
-    summarize_acquisition_curve("   Modified sparse GP condicionado", x_grid, acq_model_conditioned)
+#    summarize_acquisition_curve("   Modified sparse GP condicionado", x_grid, acq_model_conditioned)
     
     # Obtains standard deviations from variances for plotting
     std_trunc_y = var_trunc_y.sqrt()
@@ -335,13 +336,18 @@ def main():
     y_lim_low, y_lim_high = get_common_plot_limits(common_curves, y_star=y_star)
     
     # Figure: predictive comparison and acquisition comparison
-    fig, axes = plt.subplots(1, 2, figsize=(22.0, 5.3))
+    fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
     
-    ax_pred = axes[0]
-    plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_trunc_y, std=std_trunc_y,
-        f_true=f_true, x_obs=x_train, y_obs=y_train,
-        title="Predictive comparison for p(y|D,y*)", y_star=y_star,
-        mean_label="Gaussian truncation mean", band_label="Gaussian truncation band")
+    ax_pred = axes[0,0]
+    #plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_trunc_y, std=std_trunc_y,
+    #    f_true=f_true, x_obs=x_train, y_obs=y_train,
+    #    title="Predictive comparison for p(y|D,y*)", y_star=y_star,
+    #    mean_label="Gaussian truncation mean", band_label="Gaussian truncation band")
+
+    ax_pred.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
+        "k*", markersize=8, label="Observed data")
+
+    ax_pred.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(), mean_con_y.reshape(-1).cpu().numpy(),
         linewidth=2.0, label="Modified sparse GP mean")
     ax_pred.fill_between(
@@ -365,14 +371,76 @@ def main():
     ax_pred.set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
     ax_pred.set_ylim(y_lim_low, y_lim_high)
     ax_pred.legend(fontsize=7, loc="best")
+
+    ax_pred = axes[0, 1 ]
     
-    ax_acq = axes[1]
-    plot_acquisition_comparison(ax_acq, x_grid=x_grid, x_star=x_star,
-        acq_mes=acq_mes, acq_model_conditioned=acq_model_conditioned)
+    plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_trunc_y, std=std_trunc_y,
+        f_true=f_true, x_obs=x_train, y_obs=y_train,
+        title="Predictive comparison for p(y|D,y*)", y_star=y_star,
+        mean_label="Gaussian truncation mean", band_label="Gaussian truncation band")
+    if exact_cond is not None:
+        ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            exact_cond.mean_y.reshape(-1).cpu().numpy(), linestyle="--", linewidth=2.4,
+            label="Approx. exact conditional mean")
+        ax_pred.fill_between(
+            x_grid.squeeze(-1).cpu().numpy(),
+            (exact_cond.mean_y - PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
+            (exact_cond.mean_y + PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
+            alpha=0.12,
+            label="Approx. exact conditional band",
+        )
+    ax_pred.set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
+    ax_pred.set_ylim(y_lim_low, y_lim_high)
+    ax_pred.legend(fontsize=7, loc="best")
+
+
+#    ax_acq = axes[1]
+#    plot_acquisition_comparison(ax_acq, x_grid=x_grid, x_star=x_star,
+#        acq_mes=acq_mes, acq_model_conditioned=acq_model_conditioned)
+
+    # We plot the three acquisitions: exact, MES, y Proposed
+
+    initial_vars = base_gp.posterior(x_grid).variance.detach() + base_gp.likelihood.noise
+    posterior_vars_exact = exact_cond.var_y + base_gp.likelihood.noise
+    posterior_vars_mes = var_trunc_y + base_gp.likelihood.noise
+    posterior_vars_proposed  = var_con_y + base_gp.likelihood.noise
+
+    exact_acq = torch.log(initial_vars).flatten() - torch.log(posterior_vars_exact)
+    mes_acq = torch.log(initial_vars).flatten() - torch.log(posterior_vars_mes)
+    proposed_acq = torch.log(initial_vars).flatten() - torch.log(posterior_vars_proposed)
+
+    ax_pred = axes[ 1, 0 ]
     
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            exact_acq.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
+            label="Exact_Acq", color = "r")
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            mes_acq.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
+            label="MES_Acq", color = "g")
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            proposed_acq.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
+            label="Proposed_Acq", color = "b")
+
+    ax_pred.legend(fontsize=7, loc="best")
+    
+    ax_pred = axes[ 1, 1 ]
+    
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            exact_acq.reshape(-1).cpu().numpy() / np.max(exact_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
+            label="Exact_Acq-Norm", color = "r")
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            mes_acq.reshape(-1).cpu().numpy() / np.max(mes_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
+            label="MES_Acq-Norm", color = "g")
+    ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
+            proposed_acq.reshape(-1).cpu().numpy() / np.max(proposed_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
+            label="Proposed_Acq-Norm", color = "b")
+
+    ax_pred.legend(fontsize=7, loc="best")
+
     fig.suptitle("1D test with 5 observations", fontsize=15)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     
+ 
     plt.show()
 
 

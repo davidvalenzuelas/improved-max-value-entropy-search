@@ -171,7 +171,7 @@ class VFESparseGP(ApproximateGP):
 
 def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikelihood,
     train_x: torch.Tensor, train_y: torch.Tensor, training_iter: int = 400,
-    likelihood: Optional[torch.nn.Module] = None, lr: float = 1e-2,
+    likelihood: Optional[torch.nn.Module] = None, lr: float = 1e-3,
     verbose: bool = True) -> torch.Tensor:
     """ This function trains the VFE sparse GP model using the Adam optimizer, by 
     maximizing the ELBO."""
@@ -219,10 +219,12 @@ def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikel
 class StepConstraintVariationalELBO(VariationalELBO):
     """This class implements the Variational ELBO with an added step constraint
     term, which encourages the VFE sparse GP to satisfy a constraint P(f(Xc) < y*)
-    over some constraint points Xc"""
+    over some constraint points Xc.
+    
+    It also includes a predic"""
     def __init__(self, likelihood: gpytorch.likelihoods.Likelihood,
         model: ApproximateGP, num_data: int, Xc: Optional[torch.Tensor],
-        y_star: torch.Tensor, epsilon: float,
+        y_star: torch.Tensor, x_star: torch.Tensor, epsilon: float,
         num_constraint_points: Optional[int] = None,
         d: Optional[int] = None,
         constraint_sampling: Literal["rand", "sobol"] = "rand",
@@ -241,6 +243,7 @@ class StepConstraintVariationalELBO(VariationalELBO):
         
         # Stores the parameters for the step constraint term
         self.y_star = y_star
+        self.x_star = x_star
         self.epsilon = float(epsilon)
         self.num_constraint_points = num_constraint_points
         self.d = d
@@ -363,20 +366,16 @@ class StepConstraintVariationalELBO(VariationalELBO):
         # Standard expected log likelihood term from VariationalELBO
         base = super()._log_likelihood_term(variational_dist_f, target, **kwargs)
         
-        # Uses different Xc for the step and matching terms
+        # Uses  Xc for both terms
         Xc_eval = self._get_Xc()
-        Xc_eval_other = self._get_Xc()
         
         # Additional step constraint term
         step = self._step_term(Xc_eval=Xc_eval)
+        step_x_star = self._step_term(Xc_eval=self.x_star * torch.ones((1, Xc_eval.shape[ 1 ])))
+        
         # Additional predictive matching term
-        match = self._predictive_matching_term(Xc_eval=Xc_eval_other)
-        # target_old = self.old_model.posterior(Xc_eval_other, observation_noise=False).sample()
-        # dist = self.model(Xc_eval_other)
-        # match = super()._log_likelihood_term(dist, target_old, **kwargs)
-        # import pdb; pdb.set_trace()
         # Combines contributions
-        return base + step - match.sum()
+        return base.sum() + step_x_star + step
     
     
     def forward(self, variational_dist_f, target, **kwargs):
@@ -425,6 +424,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     # the step constraint term) if y* is provided, otherwise we train
     # it with the standard ELBO.
     y_star: Optional[float | torch.Tensor] = None,
+    x_star: Optional[float | torch.Tensor] = None,
     num_constraint_points: int = 100,
     constraint_sampling: Literal["rand", "sobol"] = "rand",
     Xc: Optional[torch.Tensor] = None,
@@ -473,7 +473,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
     N = train_X.shape[0]
     # The number of inducing points cannot exceed the number of training points
     M_eff = min(int(M), int(N))
-    
+
     # Selects inducing points
     if fixed_inducing_points is None:
         # Random (optionally deterministic) subsampling
@@ -492,7 +492,8 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         # Uses the provided fixed inducing points
         inducing_points = fixed_inducing_points.to(device=train_X.device, dtype=train_X.dtype).contiguous()
         inducing_points = inducing_points[:M_eff].contiguous()
-    
+        inducing_points = torch.concat([ inducing_points, torch.rand((100, 1)) * 10 - 5 ], 0)
+
     # Builds the initial distribution for q from the posterior of a base GP if this
     # GP is provided
     init_dist = None
@@ -554,7 +555,7 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         
         # Uses the standard ELBO with the added step constraint term
         mll = StepConstraintVariationalELBO(likelihood=likelihood, model=model, num_data=N, Xc=Xc,
-            y_star=y_star_t, epsilon=epsilon, num_constraint_points=num_constraint_points, d=d,
+            y_star=y_star_t, x_star = x_star, epsilon=epsilon, num_constraint_points=num_constraint_points, d=d,
             constraint_sampling=constraint_sampling, lower_bound=x_lower, upper_bound=x_upper,
             old_model=old_model)
         

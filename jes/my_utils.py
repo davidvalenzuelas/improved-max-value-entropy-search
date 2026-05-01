@@ -213,6 +213,7 @@ def upper_truncated_predictive_moments(model, likelihood, grid: torch.Tensor,
     # Obtains the marginal predictive mean and variance of the model on the grid
     mean_f, var_f = marginal_mean_variance(model, likelihood, grid,
         observation_noise=False)
+    
     # Converts y_star to a tensor with correct dtype/device
     y_star_t = torch.as_tensor(y_star, dtype=mean_f.dtype, device=mean_f.device)
     # Computes the truncated mean and variance using the formulas for upper truncation
