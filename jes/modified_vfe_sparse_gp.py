@@ -39,17 +39,17 @@ def sample_points(num_points: int, d: int,
     
     # Firstly, samples are made in the box [0,1]^d
     if method == "rand":
-        Xc = torch.rand(num_points, d, device=device, dtype=dtype)
+        points = torch.rand(num_points, d, device=device, dtype=dtype)
     elif method == "sobol":
         # scramble = True produces better Sobol sequences
         engine = torch.quasirandom.SobolEngine(dimension=d, scramble=True)
-        Xc = engine.draw(num_points).to(device=device, dtype=dtype)
+        points = engine.draw(num_points).to(device=device, dtype=dtype)
     else:
         raise ValueError(f"Unknown sampling method: {method}")
     
     # If no bounds are provided, keeps the samples in [0,1]^d
     if lower_bound is None and upper_bound is None:
-        return Xc   
+        return points   
     
     if lower_bound is None or upper_bound is None:
         raise ValueError("Both lower_bound and upper_bound must be provided")
@@ -58,7 +58,7 @@ def sample_points(num_points: int, d: int,
     upper_bound = upper_bound.to(device=device, dtype=dtype)
     
     # Rescales the samples to the box defined by both bounds
-    return lower_bound + (upper_bound - lower_bound) * Xc
+    return lower_bound + (upper_bound - lower_bound) * points
 
 
 @torch.no_grad()
@@ -117,7 +117,7 @@ class VFESparseGP(ApproximateGP):
         # Variational approximate distribution q
         # We use a Cholesky factorization to represent its parameters
         variational_distribution = CholeskyVariationalDistribution(
-            inducing_points.size(0), mean_init_std=0.0)
+            inducing_points.size(0),mean_init_std=0.0)
         
         # If an initial distribution isn't provided
         if init_dist is None:
@@ -128,29 +128,25 @@ class VFESparseGP(ApproximateGP):
             init_covar = covar_module(inducing_points).evaluate()
             init_covar = init_covar * 1e-5
             # Small jitter added to the diagonal so that the matrix is positive definite
-            init_covar = init_covar + 1e-8 * torch.eye(
-                inducing_points.size(0),
-                dtype=inducing_points.dtype,
-                device=inducing_points.device,
-            )
+            init_covar = init_covar + 1e-8 * torch.eye(inducing_points.size(0),
+                dtype=inducing_points.dtype, device=inducing_points.device)
+            
             # Builds the initial distribution for q at the inducing points
-            init_dist = gpytorch.distributions.MultivariateNormal(
-                init_mean,
-                init_covar,
-            )
+            init_dist = gpytorch.distributions.MultivariateNormal(init_mean, init_covar)
+            
+        # Initializes the variational distribution q(u) with the initial distribution
         variational_distribution.initialize_variational_distribution(init_dist)
         
         # Unwhitened variational strategy, defining how the inducing points are used to
         # approximate the full GP
-        variational_strategy = UnwhitenedVariationalStrategy(self, inducing_points, variational_distribution,
-            learn_inducing_locations=True, # this makes the inducing points trainable
+        variational_strategy = UnwhitenedVariationalStrategy(self, inducing_points,
+            variational_distribution, learn_inducing_locations=True, # this makes the inducing points trainable
         )
         
-        # Avoids internal random reinitialization of the variational parameters, because we have already
-        # initialized them with the prior like distribution above
-        variational_strategy.variational_params_initialized = torch.tensor(
-            True, device=inducing_points.device, dtype=torch.bool
-        )
+        # Avoids internal random reinitialization of the variational parameters, because
+        # we have already initialized them with the prior like distribution above
+        variational_strategy.variational_params_initialized = torch.tensor(True,
+            device=inducing_points.device, dtype=torch.bool)
         
         # Initializes base ApproximateGP class
         super().__init__(variational_strategy)
@@ -170,9 +166,8 @@ class VFESparseGP(ApproximateGP):
 
 
 def train_model_ADAM(model: torch.nn.Module, mll: gpytorch.mlls.MarginalLogLikelihood,
-    train_x: torch.Tensor, train_y: torch.Tensor, training_iter: int = 1000,
-    likelihood: Optional[torch.nn.Module] = None, lr: float = 0.5*1e-3,
-    verbose: bool = True) -> torch.Tensor:
+    train_x: torch.Tensor, train_y: torch.Tensor, training_iter: int, lr: float,
+    likelihood: Optional[torch.nn.Module] = None, verbose: bool = True) -> torch.Tensor:
     """ This function trains the VFE sparse GP model using the Adam optimizer, by 
     maximizing the ELBO."""
     
@@ -258,18 +253,14 @@ class StepConstraintVariationalELBO(VariationalELBO):
             
     def _get_Xc(self) -> torch.Tensor:
         """This method returns the constraint points Xc"""
-        # If Xc is fixed, always use it
+        # If Xc's are fixed, always use them
         if self.Xc is not None:
             return self.Xc
         
         # If Xc is not fixed, samples them
-        return sample_points(
-            num_points=self.num_constraint_points,
-            d=self.d,
-            method=self.constraint_sampling,
-            device=self.y_star.device,
-            dtype=self.y_star.dtype,
-            lower_bound=self.lower_bound,
+        return sample_points(num_points=self.num_constraint_points, d=self.d,
+            method=self.constraint_sampling, device=self.y_star.device,
+            dtype=self.y_star.dtype, lower_bound=self.lower_bound,
             upper_bound=self.upper_bound)
         
     def _step_term(self, Xc_eval: Optional[torch.Tensor] = None) -> torch.Tensor:
@@ -319,8 +310,9 @@ class StepConstraintVariationalELBO(VariationalELBO):
         # Computes Xc points
         Xc_eval = self._get_Xc()
         
-        # Additional step constraint termS
+        # Additional step constraint terms
         step = self._step_term(Xc_eval=Xc_eval)
+        # Includes x_star in the step constraint term
         step_x_star = self._step_term(Xc_eval=self.x_star * torch.ones((1, Xc_eval.shape[1])))
         
         # Combines contributions
@@ -342,10 +334,8 @@ def sparse_predictive_distribution(model: VFESparseGP,
     # Sets model and likelihood in eval mode
     model.eval()
     likelihood.eval()
-    test_x = test_x.to(
-        dtype=next(model.parameters()).dtype,
-        device=next(model.parameters()).device
-    )
+    test_x = test_x.to(dtype=next(model.parameters()).dtype,
+        device=next(model.parameters()).device)
     
     # Uses faster variance computations for predictive distribution
     with gpytorch.settings.fast_pred_var():
@@ -403,11 +393,13 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         y_vec = train_Y
         
     # Creates gaussian likelihood
-    likelihood = gpytorch.likelihoods.GaussianLikelihood(noise_constraint=GreaterThan(1e-6))
+    likelihood = gpytorch.likelihoods.GaussianLikelihood(
+        noise_constraint=GreaterThan(1e-6))
     likelihood = likelihood.to(dtype=train_X.dtype, device=train_X.device)
     
     # Sets tiny noise level
-    likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype, device=train_X.device)
+    likelihood.noise = torch.as_tensor(noise, dtype=train_X.dtype,
+        device=train_X.device)
     
     # Optional reproducible init
     if seed_for_init is not None:
@@ -433,11 +425,12 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         inducing_from_data = train_X
     else:
         # Uses the provided fixed inducing points as the data inducing points
-        inducing_from_data = fixed_inducing_points.to(device=train_X.device, dtype=train_X.dtype)
+        inducing_from_data = fixed_inducing_points.to(device=train_X.device,
+                dtype=train_X.dtype)
     
     # Adds M extra inducing points, sampled uniformly in the input space
-    extra_inducing = sample_points(num_points=M, d=d, method=constraint_sampling, device=train_X.device,
-        dtype=train_X.dtype, lower_bound=x_lower, upper_bound=x_upper)
+    extra_inducing = sample_points(num_points=M, d=d, method=constraint_sampling,
+        device=train_X.device, dtype=train_X.dtype, lower_bound=x_lower, upper_bound=x_upper)
     
     # Combines data inducing points and extra inducing points
     inducing_points = torch.cat([inducing_from_data, extra_inducing], dim=0).contiguous()
@@ -456,13 +449,15 @@ def fit_vfe_sparse_gp(train_X: torch.Tensor, train_Y: torch.Tensor,
         
         # Initializes the noise level of the likelihood to the noise level of the base GP, if it has a likelihood
         if hasattr(base_gp, "likelihood") and base_gp.likelihood is not None:
-            likelihood.noise = base_gp.likelihood.noise.detach().to(dtype=train_X.dtype, device=train_X.device)
-            
+            likelihood.noise = base_gp.likelihood.noise.detach().to(dtype=train_X.dtype,
+                device=train_X.device)
+    
+    # If train_noise is False, we don't want the noise level to be updated during training        
     likelihood.raw_noise.requires_grad_(train_noise)
     
     # Instantiates the VFE sparse GP model with the selected inducing points
-    model = VFESparseGP(inducing_points=inducing_points, init_dist=init_dist, mean_module=mean_module,
-        covar_module=covar_module)
+    model = VFESparseGP(inducing_points=inducing_points, init_dist=init_dist,
+        mean_module=mean_module, covar_module=covar_module)
     model = model.to(dtype=train_X.dtype, device=train_X.device)
     
     # If fixed inducing points are provided, we don't want them to be updated during training
