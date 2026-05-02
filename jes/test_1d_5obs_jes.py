@@ -4,15 +4,14 @@
 Synthetic 1D JES acquisition comparison with 5 observations.
 
 This script generates a toy problem, samples a candidate optimum
-pair (x*, y*) from the posterior of a base GP, and compares three
+pair (x*,y*) from the posterior of a base GP, and compares three
 approximations to the conditional predictive distribution p(y|D,x*,y*):
 
 1. A rejection-sampling approximation obtained from complete posterior
-   function samples of the GP conditioned on (x*, y*) whose maximum is
-   close to y*.
+    function samples of the GP conditioned on (x*, y*) whose maximum is
+    close to y*.
 2. A JES gaussian upper truncation of the conditioned GP predictive.
-3. Our modified VFE sparse GP trained with the augmented data set and
-   the step constraint term.
+3. Our modified VFE sparse GP trained with the step constraint term.
 
 Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
 """
@@ -164,18 +163,15 @@ def approximate_exact_jes_conditional_from_function_samples(conditioned_gp,
 
 @torch.no_grad()
 def plot_mean_and_band(ax, x_grid: torch.Tensor, mean: torch.Tensor, std: torch.Tensor,
-    f_true: torch.Tensor, x_obs: torch.Tensor, y_obs: torch.Tensor,
-    title: str, y_star: float | None = None, x_star: float | None = None,
-    x_pseudo: torch.Tensor | None = None, y_pseudo: torch.Tensor | None = None,
-    band_label: str | None = None, mean_label: str = "Mean"):
+    x_obs: torch.Tensor, y_obs: torch.Tensor, title:str, y_star: float | None = None,
+    x_star: float | None = None, x_pseudo: torch.Tensor | None = None,
+    y_pseudo: torch.Tensor | None = None, band_label: str | None = None,
+    mean_label: str = "Mean"):
     """This function plots predictive moments already computed on the grid."""
     x_np = x_grid.squeeze(-1).cpu().numpy()
     mean_np = mean.reshape(-1).cpu().numpy()
     std_np = std.reshape(-1).cpu().numpy()
-
-    ax.plot(x_np, f_true.reshape(-1).cpu().numpy(), color="0.65", linewidth=0.7,
-        label="True latent f")
-
+    
     ax.plot(x_obs.squeeze(-1).cpu().numpy(), y_obs.reshape(-1).cpu().numpy(),
         "k*", markersize=8, label="Observed data")
     
@@ -318,13 +314,10 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
     
     ax_pred = axes[0, 0]
+    ax_pred.set_title("Predictive comparison for p(y|D,x*,y*) \n Modified sparse GP")
+    
     ax_pred.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
         "k*", markersize=8, label="Observed data")
-    ax_pred.plot(x_star_t.squeeze(-1).cpu().numpy(), y_star_t_col.reshape(-1).cpu().numpy(),
-        marker="o", linestyle="None", color="tab:green", markersize=7,
-        label="Sampled optimum (x*, y*)")
-    ax_pred.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
-    ax_pred.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(), mean_con_y.reshape(-1).cpu().numpy(),
         linewidth=2.0, label="Modified sparse GP mean")
     ax_pred.fill_between(
@@ -334,6 +327,11 @@ def main():
         alpha=0.20,
         label="Modified sparse GP band",
     )
+    ax_pred.plot(x_star_t.squeeze(-1).cpu().numpy(), y_star_t_col.reshape(-1).cpu().numpy(),
+        marker="o", linestyle="None", color="tab:green", markersize=7,
+        label="Sampled optimum (x*, y*)")
+    ax_pred.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
+    ax_pred.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
         exact_cond.mean_y.reshape(-1).cpu().numpy(), linestyle="--", linewidth=2.4,
         label="Approx. exact JES conditional mean")
@@ -349,9 +347,8 @@ def main():
     ax_pred.legend(fontsize=7, loc="best")
     
     ax_pred = axes[0, 1]
-    plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_jes_y, std=std_jes_y,
-        f_true=f_true, x_obs=x_train, y_obs=y_train,
-        title="Predictive comparison for p(y|D,x*,y*)", y_star=y_star,
+    plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_jes_y, std=std_jes_y, x_obs=x_train, y_obs=y_train,
+        title="Predictive comparison for p(y|D,x*,y*) \n JES Gaussian truncation", y_star=y_star,
         x_star=x_star, x_pseudo=x_star_t, y_pseudo=y_star_t_col.reshape(-1),
         mean_label="JES Gaussian truncation mean",
         band_label="JES Gaussian truncation band")
@@ -394,7 +391,9 @@ def main():
     print(f"  JES mean abs diff: {diff_jes.item():.6f}")
     print(f"  Proposed mean abs diff: {diff_proposed.item():.6f}")
     
-    ax_pred = axes[1, 0]
+    ax_pred = axes[1,0]
+    ax_pred.set_title("Acquisition curves")
+    
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_acq.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
             label="Exact_Acq", color="r")
@@ -408,20 +407,22 @@ def main():
     ax_pred.legend(fontsize=7, loc="best")
     
     ax_pred = axes[1, 1]
+    ax_pred.set_title("Normalized acquisition curves")
+    
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_acq_norm.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
-            label="Exact_Acq-Norm", color="r")
+            label="Exact_Acq_Norm", color="r")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             jes_acq_norm.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
-            label="JES_Acq-Norm", color="g")
+            label="JES_Acq_Norm", color="g")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             proposed_acq_norm.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
-            label="Proposed_Acq-Norm", color="b")
+            label="Proposed_Acq_Norm", color="b")
 
     ax_pred.legend(fontsize=7, loc="best")
 
-    fig.suptitle("1D JES test with 5 observations", fontsize=15)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.suptitle("1D JES-style test with 5 observations", fontsize=15, y=0.98)
+    fig.tight_layout(rect=[0, 0, 1, 0.94], h_pad=3.0)
     
     plt.show()
 

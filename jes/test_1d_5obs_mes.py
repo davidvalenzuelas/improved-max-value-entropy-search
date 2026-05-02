@@ -4,12 +4,12 @@
 Synthetic 1D MES acquisition comparison with 5 observations.
 
 This script generates a toy problem, samples a candidate optimum
-pair (x*, y*) from the posterior of a base GP, and compares three
+pair (x*,y*) from the posterior of a base GP, and compares three
 approximations to the conditional predictive distribution p(y|D,y*):
 
 1. A rejection-sampling approximation obtained from complete posterior
     function samples whose maximum is close to y*.
-2. A MES gaussian upper truncation of the base GP predictived.
+2. A MES gaussian upper truncation of the base GP predictive.
 3. Our modified VFE sparse GP trained with the step constraint term.
 
 Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
@@ -41,6 +41,8 @@ NUM_TRAIN = 5
 PLOT_STD_MULT = 1.0
 # Noise level for the base GP model
 INIT_NOISE = 1e-6
+# Extra inducing points (apart from the training points)
+M_EXTRA = 10
 
 # Parameters for the rejection approximation to the exact conditional p(y|D,y*)
 EXACT_MAX_TOL = 0.01
@@ -129,7 +131,7 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
         
     # Keeps only functions whose maximum lies in a neighbourhood of y*
     max = samples.max(dim=-1).values
-    keep = (max - y_star_t).abs()<= float(np.abs(y_star_t) * EXACT_MAX_TOL)
+    keep = (max - y_star_t).abs() <= float(np.abs(y_star_t) * EXACT_MAX_TOL)
     
     # If no function sample was accepted, returns None
     if not torch.any(keep):
@@ -158,16 +160,15 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
 
 @torch.no_grad()
 def plot_mean_and_band(ax, x_grid: torch.Tensor, mean: torch.Tensor, std: torch.Tensor,
-    f_true: torch.Tensor, x_obs: torch.Tensor, y_obs: torch.Tensor,
-    title: str, y_star: float | None = None, band_label: str | None = None,
-    mean_label: str = "Mean"):
+    x_obs: torch.Tensor, y_obs: torch.Tensor, title:str, y_star: float | None = None,
+    band_label: str | None = None,mean_label: str = "Mean"):
     """This function plots predictive moments already computed on the grid."""
     x_np = x_grid.squeeze(-1).cpu().numpy()
     mean_np = mean.reshape(-1).cpu().numpy()
     std_np = std.reshape(-1).cpu().numpy()
 
-    ax.plot(x_np, f_true.reshape(-1).cpu().numpy(), color="0.65", linewidth=0.7,
-        label="True latent f")
+    # ax.plot(x_np, f_true.reshape(-1).cpu().numpy(), color="0.65", linewidth=0.7,
+    #     label="True latent f")
 
     ax.plot(x_obs.squeeze(-1).cpu().numpy(), y_obs.reshape(-1).cpu().numpy(),
         "k*", markersize=8, label="Observed data")
@@ -247,7 +248,7 @@ def main():
     # Predictive comparison for p(y|D,y*)
     # Fits the modified sparse GP trained only with the y* constraint, without conditioning on x*
     fixed_inducing_yonly = x_train.contiguous()
-    M_yonly = 10
+    M_yonly = M_EXTRA
     res_con_yonly = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
         train_noise=False, M=M_yonly, y_star=y_star, x_star = x_star, lower_bound=x_grid.min(dim=0).values,
         upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_yonly,
@@ -262,6 +263,7 @@ def main():
         x_grid,observation_noise=True)
     
     # Approximation to the exact conditional from accepted function draws
+    torch.manual_seed(2026)
     exact_cond = approximate_exact_conditional_from_function_samples(base_gp=base_gp, grid=x_grid,
         y_star=y_star, noise_variance=base_gp_noise, num_function_samples=EXACT_NUM_FUNCTION_SAMPLES)
     
@@ -322,10 +324,11 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
     
     ax_pred = axes[0,0]
+    ax_pred.set_title("Predictive comparison for p(y|D,y*) \n Modified sparse GP")
+    
     ax_pred.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
         "k*", markersize=8, label="Observed data")
-
-    ax_pred.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
+    
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(), mean_con_y.reshape(-1).cpu().numpy(),
         linewidth=2.0, label="Modified sparse GP mean")
     ax_pred.fill_between(
@@ -335,37 +338,39 @@ def main():
         alpha=0.20,
         label="Modified sparse GP band",
     )
+    ax_pred.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
+    
     if exact_cond is not None:
         ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_cond.mean_y.reshape(-1).cpu().numpy(), linestyle="--", linewidth=2.4,
-            label="Approx. exact conditional mean")
+            label="Approx. exact MES conditional mean")
         ax_pred.fill_between(
             x_grid.squeeze(-1).cpu().numpy(),
             (exact_cond.mean_y - PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
             (exact_cond.mean_y + PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
             alpha=0.12,
-            label="Approx. exact conditional band",
+            label="Approx. exact MES conditional band",
         )
     ax_pred.set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
     ax_pred.set_ylim(y_lim_low, y_lim_high)
     ax_pred.legend(fontsize=7, loc="best")
-
-    ax_pred = axes[0, 1 ]
+    
+    ax_pred = axes[0,1]
     
     plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_trunc_y, std=std_trunc_y,
-        f_true=f_true, x_obs=x_train, y_obs=y_train,
-        title="Predictive comparison for p(y|D,y*)", y_star=y_star,
+        x_obs=x_train, y_obs=y_train,
+        title="Predictive comparison for p(y|D,y*) \n MES Gaussian truncation", y_star=y_star,
         mean_label="Gaussian truncation mean", band_label="Gaussian truncation band")
     if exact_cond is not None:
         ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_cond.mean_y.reshape(-1).cpu().numpy(), linestyle="--", linewidth=2.4,
-            label="Approx. exact conditional mean")
+            label="Approx. exact MES conditional mean")
         ax_pred.fill_between(
             x_grid.squeeze(-1).cpu().numpy(),
             (exact_cond.mean_y - PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
             (exact_cond.mean_y + PLOT_STD_MULT * exact_cond.var_y.sqrt()).reshape(-1).cpu().numpy(),
             alpha=0.12,
-            label="Approx. exact conditional band",
+            label="Approx. exact MES conditional band",
         )
     ax_pred.set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
     ax_pred.set_ylim(y_lim_low, y_lim_high)
@@ -382,7 +387,8 @@ def main():
     mes_acq = torch.log(initial_vars).flatten() - torch.log(posterior_vars_mes)
     proposed_acq = torch.log(initial_vars).flatten() - torch.log(posterior_vars_proposed)
 
-    ax_pred = axes[ 1, 0 ]
+    ax_pred = axes[1,0]
+    ax_pred.set_title("Acquisition curves")
     
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_acq.reshape(-1).cpu().numpy(), linestyle="-", linewidth=2.4,
@@ -397,21 +403,22 @@ def main():
     ax_pred.legend(fontsize=7, loc="best")
     
     ax_pred = axes[ 1, 1 ]
+    ax_pred.set_title("Normalized acquisition curves")
     
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             exact_acq.reshape(-1).cpu().numpy() / np.max(exact_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
-            label="Exact_Acq-Norm", color = "r")
+            label="Exact_Acq_Norm", color = "r")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             mes_acq.reshape(-1).cpu().numpy() / np.max(mes_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
-            label="MES_Acq-Norm", color = "g")
+            label="MES_Acq_Norm", color = "g")
     ax_pred.plot(x_grid.squeeze(-1).cpu().numpy(),
             proposed_acq.reshape(-1).cpu().numpy() / np.max(proposed_acq.reshape(-1).cpu().numpy()), linestyle="-", linewidth=2.4,
-            label="Proposed_Acq-Norm", color = "b")
+            label="Proposed_Acq_Norm", color = "b")
 
     ax_pred.legend(fontsize=7, loc="best")
 
-    fig.suptitle("1D test with 5 observations", fontsize=15)
-    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    fig.suptitle("1D MES-style test with 5 observations", fontsize=15, y=0.98)
+    fig.tight_layout(rect=[0, 0, 1, 0.94], h_pad=3.0)   
     
     plt.show()
 
