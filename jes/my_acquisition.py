@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 # coding: utf-8
+"""
+This script implements a customized acquisition function for the VFE
+sparse GP model. The acquisition measures the reduction in predictive
+gaussian entropy: 1/2 * (log Var[y(x)|D] - log Var[y(x)|conditioned model]).
+    
+2 styles of acquisition are supported:
+    (1) MES, where the conditioned sparse model approximates p(y|D,y*)
+    (2) JES, where the conditioned sparse model approximates p(y|D,x*,y*)
+    
+Only q=1 is supported, where q is the number of candidate points evaluated
+jointly by the acquisition function.
+
+Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
+"""
 from __future__ import annotations
 from typing import Literal
 
@@ -14,35 +28,19 @@ from modified_vfe_sparse_gp import fit_vfe_sparse_gp
 
 
 class MyAcquisition(AcquisitionFunction):
-    """
-    Custom acquisition function adapted to the current VFE sparse GP code.
-
-    It supports two modes:
-
-        style="mes":
-            MES-style approximation.
-            The conditioned model approximates p(y | D, y*).
-
-        style="jes":
-            JES-style approximation.
-            The conditioned model approximates p(y | D, x*, y*).
-
-    In both cases, the acquisition is:
-
-        log Var[y(x) | D] - log Var[y(x) | conditioned information]
-
-    For now, only q=1 is supported.
-    """
-    
+    """This class implements the customized acquisition function for the VFE
+    sparse GP model"""
     def __init__(self, model, x_star: float | Tensor, y_star: float | Tensor,
         M: int, style: Literal["mes", "jes"] = "mes",lower_bound: Tensor | None = None,
         upper_bound: Tensor | None = None) -> None:
         # Inits base class
         super().__init__(model=model)
         
+        if style not in ("mes", "jes"):
+            raise ValueError("style must be either 'mes' or 'jes'")
         self.style = style
         
-        # Original GP model: p(f|D)
+        # Original GP model, p(f|D)
         self.initial_model = model
         # Sets the original model and its likelihood to evaluation mode
         self.initial_model.eval()
@@ -59,18 +57,19 @@ class MyAcquisition(AcquisitionFunction):
         device = train_X.device
         d = train_X.shape[-1]
         
+        # Stores x* with shape 1 x d and y* as a scalar tensor
         self.x_star = self._format_x_star(x_star=x_star, d=d, dtype=dtype, device=device)
         self.y_star = torch.as_tensor(y_star, dtype=dtype, device=device).reshape(())
         
-        # Same observation noise as the original model.
+        # Same observation noise as the original model
         noise = self.initial_model.likelihood.noise.detach().mean()
         
         if self.style == "mes":
-            # Uses the original data.
+            # Uses the original data
             train_X_cond = train_X
             train_Y_cond = train_Y.reshape(-1)
             
-            # Base GP is still the original GP.
+            # Base GP is still the original GP
             base_gp_for_sparse_init = self.initial_model
             
             # Fixed inducing points are the original observed inputs
@@ -110,52 +109,30 @@ class MyAcquisition(AcquisitionFunction):
         self.conditional_model.eval()
         self.conditional_likelihood.eval()
         
+        
     @t_batch_mode_transform()
     def forward(self, X: Tensor) -> Tensor:
-        
-        # Only q=1
+        """Evaluates the acquisition function on the given inputs X"""
         if X.shape[-2] != 1:
             raise ValueError("Only q=1 is supported")
-
-        # Save batch shape to return the acquisition with the right shape.
+        
+        # Saves batch shape to return the acquisition with the right shape
         batch_shape = X.shape[:-2]
-
-        # Convert batch_shape x 1 x d into N x d for GP evaluation.
+        
+        # Converts batch_shape for GP evaluation.
         X_eval = X.reshape(-1, X.shape[-1])
-
-        # Predictive variance before conditioning:
-        #
-        #     Var[y(x) | D]
-        #
-        # observation_noise=True means we use the predictive variance of y,
-        # not only the latent function f.
-        initial_var = self.initial_model.posterior(
-            X_eval,
-            observation_noise=True,
+        
+        # Variance before conditionin
+        initial_var = self.initial_model.posterior(X_eval, observation_noise=True
         ).variance.reshape(-1).clamp_min(1e-12)
-
-        # Predictive variance after conditioning.
-        #
-        # If style="mes", this is approximately:
-        #     Var[y(x) | D, y*]
-        #
-        # If style="jes", this is approximately:
-        #     Var[y(x) | D, x*, y*]
+        
+        # variance after conditioning
         with gpytorch.settings.fast_pred_var():
-            conditional_post = self.conditional_likelihood(
-                self.conditional_model(X_eval)
-            )
-
+            conditional_post = self.conditional_likelihood(self.conditional_model(X_eval))
         conditional_var = conditional_post.variance.reshape(-1).clamp_min(1e-12)
-
-        # Acquisition:
-        #
-        #     log Var before - log Var after
-        #
-        # Larger values mean larger reduction in predictive uncertainty.
-        return (
-            torch.log(initial_var) - torch.log(conditional_var)
-        ).reshape(batch_shape)
+        
+        # Gaussian entropy reduction
+        return 0.5 * (torch.log(initial_var) - torch.log(conditional_var)).reshape(batch_shape)
     
     
     @staticmethod
