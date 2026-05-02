@@ -40,7 +40,7 @@ def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
     # Scales inputs by lengthscale
     x_scaled = x / lengthscale
     y_scaled = y / lengthscale
-
+    
     # Computes squared distance matrix
     sqdist = (x_scaled[:, None, :] - y_scaled[None, :, :]).pow(2).sum(dim=-1)
     # Returns the RBF kernel matrix
@@ -56,26 +56,26 @@ def generate_5obs_problem(num_grid: int = 1000, jitter: float = 1e-7,
     dtype = torch.float64
     # Creates a grid of points in [-5,5]
     x_grid = torch.linspace(-5.0, 5.0, num_grid, dtype=dtype).unsqueeze(-1)
-
+    
     # Builds the GP covariance matrix on the grid
     sigma = kernel(x_grid, x_grid) + jitter * torch.eye(num_grid, dtype=dtype)
     # Cholesky decomposition for sampling from the GP prior
     L = torch.linalg.cholesky(sigma)
-
+    
     # Draws one latent function sample
     g_latent = torch.Generator(device="cpu")
     g_latent.manual_seed(seed_latent)
     f_true = L @ torch.randn(num_grid, dtype=dtype, generator=g_latent)
-
+    
     # Randomly selects training points from the grid
     rng = np.random.default_rng(seed_train)
     p_sel = np.sort(rng.choice(np.arange(num_grid), size=NUM_TRAIN, replace=False))
     p_sel = torch.tensor(p_sel, dtype=torch.long)
-
+    
     # Extracts the training inputs and their outputs
     x_train = x_grid[p_sel].contiguous()
     y_train = f_true[p_sel].contiguous()
-
+    
     return x_grid, f_true, x_train, y_train
 
 
@@ -94,19 +94,17 @@ class ExactConditionalApproximation:
 @torch.no_grad()
 def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Tensor,
     y_star: float | torch.Tensor, noise_variance: float | torch.Tensor,
-    max_tol: float = EXACT_MAX_TOL,
     num_function_samples: int = EXACT_NUM_FUNCTION_SAMPLES
     ) -> Optional[ExactConditionalApproximation]:
     """ This function approximates p(y|D,y*) by rejection sampling full
-    function draws from the GP posterior on a dense 1D grid
-    """
+    function draws from the GP posterior on a dense 1D grid"""
     # Sets model and likelihood to eval mode
     base_gp.eval()
     base_gp.likelihood.eval()
     
     # Posterior of the latent function on the dense grid
-    posterior = base_gp.posterior(grid, observation_noise=False) #XXX DHL devuelve marginales. Hay que samplear de Gaussiana Multivariable
-#    posterior = base_gp(grid) # XXX DHL this returns full posterior not marginals
+    posterior = base_gp.posterior(grid, observation_noise=False)
+    
     # Converts y* and noise variance to tensors with the correct dtype/device
     y_star_t = torch.as_tensor(y_star, dtype=grid.dtype, device=grid.device)
     noise_var_t = torch.as_tensor(noise_variance, dtype=grid.dtype, device=grid.device)
@@ -118,8 +116,8 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
         
     # Keeps only functions whose maximum lies in a neighbourhood of y*
     max = samples.max(dim=-1).values
-    keep = (max - y_star_t).abs()<= float(np.abs(y_star_t) * 0.01)
-
+    keep = (max - y_star_t).abs()<= float(np.abs(y_star_t) * EXACT_MAX_TOL)
+    
     # If no function sample was accepted, returns None
     if not torch.any(keep):
         return None
@@ -234,8 +232,7 @@ def main():
     print(f"Selected sampled y*: {y_star:.6f}")
     
     # Predictive comparison for p(y|D,y*)
-    # Fits the modified sparse GP trained only with the y* constraint, without conditioning
-    # on x*
+    # Fits the modified sparse GP trained only with the y* constraint, without conditioning on x*
     fixed_inducing_yonly = x_train.contiguous()
     M_yonly = 10
     res_con_yonly = fit_vfe_sparse_gp(train_X=x_train, train_Y=y_train, noise=base_gp_noise,
@@ -253,7 +250,7 @@ def main():
     
     # Approximation to the exact conditional from accepted function draws
     exact_cond = approximate_exact_conditional_from_function_samples(base_gp=base_gp, grid=x_grid,
-        y_star=y_star, noise_variance=base_gp_noise, max_tol=EXACT_MAX_TOL, num_function_samples=EXACT_NUM_FUNCTION_SAMPLES)
+        y_star=y_star, noise_variance=base_gp_noise, num_function_samples=EXACT_NUM_FUNCTION_SAMPLES)
     
     if exact_cond is None:
         print(" No function samples were accepted with the current criterion ")
@@ -264,27 +261,6 @@ def main():
         format_diff_stats(
             "Exact conditional approx", exact_cond.mean_y, exact_cond.var_y,
             "Modified sparse (y* only)", mean_con_y, var_con_y)
-        
-    # Conditions the base GP on the selected optimum pair, obtaining a new GP posterior
-    # that incorporates this information
-    conditioned_base_gp, x_star_t, y_star_t_col = condition_base_gp_on_optimum(
-        base_gp, x_star=x_star, y_star=y_star)
-    
-    # The conditioned sparse model is trained on the augmented data set that includes
-    # the sampled optimum pair as an additional observation
-    train_X_aug = torch.cat([x_train,
-        x_star_t.to(dtype=x_train.dtype, device=x_train.device)], dim=0)
-    train_Y_aug = torch.cat([y_train,
-        y_star_t_col.reshape(-1).to(dtype=y_train.dtype, device=y_train.device)], dim=0)
-    
-    fixed_inducing_aug = train_X_aug.contiguous()
-    M_aug = fixed_inducing_aug.shape[0]
-    
-    # Fits the conditioned modified sparse GP
-#    res_con_xy = fit_vfe_sparse_gp(train_X=train_X_aug, train_Y=train_Y_aug, noise=base_gp_noise,
-#        train_noise=False, M=M_aug, y_star=y_star, lower_bound=x_grid.min(dim=0).values,
-#        upper_bound=x_grid.max(dim=0).values, fixed_inducing_points=fixed_inducing_aug,
-#        base_gp=conditioned_base_gp, old_model=conditioned_base_gp, verbose=True)
     
     # MES: no conditioning on (x*, y*)
     _, var_base = marginal_mean_variance(base_gp, base_gp.likelihood, x_grid,
@@ -292,15 +268,9 @@ def main():
     _, var_mes = upper_truncated_predictive_moments(base_gp, base_gp.likelihood,
         x_grid, y_star=y_star, observation_noise=False)
     
-    # Our model: conditioned sparse approximation
-#    _, var_con_xy = marginal_mean_variance(res_con_xy.model, res_con_xy.likelihood,
-#        x_grid, observation_noise=False)
-    
     acq_mes = gaussian_entropy_reduction_acq(var_base, var_mes)
-#    acq_model_conditioned = gaussian_entropy_reduction_acq(var_base, var_con_xy)
     print("\nApproximate acquisition summaries:")
     summarize_acquisition_curve("   MES (sin condicionar a (x*,y*))", x_grid, acq_mes)
-#    summarize_acquisition_curve("   Modified sparse GP condicionado", x_grid, acq_model_conditioned)
     
     # Obtains standard deviations from variances for plotting
     std_trunc_y = var_trunc_y.sqrt()
@@ -339,11 +309,6 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
     
     ax_pred = axes[0,0]
-    #plot_mean_and_band(ax_pred, x_grid=x_grid, mean=mean_trunc_y, std=std_trunc_y,
-    #    f_true=f_true, x_obs=x_train, y_obs=y_train,
-    #    title="Predictive comparison for p(y|D,y*)", y_star=y_star,
-    #    mean_label="Gaussian truncation mean", band_label="Gaussian truncation band")
-
     ax_pred.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
         "k*", markersize=8, label="Observed data")
 
@@ -393,11 +358,6 @@ def main():
     ax_pred.set_ylim(y_lim_low, y_lim_high)
     ax_pred.legend(fontsize=7, loc="best")
 
-
-#    ax_acq = axes[1]
-#    plot_acquisition_comparison(ax_acq, x_grid=x_grid, x_star=x_star,
-#        acq_mes=acq_mes, acq_model_conditioned=acq_model_conditioned)
-
     # We plot the three acquisitions: exact, MES, y Proposed
 
     initial_vars = base_gp.posterior(x_grid).variance.detach() + base_gp.likelihood.noise
@@ -440,7 +400,6 @@ def main():
     fig.suptitle("1D test with 5 observations", fontsize=15)
     fig.tight_layout(rect=[0, 0, 1, 0.95])
     
- 
     plt.show()
 
 
