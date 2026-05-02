@@ -1,5 +1,19 @@
 #!/usr/bin/env python3
 # coding: utf-8
+"""
+Synthetic 1D MES acquisition comparison with 5 observations.
+
+This script generates a toy problem, samples a candidate optimum
+pair (x*, y*) from the posterior of a base GP, and compares three
+approximations to the conditional predictive distribution p(y|D,y*):
+
+1. A rejection-sampling approximation obtained from complete posterior
+    function samples whose maximum is close to y*.
+2. A MES gaussian upper truncation of the base GP predictived.
+3. Our modified VFE sparse GP trained with the step constraint term.
+
+Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -14,7 +28,6 @@ from my_utils import (
     fit_singletask_gp,
     sample_solution_outputs_from_model,
     choose_y_star,
-    condition_base_gp_on_optimum,
     marginal_mean_variance,
     upper_truncated_predictive_moments,
     gaussian_entropy_reduction_acq,
