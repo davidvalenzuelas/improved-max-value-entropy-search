@@ -108,7 +108,7 @@ def fit_model(train_X, train_Y, state_dict = None, likelihood_exp: str = "GAUSSI
 
     else:
         model = SingleTaskGP(train_X, train_Y, outcome_transform=Standardize(m=1))
-        model.likelihood.noise = 1e-4
+        model.likelihood.noise = 1e-6 #TODO:revise
         model.likelihood.noise_covar.raw_noise.requires_grad_(False)
 
     if median_for_ls:

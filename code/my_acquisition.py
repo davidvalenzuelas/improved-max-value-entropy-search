@@ -123,8 +123,7 @@ class MyAcquisition(AcquisitionFunction):
         X_eval = X.reshape(-1, X.shape[-1])
         
         # Variance before conditionin
-        #FIXME:
-        initial_var = self.initial_model.posterior(X_eval, observation_noise=False
+        initial_var = self.initial_model.posterior(X_eval, observation_noise=True
         ).variance.reshape(-1).clamp_min(1e-12)
         
         # variance after conditioning
