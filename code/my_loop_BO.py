@@ -138,7 +138,7 @@ def main():
     num_dims = 4#int(len(config["variables"].keys()))
     BO_iters =  int(config["BO_iters"])
     acquisition_name = "MY_ACQ"
-    M_extra = int(config.get("M_extra_inducing", config.get("M", 100)))
+    M_extra = 100
     my_acq_style = str(config.get("my_acquisition_style", config.get("acquisition", "jes"))).lower()
     if my_acq_style not in ("mes", "jes"):
         my_acq_style = "jes"

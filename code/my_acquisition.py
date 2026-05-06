@@ -101,7 +101,7 @@ class MyAcquisition(AcquisitionFunction):
         fit = fit_vfe_sparse_gp(train_X=train_X_cond, train_Y=train_Y_cond, noise=noise,
             train_noise=False, M=M, y_star=self.y_star, x_star=self.x_star,
             lower_bound=lower_bound, upper_bound=upper_bound, fixed_inducing_points=fixed_inducing_points,
-            base_gp=base_gp_for_sparse_init)
+            base_gp=base_gp_for_sparse_init, verbose=False)
         
         # Stores the trained conditioned sparse model and its likelihood
         self.conditional_model = fit.model
@@ -123,7 +123,8 @@ class MyAcquisition(AcquisitionFunction):
         X_eval = X.reshape(-1, X.shape[-1])
         
         # Variance before conditionin
-        initial_var = self.initial_model.posterior(X_eval, observation_noise=True
+        #FIXME:
+        initial_var = self.initial_model.posterior(X_eval, observation_noise=False
         ).variance.reshape(-1).clamp_min(1e-12)
         
         # variance after conditioning
@@ -132,7 +133,8 @@ class MyAcquisition(AcquisitionFunction):
         conditional_var = conditional_post.variance.reshape(-1).clamp_min(1e-12)
         
         # Gaussian entropy reduction
-        return 0.5 * (torch.log(initial_var) - torch.log(conditional_var)).reshape(batch_shape)
+        acq = 0.5 * (torch.log(initial_var) - torch.log(conditional_var))
+        return acq.reshape(batch_shape)
     
     
     @staticmethod
