@@ -46,7 +46,7 @@ PLOT_STD_MULT = 1.0
 # Noise level for the base GP model
 INIT_NOISE = 1e-6
 # Extra inducing points (apart from the training points)
-M_EXTRA = 10
+M_EXTRA = 100
 
 # Parameters for the rejection approximation to the exact conditional p(y|D,y*)
 EXACT_MAX_TOL = 0.01
