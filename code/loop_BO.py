@@ -254,7 +254,7 @@ def main():
         # The recommendation is the best observed value
 
         print("Computing recommendations.")
-
+        # pasamos datos por el modelo para quitar ruido
         recommendation = x_observations[ model(x_observations).mean.argmax() : (model(x_observations).mean.argmax() + 1), : ]
         objective_value_at_recommendation = problem_noiseless(recommendation.double())
 
@@ -268,7 +268,7 @@ def main():
         file_vals_rec.close()
 
         # We obtain the recommendation from the observations
-
+        # no pasamos dato por el modelo
         recommendation = x_observations[ y_values_obs.argmax() : (y_values_obs.argmax() + 1), : ]
         objective_value_at_recommendation = problem_noiseless(recommendation.double())
 
