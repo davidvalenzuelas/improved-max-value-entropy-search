@@ -241,7 +241,7 @@ def main():
     summarize_acquisition_curve("   JES acquisition object", x_grid, acq_from_object)
 
     max_forward_diff = (acq_from_object - acq_object_manual).abs().max().item()
-    print(f"Max forward/manual diff: {max_forward_diff:.6e}")
+    # print(f"Max forward/manual diff: {max_forward_diff:.6e}")
 
     train_Y_aug = torch.cat([
         y_train,
