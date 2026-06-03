@@ -34,8 +34,8 @@ RESOLUTION = 20
 SIZE_GRID = 10000
 # num_restarts_opt = 1
 # raw_samples_opt_acq = 200
-num_restarts_opt = 5
-raw_samples_opt_acq = 512
+num_restarts_opt = 10
+raw_samples_opt_acq = 1024
 
 
 def get_maximum_problem(num_dims, problem):
@@ -138,6 +138,7 @@ def main():
     bounds = torch.tensor([[0.0] * num_dims, [1.0] * num_dims]).double()
     
     all_metrics = np.zeros((len(acquisition_names), num_repetitions, BO_iters))
+    single_run_mode = (num_repetitions == 1 and len(acquisition_names) == 1)
     
     for rep in range(num_repetitions):
         
@@ -153,7 +154,11 @@ def main():
         problem_noiseless = synthetic_problem.f
         x_max_val_problem, max_val_problem = get_maximum_problem(num_dims=num_dims, problem=problem)
         
-        path_rep = f'{config["file_results"]}/rep_{rep}'
+        if single_run_mode:
+            path_rep = config["file_results"]
+        else:
+            path_rep = f'{config["file_results"]}/rep_{rep}'
+            
         os.makedirs(path_rep, exist_ok=True)
         
         # We save the optimum (x and y) to a file
@@ -169,9 +174,13 @@ def main():
         for acq_index, acquisition_name in enumerate(acquisition_names):
             
             reset_random_state(rep_seed + 1000 * (acq_index + 1))
-            path_results = f'{path_rep}/{acquisition_name.lower().replace("+", "plus")}'
+            if single_run_mode:
+                path_results = path_rep
+            else:
+                path_results = f'{path_rep}/{acquisition_name.lower().replace("+", "plus")}'
+                
             os.makedirs(path_results, exist_ok=True)
-            
+                        
             x_observations = x_observations_initial.clone()
             y_values_obs = y_values_obs_initial.clone()
             model = None
@@ -298,25 +307,26 @@ def main():
                     np.savetxt(f, y_values_obs.numpy())
                     
                 sys.stdout.flush()
+                
+    if not single_run_mode:
+        mean_metrics = all_metrics.mean(axis=1)
+        # standard error of the mean
+        sem_metrics = all_metrics.std(axis=1) / np.sqrt(num_repetitions)
         
-    mean_metrics = all_metrics.mean(axis=1)
-    # standard error of the mean
-    sem_metrics = all_metrics.std(axis=1) / np.sqrt(num_repetitions)
-
-    iterations = np.arange(BO_iters)
-    plt.figure(figsize=(9, 6))
-    for acq_index, acquisition_name in enumerate(acquisition_names):
-        mean = mean_metrics[acq_index]
-        sem = sem_metrics[acq_index]
-        plt.plot(iterations, mean, label=acquisition_name)
-        plt.fill_between(iterations, mean - sem, mean + sem, alpha=0.15)
-    
-    plt.xlabel("BO iteration")
-    plt.ylabel("log(abs(y_recom - y_opt) / abs(y_opt) + 1e-6)")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(f'{config["file_results"]}/bo_metric_mean.png', dpi=200)
-    plt.show()
+        iterations = np.arange(BO_iters)
+        plt.figure(figsize=(9, 6))
+        for acq_index, acquisition_name in enumerate(acquisition_names):
+            mean = mean_metrics[acq_index]
+            sem = sem_metrics[acq_index]
+            plt.plot(iterations, mean, label=acquisition_name)
+            plt.fill_between(iterations, mean - sem, mean + sem, alpha=0.15)
+        
+        plt.xlabel("BO iteration")
+        plt.ylabel("log(abs(y_recom - y_opt) / abs(y_opt) + 1e-6)")
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(f'{config["file_results"]}/bo_metric_mean.png', dpi=200)
+        plt.show()
 
     print("End. Have a nice day!")
 
