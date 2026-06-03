@@ -3,8 +3,8 @@ import json
 import copy
 
 D = 6
-NUM_EXPERIMENTS = 3
-BO_ITERS = 20
+NUM_EXPERIMENTS = 10
+BO_ITERS = 50
 ROOT = f"{D}d_experiments"
 
 methods = {
