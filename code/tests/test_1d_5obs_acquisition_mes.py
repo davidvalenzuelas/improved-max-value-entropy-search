@@ -15,7 +15,7 @@ import torch
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from my_acquisition_mes import MyAcquisition
+from my_acquisition_mes_plus import MyAcquisition
 from my_utils import (
     choose_y_star,
     fit_singletask_gp,
