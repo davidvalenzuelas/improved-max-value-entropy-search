@@ -1,0 +1,403 @@
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.2952], dtype=torch.float64), mean = tensor([-0.3272], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+[OK] Configuration loaded successfully.
+Rep 0 - MES - BO Iteration number: 0
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 0.8560, 1.0000, 0.0000, 0.0000, 0.0000]], dtype=torch.float64), acq_value=0.1712999768487955
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.2911], dtype=torch.float64), mean = tensor([-0.3032], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 1
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 0.8273, 0.0000, 0.0000, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.5109951793325709
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.2813], dtype=torch.float64), mean = tensor([-0.2901], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 2
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.2085]], dtype=torch.float64), acq_value=0.3934405736851776
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3083], dtype=torch.float64), mean = tensor([-0.2485], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 3
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 1.0000, 0.0000, 0.0000, 0.5014]], dtype=torch.float64), acq_value=0.2871871623231661
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3004], dtype=torch.float64), mean = tensor([-0.2351], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 4
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 1.0000, 0.5203, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.17789063297166097
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3348], dtype=torch.float64), mean = tensor([-0.1917], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 5
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 1.0000, 0.6085, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.555917165350106
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3572], dtype=torch.float64), mean = tensor([-0.1538], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 6
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3654, 1.0000, 1.0000, 0.3253, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.33557209825722456
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3773], dtype=torch.float64), mean = tensor([-0.1173], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 7
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.2543, 1.0000, 1.0000, 0.4708, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.42556279340802217
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3916], dtype=torch.float64), mean = tensor([-0.0844], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 8
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.2788, 1.0000, 1.0000, 0.4014, 0.9422, 0.0000]], dtype=torch.float64), acq_value=0.3891113968106632
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4021], dtype=torch.float64), mean = tensor([-0.0546], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 9
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3157, 1.0000, 1.0000, 0.3576, 0.7806, 0.0000]], dtype=torch.float64), acq_value=0.4012484199561257
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4094], dtype=torch.float64), mean = tensor([-0.0278], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 10
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.2654, 1.0000, 1.0000, 0.4005, 0.8389, 0.0000]], dtype=torch.float64), acq_value=0.38521560840567126
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4141], dtype=torch.float64), mean = tensor([-0.0036], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 11
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3436, 1.0000, 1.0000, 0.2447, 0.7726, 0.0000]], dtype=torch.float64), acq_value=0.31229673259249946
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4175], dtype=torch.float64), mean = tensor([0.0187], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 12
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3993, 1.0000, 1.0000, 0.1637, 0.6878, 0.0000]], dtype=torch.float64), acq_value=0.33117326417589776
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4189], dtype=torch.float64), mean = tensor([0.0386], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 13
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1., 1., 1., 0., 0., 0.]], dtype=torch.float64), acq_value=0.001777274677356111
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4097], dtype=torch.float64), mean = tensor([0.0390], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 14
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.5098, 1.0000, 1.0000, 0.0040, 0.7693, 1.0000]], dtype=torch.float64), acq_value=0.0008598860685187226
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4017], dtype=torch.float64), mean = tensor([0.0437], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 15
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.7973, 0.1393, 0.9543, 0.0307, 0.3783, 0.0374]], dtype=torch.float64), acq_value=2.554102040974726e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3975], dtype=torch.float64), mean = tensor([0.0546], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 16
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1., 0., 1., 0., 0., 0.]], dtype=torch.float64), acq_value=0.43448343875594153
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3932], dtype=torch.float64), mean = tensor([0.0645], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 17
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 0.0000, 1.0000, 0.0000, 0.7369, 0.0000]], dtype=torch.float64), acq_value=0.1963816921060666
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3860], dtype=torch.float64), mean = tensor([0.0667], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 18
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.6807, 0.0000, 1.0000, 0.0000, 0.0000, 0.0000]], dtype=torch.float64), acq_value=0.22201921357915833
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3805], dtype=torch.float64), mean = tensor([0.0728], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 19
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 0.0000, 1.0000, 0.0000, 0.1316, 1.0000]], dtype=torch.float64), acq_value=0.04165645912089788
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3841], dtype=torch.float64), mean = tensor([0.0567], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 20
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 0.0000, 0.0000, 0.0000, 0.1624, 0.0000]], dtype=torch.float64), acq_value=0.03642594047430592
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3794], dtype=torch.float64), mean = tensor([0.0501], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 21
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3056, 1.0000, 1.0000, 0.2656, 0.8404, 0.0000]], dtype=torch.float64), acq_value=0.32072266645007996
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3812], dtype=torch.float64), mean = tensor([0.0639], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 22
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3350, 0.9452, 1.0000, 0.2412, 0.8071, 0.0000]], dtype=torch.float64), acq_value=0.27921936981199913
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3816], dtype=torch.float64), mean = tensor([0.0760], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 23
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0432, 1.0000, 0.0000, 1.0000, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.16102775140821368
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3846], dtype=torch.float64), mean = tensor([0.0900], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 24
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0., 1., 0., 1., 1., 0.]], dtype=torch.float64), acq_value=0.29063262932536915
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3876], dtype=torch.float64), mean = tensor([0.1038], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 25
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0., 1., 0., 1., 1., 0.]], dtype=torch.float64), acq_value=0.21836274794168453
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3900], dtype=torch.float64), mean = tensor([0.1169], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 26
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0., 1., 0., 1., 1., 0.]], dtype=torch.float64), acq_value=0.07419052827242822
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3917], dtype=torch.float64), mean = tensor([0.1292], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 27
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 0.0000, 1.0000, 0.9544, 0.0000]], dtype=torch.float64), acq_value=0.23576030298922834
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.3926], dtype=torch.float64), mean = tensor([0.1405], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 28
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000e+00, 1.0000e+00, 2.7756e-17, 1.0000e+00, 0.0000e+00, 1.0000e+00]],
+       dtype=torch.float64), acq_value=0.004926844953413778
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4133], dtype=torch.float64), mean = tensor([0.1174], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 29
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0., 1., 0., 1., 1., 1.]], dtype=torch.float64), acq_value=0.045754475915942505
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4083], dtype=torch.float64), mean = tensor([0.1150], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 30
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0., 1., 0., 1., 0., 0.]], dtype=torch.float64), acq_value=0.0067157645577786695
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4042], dtype=torch.float64), mean = tensor([0.1104], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 31
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.5042, 1.0000, 0.0000, 0.0000, 0.0000, 1.0000]], dtype=torch.float64), acq_value=0.00059758068657767
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4076], dtype=torch.float64), mean = tensor([0.0977], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 32
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.7333, 0.0420, 0.9287, 0.9890, 0.0596, 0.0089]], dtype=torch.float64), acq_value=1.4802775183397898e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4186], dtype=torch.float64), mean = tensor([0.0803], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 33
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0207, 0.9682, 0.9369, 0.9328, 0.2510, 0.9183]], dtype=torch.float64), acq_value=1.7376475724972806e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4281], dtype=torch.float64), mean = tensor([0.0637], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 34
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0161, 0.9701, 0.3357, 0.1410, 0.4753, 0.0267]], dtype=torch.float64), acq_value=6.745367127081181e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4232], dtype=torch.float64), mean = tensor([0.0649], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 35
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.3001, 0.0269, 0.1925, 0.9869, 0.8694, 0.0014]], dtype=torch.float64), acq_value=1.3296838519138987e-08
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4293], dtype=torch.float64), mean = tensor([0.0508], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 36
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.9835, 0.9880, 0.9561, 0.2027, 0.7698, 0.2582]], dtype=torch.float64), acq_value=1.0318358345529077e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4251], dtype=torch.float64), mean = tensor([0.0537], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 37
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.7501, 0.8911, 0.9916, 0.1146, 0.3733, 0.5313]], dtype=torch.float64), acq_value=2.3467555232414838e-07
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4263], dtype=torch.float64), mean = tensor([0.0638], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 38
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.5979, 1.0000, 1.0000, 0.0000, 0.4576, 0.4189]], dtype=torch.float64), acq_value=0.20673760303208955
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4264], dtype=torch.float64), mean = tensor([0.0727], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 39
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 1.0000, 1.0000, 0.0829, 0.0000, 0.9154]], dtype=torch.float64), acq_value=0.11776572373297678
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4226], dtype=torch.float64), mean = tensor([0.0757], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 40
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.7684, 0.6883, 1.0000, 0.0329, 0.2199, 0.3852]], dtype=torch.float64), acq_value=0.8180120229398176
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4234], dtype=torch.float64), mean = tensor([0.0849], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 41
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.5439, 1.0000, 1.0000, 0.2039, 0.5002, 0.4204]], dtype=torch.float64), acq_value=0.35008899855274533
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4234], dtype=torch.float64), mean = tensor([0.0931], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 42
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.9297, 1.0000, 1.0000, 0.2231, 0.0109, 0.4926]], dtype=torch.float64), acq_value=0.03776823706849841
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4196], dtype=torch.float64), mean = tensor([0.0953], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 43
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.7761, 0.7449, 1.0000, 0.0000, 0.3621, 0.4821]], dtype=torch.float64), acq_value=0.48427198233274726
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4203], dtype=torch.float64), mean = tensor([0.1038], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 44
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 0.6577, 1.0000, 0.0000, 0.2804, 0.4613]], dtype=torch.float64), acq_value=0.06333981095136076
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4197], dtype=torch.float64), mean = tensor([0.1109], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 45
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[1.0000, 1.0000, 1.0000, 0.1386, 0.6696, 1.0000]], dtype=torch.float64), acq_value=0.010503780707658894
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4161], dtype=torch.float64), mean = tensor([0.1127], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 46
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.0000, 1.0000, 0.0000, 0.9903, 1.0000, 0.0000]], dtype=torch.float64), acq_value=0.449985530289144
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4168], dtype=torch.float64), mean = tensor([0.1207], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 47
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.6964, 0.7796, 1.0000, 0.0558, 0.3392, 0.4920]], dtype=torch.float64), acq_value=0.4282556898221186
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4170], dtype=torch.float64), mean = tensor([0.1281], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 48
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.9361, 0.5051, 1.0000, 0.0000, 0.3332, 0.0000]], dtype=torch.float64), acq_value=0.011141775203724169
+Computing recommendations.
+Evaluating objective
+/home/david_el_crack/Documentos/tfginfo/TFG-info-david/vendor/botorch/botorch/models/utils/assorted.py:279: InputDataWarning: Data (outcome observations) is not standardized (std = tensor([0.4156], dtype=torch.float64), mean = tensor([0.1338], dtype=torch.float64)).Please consider scaling the input to zero mean and unit variance.
+  check_standardization(Y=train_Y, raise_on_fail=raise_on_fail)
+Rep 0 - MES - BO Iteration number: 49
+Fitting the model
+Optimizing Acquisition
+MES: candidate=tensor([[0.8747, 0.9070, 0.1127, 0.0124, 0.6450, 0.0436]], dtype=torch.float64), acq_value=1.4398937597803751e-07
+Computing recommendations.
+Evaluating objective
+End. Have a nice day!
