@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-ROOT = "4d_experiments"
+ROOT = "6d_experiments"
 NUM_EXPERIMENTS = 10
 BO_ITERS = 50
 
