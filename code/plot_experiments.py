@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 ROOT = "6d_experiments"
 NUM_EXPERIMENTS = 10
 BO_ITERS = 50
+PLOT_TITLE = "6D experiments: MES+ vs MES"
 
 methods = [
     ("mes_plus", "MES+"),
@@ -36,6 +37,10 @@ for folder_name, label in methods:
 
         runs.append(vals[:BO_ITERS])
 
+    if len(runs) == 0:
+        print(f"No valid runs for {label}")
+        continue
+
     runs = np.vstack(runs)
 
     mean = runs.mean(axis=0)
@@ -44,6 +49,7 @@ for folder_name, label in methods:
     plt.plot(iterations, mean, label=label)
     plt.fill_between(iterations, mean - sem, mean + sem, alpha=0.15)
 
+plt.title(PLOT_TITLE)
 plt.xlabel("BO iteration")
 plt.ylabel("log(abs(y_recom - y_opt) / abs(y_opt) + 1e-6)")
 plt.legend()
