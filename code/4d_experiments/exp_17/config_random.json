@@ -1,0 +1,52 @@
+{
+    "random_seed": 17,
+    "lenghtscale_model_synthetic_problem": 0.25,
+    "num_samples_solution": 1,
+    "num_dims": 4,
+    "num_initial_obs": 10,
+    "BO_iters": 50,
+    "num_repetitions": 1,
+    "file_results": "4d_experiments/exp_17/random/results_synthetic_problem",
+    "main_file": "my_loop_BO.py",
+    "experiment-name": "synthetic_4d_exp_17_random",
+    "acquisitions": [
+        "RANDOM"
+    ],
+    "M_extra": 100,
+    "alpha": 0.001,
+    "variables": {
+        "X1": {
+            "type": "FLOAT",
+            "size": 1,
+            "min": 0,
+            "max": 1
+        },
+        "X2": {
+            "type": "FLOAT",
+            "size": 1,
+            "min": 0,
+            "max": 1
+        },
+        "X3": {
+            "type": "FLOAT",
+            "size": 1,
+            "min": 0,
+            "max": 1
+        },
+        "X4": {
+            "type": "FLOAT",
+            "size": 1,
+            "min": 0,
+            "max": 1
+        }
+    },
+    "tasks": {
+        "obj": {
+            "type": "OBJECTIVE",
+            "fit_mean": false,
+            "transformations": [],
+            "group": 0
+        }
+    },
+    "acquisition": "RANDOM"
+}
