@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-DIMENSIONS = [4]
+DIMENSIONS = [4, 6]
 NUM_EXPERIMENTS = 100
 BO_ITERS = 100
 N_BOOTSTRAP = 200
@@ -10,7 +10,12 @@ ROOT_TEMPLATE = "{D}d_experiments"
 
 method_names = ["MES", "MES+", "Random"]
 method_folders = ["mes", "mes_plus", "random"]
-method_colors = ["green", "pink", "blue"]
+
+method_colors = {
+    "MES":"#2563EB",
+    "MES+": "#DC2626",
+    "Random": "#16A34A",
+}
 
 reference_files = [
     "objective_at_recommendations_obs.txt",
@@ -20,9 +25,25 @@ reference_files = [
 ]
 
 plot_targets = [
-    ("post_mean", "objective_at_recommendations_post_mean.txt"),
-    ("obs", "objective_at_recommendations_obs_obs.txt"),
+    ("post_mean", "objective_at_recommendations_post_mean.txt", "Posterior mean recommendation"),
+    ("obs", "objective_at_recommendations_obs_obs.txt", "Best observed value recommendation"),
 ]
+
+plt.rcParams.update({
+    "font.size": 12,
+    "axes.titlesize": 15,
+    "axes.labelsize": 13,
+    "legend.fontsize": 11,
+    "legend.title_fontsize": 11,
+    "xtick.labelsize": 11,
+    "ytick.labelsize": 11,
+    "axes.grid": True,
+    "grid.alpha": 0.25,
+    "grid.linestyle": "--",
+    "lines.linewidth": 2.2,
+    "figure.dpi": 120,
+    "savefig.dpi": 300,
+})
 
 
 def load_vector(path):
@@ -59,9 +80,11 @@ def load_results(root, target_file):
 
             for reference_file in reference_files:
                 ref_path = result_path(root, exp_id, method_folder, reference_file)
+
                 if not os.path.exists(ref_path):
                     correct = False
                     break
+
                 ref_values = load_vector(ref_path)
                 value_solution = max(value_solution, np.max(ref_values))
 
@@ -71,14 +94,16 @@ def load_results(root, target_file):
         if correct:
             for method_index in range(len(method_names)):
                 value = np.log(
-                    np.maximum(0.0, np.abs(value_solution - results[method_index][counter, :]))
+                    np.maximum(
+                        0.0,
+                        np.abs(value_solution - results[method_index][counter, :])
+                    )
                     / np.abs(value_solution)
                     + 1e-6
                 )
                 results[method_index][counter, :] = value
-            counter += 1
 
-        print(exp_id)
+            counter += 1
 
     results = [r[:counter, :] for r in results]
     return results
@@ -88,15 +113,18 @@ def bootstrap_sd_of_mean(runs):
     bootstrap_estimator = np.zeros((N_BOOTSTRAP, BO_ITERS))
 
     for b in range(N_BOOTSTRAP):
-        idx = np.random.choice(np.arange(runs.shape[0]), size=runs.shape[0], replace=True)
+        idx = np.random.choice(
+            np.arange(runs.shape[0]),
+            size=runs.shape[0],
+            replace=True,
+        )
         bootstrap_estimator[b, :] = runs[idx, :].mean(axis=0)
-        print(b + 1)
 
     finite = np.isfinite(bootstrap_estimator.sum(axis=1))
     return bootstrap_estimator[finite, :].std(axis=0, ddof=1)
 
 
-def make_plot(root, D, target_name, target_file):
+def make_plot(root, D, target_name, target_file, target_title):
     output_dir = f"{root}/generate_plot"
     os.makedirs(output_dir, exist_ok=True)
 
@@ -118,36 +146,75 @@ def make_plot(root, D, target_name, target_file):
 
     iterations = np.arange(1, BO_ITERS + 1)
 
-    plt.figure(figsize=(9, 5))
+    fig, ax = plt.subplots(figsize=(10.5, 6.2))
 
     for i, method_name in enumerate(method_names):
-        plt.errorbar(
+        color = method_colors[method_name]
+
+        ax.plot(
             iterations,
             mean_value[i, :],
-            yerr=sd_value[i, :],
             label=method_name,
-            color=method_colors[i],
-            linewidth=0.75,
-            markersize=2,
-            marker="o",
-            elinewidth=0.75,
-            capsize=1.5,
+            color=color,
+            linewidth=2.4,
         )
 
-    plt.ylabel("Log. Rel. Diff. w.r.t Max")
-    plt.xlabel("Number of Function Evaluations")
-    plt.title(f"{D} Dimensions. Noiseless. Post Mean.")
-    plt.legend(title="Methods", ncol=2)
-    plt.tight_layout()
-    plt.savefig(f"{output_dir}/plot_{target_name}.pdf")
-    plt.close()
+        ax.fill_between(
+            iterations,
+            mean_value[i, :] - sd_value[i, :],
+            mean_value[i, :] + sd_value[i, :],
+            color=color,
+            alpha=0.16,
+            linewidth=0,
+        )
+
+    ax.set_xlabel("Number of BO iterations")
+    ax.set_ylabel("Log relative difference to the optimum")
+
+    ax.set_title(
+        f"{D}D synthetic (noiseless) problem\n{target_title}",
+        pad=12,
+        fontweight="bold",
+    )
+
+    ax.legend(
+        title="Method",
+        loc="upper right",
+        frameon=True,
+        fancybox=True,
+        framealpha=0.95,
+    )
+
+    ax.set_xlim(1, BO_ITERS)
+
+    y_values = np.concatenate([
+        mean_value[i, :] for i in range(len(method_names))
+    ])
+    y_min, y_max = np.nanmin(y_values), np.nanmax(y_values)
+    margin = 0.08 * max(1e-8, y_max - y_min)
+    ax.set_ylim(y_min - margin, y_max + margin)
+
+    fig.tight_layout()
+
+    pdf_path = f"{output_dir}/plot_{D}d_{target_name}.pdf"
+    png_path = f"{output_dir}/plot_{D}d_{target_name}.png"
+
+    fig.savefig(pdf_path, bbox_inches="tight")
+    fig.savefig(png_path, bbox_inches="tight")
+    plt.close(fig)
+
+    print(f"Saved: {pdf_path}")
+    print(f"Saved: {png_path}")
 
 
 def main():
+    np.random.seed(123)
+
     for D in DIMENSIONS:
         root = ROOT_TEMPLATE.format(D=D)
-        for target_name, target_file in plot_targets:
-            make_plot(root, D, target_name, target_file)
+
+        for target_name, target_file, target_title in plot_targets:
+            make_plot(root, D, target_name, target_file, target_title)
 
 
 if __name__ == "__main__":
