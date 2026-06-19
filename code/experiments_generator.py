@@ -3,7 +3,7 @@ import json
 import copy
 
 DIMENSIONS = [4]
-START_EXP = 61
+START_EXP = 1
 END_EXP = 100
 BO_ITERS = 100
 ROOT_TEMPLATE = "{D}d_experiments"
