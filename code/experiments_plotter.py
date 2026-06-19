@@ -2,9 +2,9 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-DIMENSIONS = [4, 6]
-NUM_EXPERIMENTS = 50
-BO_ITERS = 50
+DIMENSIONS = [4]
+NUM_EXPERIMENTS = 100
+BO_ITERS = 100
 N_BOOTSTRAP = 200
 ROOT_TEMPLATE = "{D}d_experiments"
 
@@ -72,7 +72,7 @@ def load_results(root, target_file):
             for method_index in range(len(method_names)):
                 value = np.log(
                     np.maximum(0.0, np.abs(value_solution - results[method_index][counter, :]))
-                    / np.abs(value_solution + 1.0)
+                    / np.abs(value_solution)
                     + 1e-6
                 )
                 results[method_index][counter, :] = value

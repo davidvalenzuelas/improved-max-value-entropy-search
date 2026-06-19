@@ -2,10 +2,10 @@ import os
 import json
 import copy
 
-DIMENSIONS = [4,6]
-START_EXP = 1
-END_EXP = 50
-BO_ITERS = 50
+DIMENSIONS = [4]
+START_EXP = 61
+END_EXP = 100
+BO_ITERS = 100
 ROOT_TEMPLATE = "{D}d_experiments"
 
 methods = {
