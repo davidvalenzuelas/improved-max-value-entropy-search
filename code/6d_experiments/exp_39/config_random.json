@@ -4,7 +4,7 @@
     "num_samples_solution": 1,
     "num_dims": 6,
     "num_initial_obs": 10,
-    "BO_iters": 50,
+    "BO_iters": 100,
     "num_repetitions": 1,
     "file_results": "6d_experiments/exp_39/random/results_synthetic_problem",
     "main_file": "my_loop_BO.py",
