@@ -274,8 +274,8 @@ If you use this repository, please cite it as:
 
 ```bibtex
 @software{valenzuelahernandezlobato2026improvedmes,
-  author = {Valenzuela Sánchez, David Ángel and Hernández-Lobato, Daniel},
-  title = {{Improved Max-value Entropy Search}},
+  author = {Valenzuela S{\'a}nchez, D. A. and Hern{\'a}ndez-Lobato, D.},
+  title = {Improved Max-value Entropy Search},
   year = {2026},
   version = {1.0.0},
   url = {https://github.com/davidvalenzuelas/improved-max-value-entropy-search},
