@@ -1,14 +1,14 @@
 # Improved Max-value Entropy Search
 
-This repository contains the code developed for the Bachelor's Thesis **"Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada"**, authored by **David Ángel Valenzuela Sánchez** and **Daniel Hernández-Lobato** at the **Universidad Autónoma de Madrid**.
+This repository contains the code developed for the Bachelor's Thesis "Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada", authored by David Ángel Valenzuela Sánchez and Daniel Hernández-Lobato at the Universidad Autónoma de Madrid.
 
-The project implements and compares Bayesian optimization strategies based on max-value entropy. In particular, it includes:
+The project implements and compares Bayesian optimization strategies based on Max-value entropy. In particular, it includes:
 
 * **MES**, based on a Gaussian truncation approximation.
 * **MES+**, the proposed method, which replaces the local Gaussian truncation approximation with a modified variational sparse Gaussian process.
 * **Random search**, used as a baseline strategy.
 
-The experiments are performed on synthetic black-box optimization problems sampled from Gaussian process priors. The objective is to compare the behaviour of these acquisition functions inside a Bayesian optimization loop.
+The experiments are performed on synthetic black-box optimization problems sampled from Gaussian process priors. The objective is to compare the behaviour of these acquisition functions inside a BO loop.
 
 ## Repository structure
 
@@ -188,7 +188,7 @@ cd code
 python3 experiments_generator.py
 ```
 
-After generating the configurations, the experiments can be launched one by one. For example, for experiments 1 to 100 in 4 dimensions:
+After generating the configurations, the experiments can be launched one by one or parallely. For example, for experiments 1 to 100 in 4 dimensions:
 
 ```bash
 cd code
@@ -285,13 +285,15 @@ If you use this repository, please cite it as:
 
 ## Authors
 
-**David Ángel Valenzuela Sánchez**
+**David Ángel Valenzuela Sánchez** and
 **Daniel Hernández-Lobato**
 
 ## Thesis information
 
 **Bachelor's Thesis:** *Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada*
+
 **Institution:** Universidad Autónoma de Madrid
+
 **Year:** 2026
 
 ## License
