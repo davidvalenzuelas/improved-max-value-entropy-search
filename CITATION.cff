@@ -1,0 +1,13 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "Improved Max-value Entropy Search"
+authors:
+  - family-names: "Valenzuela Sánchez"
+    given-names: "David Ángel"
+  - family-names: "Hernández-Lobato"
+    given-names: "Daniel"
+version: "1.0.0"
+date-released: 2026-06-19
+url: "https://github.com/davidvalenzuelas/improved-max-value-entropy-search"
+type: software
+abstract: "Code repository associated with the Bachelor's Thesis 'Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada', authored by David Ángel Valenzuela Sánchez and Daniel Hernández-Lobato at the Universidad Autónoma de Madrid."
