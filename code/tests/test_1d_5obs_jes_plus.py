@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Synthetic 1D JES acquisition comparison with 5 observations.
+Synthetic 1D JES+ acquisition comparison with 5 observations.
 
 This script generates a toy problem, samples a candidate optimum
 pair (x*,y*) from the posterior of a base GP, and compares three

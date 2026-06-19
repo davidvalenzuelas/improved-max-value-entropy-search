@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""Test JES acquisition object on a 1D problem."""
+"""Test JES+ acquisition object on a 1D problem."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -15,7 +15,7 @@ import torch
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from my_acquisition_jes import MyAcquisition
+from my_acquisition_jes_plus import MyAcquisition
 from my_utils import (
     choose_y_star,
     condition_base_gp_on_optimum,
@@ -154,8 +154,8 @@ def plot_predictive(ax, x_grid: torch.Tensor, x_train: torch.Tensor, y_train: to
     ax.plot(x_np, mean_np, linewidth=2.0, label="Mean")
     ax.fill_between(x_np, mean_np - PLOT_STD_MULT * std_np,
         mean_np + PLOT_STD_MULT * std_np, alpha=0.20, label="Band")
-    ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
-    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
+    ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="f_opt")
+    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x_opt")
 
     if exact_cond is not None:
         exact_mean = exact_cond.mean_y.reshape(-1).cpu().numpy()
@@ -183,11 +183,11 @@ def main():
     x_star = y_star_info["x_star"]
     y_star = y_star_info["y_star"]
 
-    print("\nJES acquisition object test")
+    print("\nJES+ acquisition object test")
     print("Original observed x:", x_train.squeeze(-1).cpu().numpy())
     print("Original observed y:", y_train.cpu().numpy())
-    print(f"Selected sampled x*: {x_star:.6f}")
-    print(f"Selected sampled y*: {y_star:.6f}")
+    print(f"Selected sampled x_opt: {x_star:.6f}")
+    print(f"Selected sampled f_opt: {y_star:.6f}")
 
     conditioned_base_gp, x_star_t, y_star_t_col = condition_base_gp_on_optimum(
         base_gp, x_star=x_star, y_star=y_star)
@@ -222,7 +222,7 @@ def main():
             "JES Gaussian truncation", mean_trunc_y, var_trunc_y)
         format_diff_stats(
             "Exact JES conditional approx", exact_cond.mean_y, exact_cond.var_y,
-            "JES acquisition object model", mean_obj_y, var_obj_y)
+            "JES+ acquisition object model", mean_obj_y, var_obj_y)
 
     X_acq = x_grid.unsqueeze(-2)
     acq_from_object = acq_object(X_acq).detach()
@@ -238,7 +238,7 @@ def main():
     else:
         acq_exact = None
     summarize_acquisition_curve("   JES Gaussian truncation", x_grid, acq_trunc)
-    summarize_acquisition_curve("   JES acquisition object", x_grid, acq_from_object)
+    summarize_acquisition_curve("   JES+ acquisition object", x_grid, acq_from_object)
 
     max_forward_diff = (acq_from_object - acq_object_manual).abs().max().item()
     # print(f"Max forward/manual diff: {max_forward_diff:.6e}")
@@ -269,13 +269,13 @@ def main():
     fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
 
     plot_predictive(axes[0, 0], x_grid, x_train, y_train, mean_obj_y, var_obj_y,
-        "p(y|D,x*,y*) from JES acquisition object", y_star, x_star,
+        "p(y|D,x_opt,f_opt) from JES+ acquisition object", y_star, x_star,
         x_star_t, y_star_t_col, exact_cond)
     axes[0, 0].set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
     axes[0, 0].set_ylim(y_lim_low, y_lim_high)
 
     plot_predictive(axes[0, 1], x_grid, x_train, y_train, mean_trunc_y, var_trunc_y,
-        "p(y|D,x*,y*) from JES Gaussian truncation", y_star, x_star,
+        "p(y|D,x_opt,f_opt) from JES Gaussian truncation", y_star, x_star,
         x_star_t, y_star_t_col, exact_cond)
     axes[0, 1].set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
     axes[0, 1].set_ylim(y_lim_low, y_lim_high)
@@ -289,8 +289,8 @@ def main():
     ax.plot(x_np, acq_trunc.reshape(-1).cpu().numpy(), linewidth=2.4,
         label="JES_Trunc_Acq")
     ax.plot(x_np, acq_from_object.reshape(-1).cpu().numpy(), linewidth=2.4,
-        label="JES_Object_Acq")
-    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
+        label="JES+_Object_Acq")
+    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x_opt")
     ax.legend(fontsize=7, loc="best")
 
     ax = axes[1, 1]
@@ -301,11 +301,11 @@ def main():
     ax.plot(x_np, normalize_acquisition(acq_trunc).reshape(-1).cpu().numpy(),
         linewidth=2.4, label="JES_Trunc_Acq_Norm")
     ax.plot(x_np, normalize_acquisition(acq_from_object).reshape(-1).cpu().numpy(),
-        linewidth=2.4, label="JES_Object_Acq_Norm")
-    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
+        linewidth=2.4, label="JES+_Object_Acq_Norm")
+    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x_opt")
     ax.legend(fontsize=7, loc="best")
 
-    fig.suptitle("1D JES acquisition object test with 5 observations", fontsize=15, y=0.98)
+    fig.suptitle("1D JES+ acquisition object test with 5 observations", fontsize=15, y=0.98)
     fig.tight_layout(rect=[0, 0, 1, 0.94], h_pad=3.0)
     plt.show()
 
