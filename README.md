@@ -285,8 +285,8 @@ If you use this repository, please cite it as:
 
 ## Authors
 
-**David Ángel Valenzuela Sánchez** and
-**Daniel Hernández-Lobato**
+David Ángel Valenzuela Sánchez and
+Daniel Hernández-Lobato
 
 ## Thesis information
 
