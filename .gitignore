@@ -10,3 +10,6 @@ botorch/
 venv/
 __pycache__/
 *.pyc
+
+# Generated experiment results
+/experiments/*
