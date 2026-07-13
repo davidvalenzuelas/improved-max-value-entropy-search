@@ -60,13 +60,14 @@ class BenchmarkProblem:
         self.name = name.lower()
         self.dtype = dtype
 
-        if self.name in {"shekel", "shekel4d", "shekel_m10"}:
+        if self.name in {"shekel", "shekel4d"}:
             self.name = "shekel"
             self.info = self._shekel_info()
         else:
             raise ValueError(f"Unknown benchmark: {name}")
 
         self.num_dims = self.info.num_dims
+
 
     def _shekel_info(self) -> BenchmarkInfo:
         lower = torch.tensor(SHEKEL_LOWER, dtype=self.dtype)
@@ -80,9 +81,11 @@ class BenchmarkProblem:
             upper=upper, x_opt_original=x_min_original, x_opt_unit=x_max_unit,
             f_opt=-SHEKEL_F_MIN)
 
+
     @staticmethod
     def to_original(x_unit: torch.Tensor, lower: torch.Tensor,upper: torch.Tensor) -> torch.Tensor:
         return lower + x_unit * (upper - lower)
+
 
     @staticmethod
     def to_unit(x_original: torch.Tensor, lower: torch.Tensor, upper: torch.Tensor) -> torch.Tensor:
@@ -96,9 +99,7 @@ class BenchmarkProblem:
             x_unit = x_unit.reshape(1, -1)
 
         if x_unit.shape[-1] != self.num_dims:
-            raise ValueError(
-                f"Expected dimension {self.num_dims}, got {x_unit.shape[-1]}."
-            )
+            raise ValueError(f"Expected dimension {self.num_dims}, got {x_unit.shape[-1]}.")
 
         with torch.no_grad():
             # Definition of the shekel function
@@ -106,12 +107,15 @@ class BenchmarkProblem:
 
         return values.reshape(1, -1)
 
+
     def f_noisy(self, x_unit: torch.Tensor) -> torch.Tensor:
         return self.f(x_unit)
+
 
     def __call__(self, x_unit: torch.Tensor) -> torch.Tensor:
         return self.f(x_unit)
 
+    
     def _shekel_min(self, x_unit: torch.Tensor) -> torch.Tensor:
         x = self.to_original(x_unit, self.info.lower, self.info.upper)
 
