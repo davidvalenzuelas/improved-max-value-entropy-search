@@ -11,7 +11,6 @@ Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
 import os
 import sys
 import gpytorch
-import matplotlib.pyplot as plt
 import torch
 import numpy as np
 # from botorch.models.transforms.outcome import Standardize
@@ -22,15 +21,13 @@ from botorch.acquisition.utils import get_optimal_samples
 from botorch.optim import optimize_acqf
 
 from util import reset_random_state, read_config, create_path
-from plotter import Plotter
 import scipy as sp
 
 from synthetic_problem import Synthetic_problem
 from my_acquisition_mes_plus import MyAcquisition as MyAcquisitionMESPlus
 from my_acquisition_mes import MyAcquisition as MyAcquisitionMES
 
-SCALE_ACQ_VALS = True
-RESOLUTION = 20
+
 SIZE_GRID = 10000
 # num_restarts_opt = 1
 # raw_samples_opt_acq = 200
@@ -117,7 +114,7 @@ def fit_model(train_X, train_Y, state_dict = None, likelihood_exp: str = "GAUSSI
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python synthetic_problem.py <config.json>")
+        print("Usage: python3 my_loop_BO.py <config.json>")
         sys.exit(1)
     
     config = read_config(sys.argv[1])
@@ -136,17 +133,12 @@ def main():
     
     # We asume [0,1]^num_dims as the box where optimization takes place
     bounds = torch.tensor([[0.0] * num_dims, [1.0] * num_dims]).double()
-    
-    all_metrics = np.zeros((len(acquisition_names), num_repetitions, BO_iters))
     single_run_mode = (num_repetitions == 1 and len(acquisition_names) == 1)
     
     for rep in range(num_repetitions):
         
         rep_seed = seed + rep
         reset_random_state(rep_seed)
-        
-        if num_dims == 2:
-            plotter = Plotter(num_dims=num_dims, bounds=bounds, resolution=RESOLUTION, path=config["file_results"])
             
         # We now generate some data and then fit the Gaussian process model.
         synthetic_problem = Synthetic_problem(num_dims=num_dims, lengthscale_model=ls_model, seed=rep_seed)
@@ -275,23 +267,14 @@ def main():
                 recommendation = optimize_posterior_mean(model, num_dims).reshape((1, num_dims))
                 objective_value_at_recommendation = problem_noiseless(recommendation.double())
                 
-                # We compute the metric log(abs(y_recom - y_opt) / abs(y_opt) + 1e-6)
-                metric = torch.log(torch.abs(objective_value_at_recommendation.reshape(-1)[0] - max_val_problem)
-                    / torch.abs(max_val_problem).clamp_min(1e-12) + 1e-6)
-                # We save the metric for this iteration, repetition and acquisition function
-                all_metrics[acq_index, rep, bo_iteration] = metric.detach().cpu().item()
-                
                 file_recommendations = open(f'{path_results}/recommendations_post_mean.txt', 'a')
                 file_vals_rec = open(f'{path_results}/objective_at_recommendations_post_mean.txt', 'a')
-                file_metric = open(f'{path_results}/metric_post_mean.txt', 'a')
                 
                 np.savetxt(file_recommendations, recommendation.detach().numpy()) 
                 np.savetxt(file_vals_rec, objective_value_at_recommendation.detach().numpy())
-                np.savetxt(file_metric, np.array([ metric.detach().cpu().item() ]))
                 
                 file_recommendations.close()
                 file_vals_rec.close()
-                file_metric.close()
                 
                 # We evaluate the objective at the selected point and add that to the training set
                 print("Evaluating objective")
@@ -307,26 +290,6 @@ def main():
                     np.savetxt(f, y_values_obs.numpy())
                     
                 sys.stdout.flush()
-                
-    if not single_run_mode:
-        mean_metrics = all_metrics.mean(axis=1)
-        # standard error of the mean
-        sem_metrics = all_metrics.std(axis=1) / np.sqrt(num_repetitions)
-        
-        iterations = np.arange(BO_iters)
-        plt.figure(figsize=(9, 6))
-        for acq_index, acquisition_name in enumerate(acquisition_names):
-            mean = mean_metrics[acq_index]
-            sem = sem_metrics[acq_index]
-            plt.plot(iterations, mean, label=acquisition_name)
-            plt.fill_between(iterations, mean - sem, mean + sem, alpha=0.15)
-        
-        plt.xlabel("BO iteration")
-        plt.ylabel("log(abs(y_recom - y_opt) / abs(y_opt) + 1e-6)")
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig(f'{config["file_results"]}/bo_metric_mean.png', dpi=200)
-        plt.show()
 
     print("End. Have a nice day!")
 
