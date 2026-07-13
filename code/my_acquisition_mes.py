@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""MES acquisition with Gaussian truncation."""
+"""
+MES acquisition implementation
+
+Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
+"""
 from __future__ import annotations
 
 import torch

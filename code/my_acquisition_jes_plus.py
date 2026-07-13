@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""JES acquisition for VFE sparse GP."""
+"""
+JES+ acquisition implementation
+
+Authors: Daniel Hernández-Lobato, David Valenzuela Sánchez
+"""
 from __future__ import annotations
 
 import torch
