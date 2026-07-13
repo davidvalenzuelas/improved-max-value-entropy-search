@@ -1,3 +1,9 @@
+"""
+Defines a synthetic problem to be optimized. Here the function is a sample
+from the GP prior with Matern kernel and no noise.
+
+Author: Daniel Fernández Sánchez, Daniel Hernández-Lobato
+"""
 import torch
 import gpytorch
 import matplotlib.pyplot as plt
@@ -45,15 +51,6 @@ def _get_train_inputs_Model(model: ExactGPModel, transformed: bool = False) -> T
 class Synthetic_problem():
 
     def __init__(self, num_dims, lengthscale_model: float = 0.25, seed=None):
-
-        # if os.path.isfile('problem.dat'): # XXX DFS: In future version it will be nice to have something to load the last model
-        #     problem = load_object('problem.dat')
-        #     self.tasks = problem.tasks
-        #     self.input_space = problem.input_space
-        #     self.models = problem.models
-        #     self.funs = problem.funs
-        #     return
-
         self.num_dims = num_dims
         self.lengthscale_model = lengthscale_model
         self.seed = seed
