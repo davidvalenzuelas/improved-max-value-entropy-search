@@ -13,9 +13,10 @@ Original matlab implementation: https://www.sfu.ca/~ssurjano/Code/shekelm.html
 Copyright 2013. Derek Bingham, Simon Fraser University.
 Authors: Sonja Surjanovic and Derek Bingham.
 Original license: GNU General Public License, version 2.0.
+
+Author: David Valenzuela Sánchez
 """
 from __future__ import annotations
-
 from dataclasses import dataclass
 
 import torch
