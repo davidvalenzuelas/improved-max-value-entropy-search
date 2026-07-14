@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-Benchmark function for MES+ experiments
+Benchmark functions for MES+ experiments
 
 Adapted from:
 https://github.com/zi-w/Max-value-Entropy-Search/tree/master/test_functions
 
 Shekel reference: https://www.sfu.ca/~ssurjano/shekel.html
+Shekel matlab implementation: https://www.sfu.ca/~ssurjano/Code/shekelm.html
 
-Original matlab implementation: https://www.sfu.ca/~ssurjano/Code/shekelm.html
+Michalewicz reference: https://www.sfu.ca/~ssurjano/michal.html
+Michalewicz matlab implementation: https://www.sfu.ca/~ssurjano/Code/michalm.html
 
 Copyright 2013. Derek Bingham, Simon Fraser University.
 Authors: Sonja Surjanovic and Derek Bingham.
@@ -29,8 +31,7 @@ SHEKEL_UPPER = (10.0, 10.0, 10.0, 10.0)
 SHEKEL_X_MIN = (4.0, 4.0, 4.0, 4.0)
 SHEKEL_F_MIN = -10.536283726219605
 
-
-# Same constants as the matlab implementation.
+# Same constants as the matlab implementation
 SHEKEL_BETA = (
     0.1, 0.2, 0.2, 0.4, 0.4,
     0.6, 0.3, 0.7, 0.5, 0.5,
@@ -42,6 +43,38 @@ SHEKEL_C = (
     (4.0, 1.0, 8.0, 6.0, 3.0, 2.0, 5.0, 8.0, 6.0, 7.0),
     (4.0, 1.0, 8.0, 6.0, 7.0, 9.0, 3.0, 1.0, 2.0, 3.6),
 )
+
+
+# Michalewicz m=10 metadata
+MICHALEWICZ_M = 10
+
+MICHALEWICZ_LOWER = (
+    0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0,
+)
+
+MICHALEWICZ_UPPER = (
+    3.141592653589793, 3.141592653589793,
+    3.141592653589793, 3.141592653589793,
+    3.141592653589793, 3.141592653589793,
+    3.141592653589793, 3.141592653589793,
+    3.141592653589793, 3.141592653589793,
+)
+
+MICHALEWICZ_X_MIN = (
+    2.2029055201725,
+    1.5707963267949,
+    1.2849915649892,
+    1.9230584691892,
+    1.7204697665173,
+    1.5707963267949,
+    1.4544139711063,
+    1.7560865184583,
+    1.6557174177282,
+    1.5707963267949,
+)
+
+MICHALEWICZ_F_MIN = -9.660151715641349
 
 
 @dataclass
@@ -63,6 +96,9 @@ class BenchmarkProblem:
         if self.name in {"shekel", "shekel4d"}:
             self.name = "shekel"
             self.info = self._shekel_info()
+        elif self.name in {"michalewicz", "michalewicz10d"}:
+            self.name = "michalewicz"
+            self.info = self._michalewicz_info()
         else:
             raise ValueError(f"Unknown benchmark: {name}")
 
@@ -70,6 +106,7 @@ class BenchmarkProblem:
 
 
     def _shekel_info(self) -> BenchmarkInfo:
+        """ Implements the Shekel function as a benchmark problem"""
         lower = torch.tensor(SHEKEL_LOWER, dtype=self.dtype)
         upper = torch.tensor(SHEKEL_UPPER, dtype=self.dtype)
 
@@ -80,6 +117,20 @@ class BenchmarkProblem:
         return BenchmarkInfo(name="shekel", num_dims=4, lower=lower,
             upper=upper, x_opt_original=x_min_original, x_opt_unit=x_max_unit,
             f_opt=-SHEKEL_F_MIN)
+
+
+    def _michalewicz_info(self) -> BenchmarkInfo:
+        """ Implements the Michalewicz function as a benchmark problem"""
+        lower = torch.tensor(MICHALEWICZ_LOWER, dtype=self.dtype)
+        upper = torch.tensor(MICHALEWICZ_UPPER, dtype=self.dtype)
+
+        x_min_original = torch.tensor(MICHALEWICZ_X_MIN, dtype=self.dtype)
+        x_max_unit = self.to_unit(x_min_original, lower, upper)
+
+        # Adapts the problem to maximization
+        return BenchmarkInfo(name="michalewicz", num_dims=10, lower=lower,
+            upper=upper, x_opt_original=x_min_original, x_opt_unit=x_max_unit,
+            f_opt=-MICHALEWICZ_F_MIN)
 
 
     @staticmethod
@@ -93,6 +144,7 @@ class BenchmarkProblem:
     
 
     def f(self, x_unit: torch.Tensor) -> torch.Tensor:
+        """ Evaluates the benchmark function at the given unit hypercube"""
         x_unit = torch.as_tensor(x_unit, dtype=self.dtype)
 
         if x_unit.ndim == 1:
@@ -102,8 +154,12 @@ class BenchmarkProblem:
             raise ValueError(f"Expected dimension {self.num_dims}, got {x_unit.shape[-1]}.")
 
         with torch.no_grad():
-            # Definition of the shekel function
-            values = -self._shekel_min(x_unit)
+            if self.name == "shekel":
+                values = -self._shekel_min(x_unit)
+            elif self.name == "michalewicz":
+                values = -self._michalewicz_min(x_unit)
+            else:
+                raise ValueError(f"Unknown benchmark: {self.name}")
 
         return values.reshape(1, -1)
 
@@ -117,6 +173,7 @@ class BenchmarkProblem:
 
     
     def _shekel_min(self, x_unit: torch.Tensor) -> torch.Tensor:
+        """ Evaluates the Shekel function at the given unit hypercube"""
         x = self.to_original(x_unit, self.info.lower, self.info.upper)
 
         beta = torch.tensor(SHEKEL_BETA, dtype=self.dtype, device=x.device)
@@ -127,23 +184,40 @@ class BenchmarkProblem:
 
         # f(x) = -sum(1 / (||x - C_i||^2 + beta_i))
         return -(1.0 / (sq_dist + beta)).sum(dim=1)
+    
+
+    def _michalewicz_min(self, x_unit: torch.Tensor) -> torch.Tensor:
+        """ Evaluates the Michalewicz function at the given unit hypercube"""
+        x = self.to_original(x_unit, self.info.lower, self.info.upper)
+
+        # Create a tensor of indices from 1 to num_dims
+        indices = torch.arange(1, self.num_dims + 1, dtype=self.dtype, device=x.device)
+
+        # Compute the terms of the Michalewicz function
+        terms = torch.sin(x) * torch.sin(indices * x.pow(2) / torch.pi).pow(2 * MICHALEWICZ_M)
+        
+        # Sum the terms across dimensions and return the negative value for maximization
+        return -terms.sum(dim=1)
 
 
 if __name__ == "__main__":
-    problem = BenchmarkProblem("shekel")
 
-    x_opt = problem.info.x_opt_unit.reshape(1, -1)
-    y_opt = problem.f(x_opt)
+    for benchmark_name in ("shekel", "michalewicz"):
+        problem = BenchmarkProblem(benchmark_name)
 
-    print("Benchmark:", problem.info.name)
-    print("Dimension:", problem.info.num_dims)
-    print("x_opt original:", problem.info.x_opt_original)
-    print("x_opt unit:", problem.info.x_opt_unit)
-    print("f(x_opt):", y_opt)
-    print("Known f_opt:", problem.info.f_opt)
+        x_opt = problem.info.x_opt_unit.reshape(1, -1)
+        y_opt = problem.f(x_opt)
 
-    x_test = torch.rand(5, problem.num_dims, dtype=torch.float64)
-    y_test = problem.f(x_test)
+        print("Benchmark:", problem.info.name)
+        print("Dimension:", problem.info.num_dims)
+        print("x_opt original:", problem.info.x_opt_original)
+        print("x_opt unit:", problem.info.x_opt_unit)
+        print("f(x_opt):", y_opt)
+        print("Known f_opt:", problem.info.f_opt)
+        
+        x_test = torch.rand(5, problem.num_dims, dtype=torch.float64)
+        y_test = problem.f(x_test)
 
-    print("x_test shape:", x_test.shape)
-    print("y_test shape:", y_test.shape)
+        print("x_test shape:", x_test.shape)
+        print("y_test shape:", y_test.shape)
+        print()
