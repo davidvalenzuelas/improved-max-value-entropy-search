@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-This file includes the BO loop for a synthetic problem.
+This file includes the BO loop for synthetic, benchmark or real problems.
 
 This loop tests the performance of 3 proposed acquisition functions: MES+,
 (uses the new model we propose), MES and RANDOM.
@@ -24,15 +24,14 @@ from util import reset_random_state, read_config, create_path
 import scipy as sp
 
 from synthetic_problem import Synthetic_problem
+from benchmark_problem import BenchmarkProblem
 from my_acquisition_mes_plus import MyAcquisition as MyAcquisitionMESPlus
 from my_acquisition_mes import MyAcquisition as MyAcquisitionMES
 
 
 SIZE_GRID = 10000
-# num_restarts_opt = 1
-# raw_samples_opt_acq = 200
-num_restarts_opt = 10
-raw_samples_opt_acq = 1024
+num_restarts_opt = 1
+raw_samples_opt_acq = 200
 
 
 def get_maximum_problem(num_dims, problem):
@@ -119,15 +118,36 @@ def main():
     
     config = read_config(sys.argv[1])
     
+    # Accepts synthetic and benchmark problems
+    problem_type = config["problem_type"]
+    if problem_type not in {"synthetic", "benchmark"}:
+        raise ValueError(
+            f"Unknown problem_type: {problem_type}. "
+            "Expected 'synthetic' or 'benchmark'."
+        )
+    
     seed = int(config["random_seed"])
-    ls_model = float(config["lenghtscale_model_synthetic_problem"])
     num_initial_obs = int(config["num_initial_obs"])
     num_samples = 1
-    num_dims = int(config.get("num_dims", 4))
     BO_iters =  int(config["BO_iters"])
     M_extra = int(config.get("M_extra", 100))
-    num_repetitions = int(config.get("num_repetitions", 10))
+    num_repetitions = int(config.get("num_repetitions", 100))
     acquisition_names = config.get("acquisitions", ["MES+", "MES", "RANDOM"])
+    
+    if problem_type == "synthetic":
+        ls_model = float(config["lenghtscale_model_synthetic_problem"])
+        num_dims = int(config.get("num_dims", 4))
+    else:
+        benchmark_name = config["benchmark"]
+        # Creates the benchmark problem and obtains its dimensions
+        benchmark_problem = BenchmarkProblem(benchmark_name)
+        num_dims = benchmark_problem.num_dims
+        
+        if "num_dims" in config and int(config["num_dims"]) != num_dims:
+            raise ValueError(
+                f"Config dimension {config['num_dims']} does not match "
+                f"{benchmark_name} dimension {num_dims}."
+            )
     
     create_path(config["file_results"])
     
@@ -136,16 +156,21 @@ def main():
     single_run_mode = (num_repetitions == 1 and len(acquisition_names) == 1)
     
     for rep in range(num_repetitions):
-        
         rep_seed = seed + rep
         reset_random_state(rep_seed)
-            
-        # We now generate some data and then fit the Gaussian process model.
-        synthetic_problem = Synthetic_problem(num_dims=num_dims, lengthscale_model=ls_model, seed=rep_seed)
-        problem = synthetic_problem.f
-        problem_noiseless = synthetic_problem.f
-        x_max_val_problem, max_val_problem = get_maximum_problem(num_dims=num_dims, problem=problem)
         
+        if problem_type == "synthetic":
+            # We generate some data and then fit the GP model
+            synthetic_problem = Synthetic_problem(num_dims=num_dims, lengthscale_model=ls_model, seed=rep_seed)
+            problem = synthetic_problem.f
+            problem_noiseless = synthetic_problem.f
+            x_max_val_problem, max_val_problem = get_maximum_problem(num_dims=num_dims, problem=problem)
+        else:
+            problem = benchmark_problem.f
+            problem_noiseless = benchmark_problem.f
+            x_max_val_problem = benchmark_problem.info.x_opt_unit.double()
+            max_val_problem = torch.tensor(benchmark_problem.info.f_opt, dtype=torch.double)
+
         if single_run_mode:
             path_rep = config["file_results"]
         else:
@@ -156,6 +181,10 @@ def main():
         # We save the optimum (x and y) to a file
         np.savetxt(path_rep + "/x_optimum_problem.txt", x_max_val_problem.detach().numpy().reshape((1, num_dims)))
         np.savetxt(path_rep + "/y_optimum_problem.txt", np.array([ max_val_problem.detach().numpy() ]))
+
+        if problem_type == "benchmark":
+            np.savetxt(path_rep + "/x_optimum_original_problem.txt",
+                benchmark_problem.info.x_opt_original.detach().numpy().reshape((1, num_dims)))
         
         # We asume [0,1]^num_dims as the box where optimization takes place. We generate initial observations there.
         x_observations_initial = torch.rand(num_initial_obs, num_dims)
