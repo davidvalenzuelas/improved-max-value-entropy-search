@@ -2,31 +2,69 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-DIMENSIONS = [4, 6]
-NUM_EXPERIMENTS = 100
+
+PROBLEM_TYPE = "synthetic"
+BENCHMARK = "shekel"
+
 BO_ITERS = 100
 N_BOOTSTRAP = 200
-ROOT_TEMPLATE = "{D}d_experiments"
 
-method_names = ["MES", "MES+", "Random"]
+if PROBLEM_TYPE == "synthetic":
+    DIMENSIONS = [4, 6]
+    NUM_EXPERIMENTS = 100
+    ROOT_TEMPLATE = "experiments/synthetic_{D}d"
+    RESULTS_FOLDER = "results_synthetic_problem"
+
+    method_names = ["MES", "MES+", "Random"]
+
+    method_colors = {
+        "MES":"#2563EB",
+        "MES+": "#DC2626",
+        "Random": "#16A34A",
+    }
+
+    plot_targets = [
+        ("post_mean", "objective_at_recommendations_post_mean.txt", "Posterior mean recommendation"),
+        ("obs", "objective_at_recommendations_obs_obs.txt", "Best observed value recommendation"),
+    ]
+
+elif PROBLEM_TYPE == "benchmark":
+    DIMENSIONS = [4]
+    NUM_EXPERIMENTS = 200
+    ROOT_TEMPLATE = f"experiments/{BENCHMARK}"
+    RESULTS_FOLDER = "results_benchmark_problem"
+
+    method_names = ["MES", "MES+", "RANDOM"]
+
+    method_colors = {
+        "MES": "#2563EB",
+        "MES+": "#DC2626",
+        "RANDOM": "#16A34A"
+    }
+
+    plot_targets = [
+        (
+            "post_mean",
+            "objective_at_recommendations_post_mean.txt",
+            "Posterior mean recommendation",
+        ),
+        (
+            "obs",
+            "objective_at_recommendations_obs_obs.txt",
+            "Best observed recommendation",
+        ),
+    ]
+
+else:
+    raise ValueError(f"Unknown problem type: {PROBLEM_TYPE}")
+
 method_folders = ["mes", "mes_plus", "random"]
-
-method_colors = {
-    "MES":"#2563EB",
-    "MES+": "#DC2626",
-    "Random": "#16A34A",
-}
 
 reference_files = [
     "objective_at_recommendations_obs.txt",
     "objective_at_recommendations_post_mean.txt",
     "objective_at_recommendations_obs_obs.txt",
     "y_optimum_problem.txt",
-]
-
-plot_targets = [
-    ("post_mean", "objective_at_recommendations_post_mean.txt", "Posterior mean recommendation"),
-    ("obs", "objective_at_recommendations_obs_obs.txt", "Best observed value recommendation"),
 ]
 
 plt.rcParams.update({
@@ -52,7 +90,7 @@ def load_vector(path):
 
 
 def result_path(root, exp_id, method_folder, filename):
-    return f"{root}/exp_{exp_id}/{method_folder}/results_synthetic_problem/{filename}"
+    return f"{root}/exp_{exp_id}/{method_folder}/{RESULTS_FOLDER}/{filename}"
 
 
 def load_results(root, target_file):
@@ -105,6 +143,9 @@ def load_results(root, target_file):
 
             counter += 1
 
+        if PROBLEM_TYPE == "benchmark":
+            print(exp_id)
+
     results = [r[:counter, :] for r in results]
     return results
 
@@ -151,28 +192,47 @@ def make_plot(root, D, target_name, target_file, target_title):
     for i, method_name in enumerate(method_names):
         color = method_colors[method_name]
 
-        ax.plot(
-            iterations,
-            mean_value[i, :],
-            label=method_name,
-            color=color,
-            linewidth=2.4,
-        )
-
-        ax.fill_between(
-            iterations,
-            mean_value[i, :] - sd_value[i, :],
-            mean_value[i, :] + sd_value[i, :],
-            color=color,
-            alpha=0.16,
-            linewidth=0,
-        )
+        if PROBLEM_TYPE == "synthetic":
+            ax.errorbar(
+                iterations,
+                mean_value[i, :],
+                yerr=sd_value[i, :],
+                fmt="o-",
+                label=method_name,
+                color=color,
+                linewidth=1.8,
+                markersize=3.2,
+                markeredgewidth=0.8,
+                elinewidth=1.0,
+                capsize=3.0,
+                capthick=1.0,
+            )
+        else:
+            ax.errorbar(
+                iterations,
+                mean_value[i, :],
+                yerr=sd_value[i, :],
+                fmt="o-",
+                label=method_name,
+                color=color,
+                linewidth=1.8,
+                markersize=3.0,
+                markeredgewidth=0.8,
+                elinewidth=0.9,
+                capsize=2.8,
+                capthick=0.9,
+            )
 
     ax.set_xlabel("Number of BO iterations")
     ax.set_ylabel("Log relative difference to the optimum")
 
+    if PROBLEM_TYPE == "synthetic":
+        plot_title = f"{D}D synthetic (noiseless) problem\n{target_title}"
+    else:
+        plot_title = f"{BENCHMARK.capitalize()} {D}D benchmark\n{target_title}"
+
     ax.set_title(
-        f"{D}D synthetic (noiseless) problem\n{target_title}",
+        plot_title,
         pad=12,
         fontweight="bold",
     )
@@ -187,17 +247,28 @@ def make_plot(root, D, target_name, target_file, target_title):
 
     ax.set_xlim(1, BO_ITERS)
 
-    y_values = np.concatenate([
-        mean_value[i, :] for i in range(len(method_names))
+    y_low_values = np.concatenate([
+        mean_value[i, :] - sd_value[i, :] for i in range(len(method_names))
     ])
-    y_min, y_max = np.nanmin(y_values), np.nanmax(y_values)
+
+    y_high_values = np.concatenate([
+        mean_value[i, :] + sd_value[i, :] for i in range(len(method_names))
+    ])
+
+    y_min = np.nanmin(y_low_values)
+    y_max = np.nanmax(y_high_values)
+
     margin = 0.08 * max(1e-8, y_max - y_min)
     ax.set_ylim(y_min - margin, y_max + margin)
 
     fig.tight_layout()
 
-    pdf_path = f"{output_dir}/plot_{D}d_{target_name}.pdf"
-    png_path = f"{output_dir}/plot_{D}d_{target_name}.png"
+    if PROBLEM_TYPE == "synthetic":
+        pdf_path = f"{output_dir}/plot_{D}d_{target_name}.pdf"
+        png_path = f"{output_dir}/plot_{D}d_{target_name}.png"
+    else:
+        pdf_path = f"{output_dir}/plot_{BENCHMARK}{D}d_{target_name}.pdf"
+        png_path = f"{output_dir}/plot_{BENCHMARK}{D}d_{target_name}.png"
 
     fig.savefig(pdf_path, bbox_inches="tight")
     fig.savefig(png_path, bbox_inches="tight")
