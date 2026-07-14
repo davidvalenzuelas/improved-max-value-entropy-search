@@ -2,6 +2,7 @@ tfgvenv/
 
 __pycache__/
 __pytest__cache__/
+
 # External libraries installed via pip
 vendor/
 gpytorch/
