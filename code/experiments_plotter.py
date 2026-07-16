@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-PROBLEM_TYPE = "synthetic"
+PROBLEM_TYPE = "benchmark"
 BENCHMARK = "shekel"
 
 BO_ITERS = 100
@@ -34,12 +34,12 @@ elif PROBLEM_TYPE == "benchmark":
     ROOT_TEMPLATE = f"experiments/{BENCHMARK}"
     RESULTS_FOLDER = "results_benchmark_problem"
 
-    method_names = ["MES", "MES+", "RANDOM"]
+    method_names = ["MES", "MES+"]
 
     method_colors = {
         "MES": "#2563EB",
         "MES+": "#DC2626",
-        "RANDOM": "#16A34A"
+        #"RANDOM": "#16A34A"
     }
 
     plot_targets = [
@@ -58,7 +58,7 @@ elif PROBLEM_TYPE == "benchmark":
 else:
     raise ValueError(f"Unknown problem type: {PROBLEM_TYPE}")
 
-method_folders = ["mes", "mes_plus", "random"]
+method_folders = ["mes", "mes_plus"]
 
 reference_files = [
     "objective_at_recommendations_obs.txt",
