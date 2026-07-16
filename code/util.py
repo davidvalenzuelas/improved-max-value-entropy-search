@@ -40,3 +40,23 @@ def read_config(file_path):
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
         return None
+    
+
+def rescale_arguments(args):
+    """Maps a point from [0,1]^5 to MLP hyperparameters"""
+    width, batch_size, alpha, learning_rate_init, max_iters = args
+
+    width = int(np.round(np.power(2, 2 + width * 6)))
+    batch_size = int(np.round(np.power(2, 2 + batch_size * 6)))
+    alpha = np.power(10, -8 + alpha * 8)
+    learning_rate_init = np.power(10,-5 + learning_rate_init * 5)
+    max_iters = int(np.round(5 + (50 - 5) * max_iters))
+
+    return {
+        "depth": 2,
+        "width": width,
+        "batch_size": batch_size,
+        "alpha": alpha,
+        "learning_rate_init": learning_rate_init,
+        "max_iters": max_iters,
+    }
