@@ -4,3 +4,5 @@ matplotlib
 torch
 gpytorch
 botorch
+pandas
+scikit-learn
