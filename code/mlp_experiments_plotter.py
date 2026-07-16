@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""Plots the real MLP Bayesian optimization experiments."""
+"""Plots the real MLP experiments results"""
 
 import os
 
@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-DATASET = "australian"
+DATASET = "ionosphere"
 
 BO_ITERS = 50
 NUM_EXPERIMENTS = 100
