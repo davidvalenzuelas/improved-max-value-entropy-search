@@ -131,7 +131,7 @@ def main():
     
     seed = int(config["random_seed"])
     num_initial_obs = int(config["num_initial_obs"])
-    num_samples = 1
+    num_samples = int(config.get("num_samples_solution", 1))
     BO_iters =  int(config["BO_iters"])
     M_extra = int(config.get("M_extra", 100))
     num_repetitions = int(config.get("num_repetitions", 100))
@@ -249,8 +249,8 @@ def main():
                 if acquisition_name == "MES":
                     # Obtains the optimal samples
                     optimal_inputs, optimal_outputs = get_optimal_samples(model, bounds=bounds, num_optima=num_samples)
-                    x_star = optimal_inputs.reshape(num_samples, num_dims)[0:1].double().detach()
-                    y_star = optimal_outputs.reshape(num_samples)[0].double().detach()
+                    x_star = optimal_inputs.reshape(num_samples, num_dims).double().detach()
+                    y_star = optimal_outputs.reshape(num_samples).double().detach()
                     
                     # We use the customized MES acquisition object, which uses the gaussian truncation to approximate
                     acq = MyAcquisitionMES(model=model, x_star=x_star, y_star=y_star, M=M_extra,
@@ -262,8 +262,8 @@ def main():
                 elif acquisition_name == "MES+":
                     # Obtains the optimal samples
                     optimal_inputs, optimal_outputs = get_optimal_samples(model, bounds=bounds, num_optima=num_samples)
-                    x_star = optimal_inputs.reshape(num_samples, num_dims)[0:1].double().detach()
-                    y_star = optimal_outputs.reshape(num_samples)[0].double().detach()
+                    x_star = optimal_inputs.reshape(num_samples, num_dims).double().detach()
+                    y_star = optimal_outputs.reshape(num_samples).double().detach()
                     
                     # We use the customized MES+ acquisition object, which uses our proposed approximation
                     acq = MyAcquisitionMESPlus(model=model, x_star=x_star, y_star=y_star, M=M_extra,

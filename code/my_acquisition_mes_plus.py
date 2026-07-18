@@ -39,24 +39,32 @@ class MyAcquisition(AcquisitionFunction):
         d = train_X.shape[-1]
 
         self.x_star = self._format_x_star(x_star=x_star, d=d, dtype=dtype, device=device)
-        self.y_star = torch.as_tensor(y_star, dtype=dtype, device=device).reshape(())
+        self.y_star = torch.as_tensor(y_star, dtype=dtype, device=device).reshape(-1)
+
+        if self.x_star.shape[0] != self.y_star.numel():
+            raise ValueError("x_star and y_star must contain the same number of samples.")
 
         noise = self.initial_model.likelihood.noise.detach().mean()
 
         train_X_cond = train_X
         train_Y_cond = train_Y.reshape(-1)
-        base_gp_for_sparse_init = self.initial_model
         fixed_inducing_points = train_X.contiguous()
 
-        fit = fit_vfe_sparse_gp(train_X=train_X_cond, train_Y=train_Y_cond, noise=noise,
-            train_noise=False, M=M, y_star=self.y_star, x_star=self.x_star,
-            lower_bound=lower_bound, upper_bound=upper_bound, fixed_inducing_points=fixed_inducing_points,
-            base_gp=base_gp_for_sparse_init, verbose=False)
+        self.conditional_models = torch.nn.ModuleList()
+        self.conditional_likelihoods = torch.nn.ModuleList()
 
-        self.conditional_model = fit.model
-        self.conditional_likelihood = fit.likelihood
-        self.conditional_model.eval()
-        self.conditional_likelihood.eval()
+        for sample_index in range(self.y_star.numel()):
+            fit = fit_vfe_sparse_gp(train_X=train_X_cond, train_Y=train_Y_cond, noise=noise,
+                train_noise=False, M=M, y_star=self.y_star[sample_index],
+                x_star=self.x_star[sample_index:sample_index + 1], lower_bound=lower_bound,
+                upper_bound=upper_bound, fixed_inducing_points=fixed_inducing_points,
+                base_gp=self.initial_model, verbose=False)
+
+            fit.model.eval()
+            fit.likelihood.eval()
+
+            self.conditional_models.append(fit.model)
+            self.conditional_likelihoods.append(fit.likelihood)
 
     @t_batch_mode_transform()
     def forward(self, X: Tensor) -> Tensor:
@@ -69,11 +77,17 @@ class MyAcquisition(AcquisitionFunction):
         initial_var = self.initial_model.posterior(X_eval, observation_noise=True
         ).variance.reshape(-1).clamp_min(1e-12)
 
-        with gpytorch.settings.fast_pred_var():
-            conditional_post = self.conditional_likelihood(self.conditional_model(X_eval))
-        conditional_var = conditional_post.variance.reshape(-1).clamp_min(1e-12)
+        acq_samples = []
 
-        acq = 0.5 * (torch.log(initial_var) - torch.log(conditional_var))
+        for conditional_model, conditional_likelihood in zip(self.conditional_models,self.conditional_likelihoods,):
+            with gpytorch.settings.fast_pred_var():
+                conditional_post = conditional_likelihood(conditional_model(X_eval))
+
+            conditional_var = (conditional_post.variance.reshape(-1).clamp_min(1e-12))
+
+            acq_samples.append(0.5 * (torch.log(initial_var)- torch.log(conditional_var)))
+
+        acq = torch.stack(acq_samples, dim=0).mean(dim=0)
         return acq.reshape(batch_shape)
 
     @staticmethod
@@ -86,7 +100,7 @@ class MyAcquisition(AcquisitionFunction):
         elif x_star.ndim == 1:
             x_star = x_star.view(1, -1)
 
-        if x_star.shape != (1, d):
-            raise ValueError(f"x_star must have shape (1, {d}).")
+        if x_star.ndim != 2 or x_star.shape[1] != d:
+            raise ValueError(f"x_star must have shape (S, {d}).")
 
         return x_star.detach()
