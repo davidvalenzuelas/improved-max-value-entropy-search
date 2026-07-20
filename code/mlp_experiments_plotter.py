@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""Plots the real MLP experiments results"""
+"""Plots the real MLP experiments results
 
+Author: David Valenzuela Sánchez"""
 import os
-
 import matplotlib.pyplot as plt
 import numpy as np
 

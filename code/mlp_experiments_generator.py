@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # coding: utf-8
-"""Generates configuration files for real MLP experiments."""
+"""Generates configuration files for real MLP experiments.
 
+Author: David Valenzuela Sánchez"""
 import copy
 import json
 import os

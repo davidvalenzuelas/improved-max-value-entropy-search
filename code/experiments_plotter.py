@@ -1,8 +1,14 @@
+"""
+Generates the plots for both synthetic and benchmark
+experiments.
+
+Author: David Valenzuela Sánchez
+"""
 import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# Info about the experiment
 PROBLEM_TYPE = "benchmark"
 BENCHMARK = "shekel"
 

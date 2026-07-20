@@ -2,7 +2,8 @@
 # coding: utf-8
 """ Implements the MLP real problems for MES+ experiments
 
-Authors: Daniel Fernández Sánchez, Daniel Hernández-Lobato, David Valenzuela Sánchez"""
+Authors: Daniel Fernández Sánchez, Daniel Hernández-Lobato, David Valenzuela Sánchez
+"""
 import timeit
 from enum import Enum
 
