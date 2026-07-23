@@ -80,9 +80,8 @@ def optimize_posterior_mean(model, num_dims):
         if vals.shape[ 0 ] == 1:
             return -1.0 * float(vals[ 0 ])
         return -1.0 * vals
-    
-    
-    grid = torch.rand(SIZE_GRID * num_dims, num_dims)
+
+    grid = torch.rand(SIZE_GRID * num_dims, num_dims, dtype=torch.double)
     vals = f(grid.numpy())
     
     input_sol = grid.numpy()[ vals.argmin() ]
@@ -102,7 +101,7 @@ def fit_model(train_X, train_Y, state_dict = None, likelihood_exp: str = "GAUSSI
         
     else:
         model = SingleTaskGP(train_X, train_Y, outcome_transform=None)
-        model.likelihood.noise = 1e-6
+        model.likelihood.noise = 1e-4
         model.likelihood.noise_covar.raw_noise.requires_grad_(False)
         
     if median_for_ls:
@@ -220,7 +219,7 @@ def main():
         
         for acq_index, acquisition_name in enumerate(acquisition_names):
             
-            reset_random_state(rep_seed + 1000 * (acq_index + 1))
+            #reset_random_state(rep_seed + 1000 * (acq_index + 1))
             if single_run_mode:
                 path_results = path_rep
             else:
@@ -319,6 +318,7 @@ def main():
                 file_vals_rec.close()
                 
                 # We obtain the recommendation by optimizing the posterior mean
+                #recommendation_seed = (rep_seed * 1000 + bo_iteration)
                 recommendation = optimize_posterior_mean(model, num_dims).reshape((1, num_dims))
                 objective_value_at_recommendation = problem_noiseless(recommendation.double())
                 
