@@ -13,4 +13,4 @@ __pycache__/
 *.pyc
 
 # Generated experiment results
-/experiments/*
+/code/experiments/*
