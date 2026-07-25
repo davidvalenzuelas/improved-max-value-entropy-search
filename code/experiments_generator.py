@@ -8,17 +8,17 @@ import os
 import json
 import copy
 
-PROBLEM_TYPE = "benchmark"
+PROBLEM_TYPE = "synthetic"
 BENCHMARK = "michalewicz"
-DIMENSIONS = [10]
+DIMENSIONS = [6]
 START_EXP = 1
 END_EXP = 100
 BO_ITERS = 100
+NUM_SAMPLES_SOLUTION = 4
 
 methods = {
     "mes": "MES",
-    "mes_plus": "MES+",
-    "random": "RANDOM",
+    "mes_plus": "MES+"
 }
 
 if PROBLEM_TYPE not in {"synthetic", "benchmark"}:
@@ -29,9 +29,10 @@ with open("config.json", "r") as f:
 
 for D in DIMENSIONS:
     if PROBLEM_TYPE == "synthetic":
-        root = f"experiments/synthetic_{D}d"
+        root = (f"experiments/synthetic_{D}d_samples/"
+            f"samples_{NUM_SAMPLES_SOLUTION}")
         results_folder = "results_synthetic_problem"
-        experiment_name = f"synthetic_{D}d"
+        experiment_name = (f"synthetic_{D}d_samples_{NUM_SAMPLES_SOLUTION}")
     else:
         root = f"experiments/{BENCHMARK}"
         results_folder = "results_benchmark_problem"
@@ -52,6 +53,9 @@ for D in DIMENSIONS:
             cfg["random_seed"] = exp_id
             cfg["num_dims"] = D
             cfg["BO_iters"] = BO_ITERS
+            cfg["num_initial_obs"] = 10
+            cfg["num_samples_solution"] = NUM_SAMPLES_SOLUTION
+            cfg["M_extra"] = 100
             cfg["num_repetitions"] = 1
             cfg["acquisitions"] = [acquisition_name]
             cfg["acquisition"] = acquisition_name
