@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # coding: utf-8
 """
-This file includes the BO loop for synthetic, benchmark or real problems.
+This file includes the BO loop for synthetic, benchmark and real problems.
 
 This loop tests the performance of 3 proposed acquisition functions: MES+,
 (uses the new model we propose), MES and RANDOM.
@@ -10,6 +10,7 @@ Authors: Daniel Hernández Lobato, David Valenzuela Sánchez
 """
 import os
 import sys
+import time
 import gpytorch
 import torch
 import numpy as np
@@ -25,7 +26,7 @@ import scipy as sp
 
 from synthetic_problem import Synthetic_problem
 from benchmark_problem import BenchmarkProblem
-from mlp_real_problems import Dataset, MLP_real_problems
+from mlp_real_problem import Dataset, MLP_real_problems
 from my_acquisition_mes_plus import MyAcquisition as MyAcquisitionMESPlus
 from my_acquisition_mes import MyAcquisition as MyAcquisitionMES
 
@@ -101,6 +102,7 @@ def fit_model(train_X, train_Y, state_dict = None, likelihood_exp: str = "GAUSSI
         
     else:
         model = SingleTaskGP(train_X, train_Y, outcome_transform=None)
+        # Very small noise value
         model.likelihood.noise = 1e-4
         model.likelihood.noise_covar.raw_noise.requires_grad_(False)
         
@@ -115,6 +117,7 @@ def fit_model(train_X, train_Y, state_dict = None, likelihood_exp: str = "GAUSSI
     fit_gpytorch_mll(mll)
     
     return model
+
 
 def main():
     if len(sys.argv) != 2:
@@ -135,6 +138,8 @@ def main():
     M_extra = int(config.get("M_extra", 100))
     num_repetitions = int(config.get("num_repetitions", 100))
     acquisition_names = config.get("acquisitions", ["MES+", "MES", "RANDOM"])
+    # We can measure the time of each iteration
+    measure_time = bool(config.get("measure_time", False))
     
     if problem_type == "synthetic":
         ls_model = float(config["lenghtscale_model_synthetic_problem"])
@@ -142,11 +147,11 @@ def main():
 
     elif problem_type == "benchmark":
         benchmark_name = config["benchmark"]
-        # Creates the benchmark problem and obtains its dimensions
+        # Creates the benchmark problem and obtains its dimensions, it could be created below instead
         benchmark_problem = BenchmarkProblem(benchmark_name)
         num_dims = benchmark_problem.num_dims
     
-    # real experiments case
+    # MLP real experiments case
     else:
         dataset_name = config["dataset"].lower()
 
@@ -181,11 +186,13 @@ def main():
             synthetic_problem = Synthetic_problem(num_dims=num_dims, lengthscale_model=ls_model, seed=rep_seed)
             problem = synthetic_problem.f
             problem_noiseless = synthetic_problem.f
+            # We find the optimum of the problem
             x_max_val_problem, max_val_problem = get_maximum_problem(num_dims=num_dims, problem=problem)
 
         elif problem_type == "benchmark":
             problem = benchmark_problem.f
             problem_noiseless = benchmark_problem.f
+            # It is known the optimum of these benchmark problems
             x_max_val_problem = benchmark_problem.info.x_opt_unit.double()
             max_val_problem = torch.tensor(benchmark_problem.info.f_opt, dtype=torch.double)
         
@@ -218,8 +225,7 @@ def main():
         y_values_obs_initial = y_values_obs_initial.double()
         
         for acq_index, acquisition_name in enumerate(acquisition_names):
-            
-            #reset_random_state(rep_seed + 1000 * (acq_index + 1))
+            # reset_random_state(rep_seed + 1000 * (acq_index + 1))
             if single_run_mode:
                 path_results = path_rep
             else:
@@ -230,10 +236,15 @@ def main():
             x_observations = x_observations_initial.clone()
             y_values_obs = y_values_obs_initial.clone()
             model = None
+            iteration_times = []
             
-            # START THE BO LOOP
+            # Here starts the BO loop
             for bo_iteration in range(BO_iters):
                 print(f"Rep {rep} - {acquisition_name} - BO Iteration number: {bo_iteration}")
+
+                if measure_time:
+                    # Initialize the timer for this iteration
+                    start_time = time.perf_counter()
                 
                 # We fit the model using the previous solution
                 print("Fitting the model")
@@ -279,6 +290,10 @@ def main():
                     
                 else:
                     raise ValueError(f"Unknown acquisition: {acquisition_name}")
+
+                if measure_time:
+                    # Stops the timer for this iteration and records the elapsed time
+                    iteration_times.append(time.perf_counter() - start_time)
                 
                 print(f"{acquisition_name}: candidate={candidate}, acq_value={acq_value}")
                 
@@ -345,6 +360,14 @@ def main():
                     np.savetxt(f, y_values_obs.numpy())
                     
                 sys.stdout.flush()
+
+            if measure_time:
+                np.savetxt(f"{path_results}/times.txt",np.asarray(iteration_times, dtype=float))
+
+                print(
+                    f"{acquisition_name} mean time: "
+                    f"{np.mean(iteration_times):.6f} seconds"
+                )
 
     print("End. Have a nice day!")
 
