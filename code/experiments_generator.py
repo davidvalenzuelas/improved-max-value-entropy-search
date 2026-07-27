@@ -8,13 +8,17 @@ import os
 import json
 import copy
 
+# Defining problem type
 PROBLEM_TYPE = "synthetic"
 BENCHMARK = "michalewicz"
+# Number of dimensions
 DIMENSIONS = [6]
 START_EXP = 1
 END_EXP = 100
+# Number of BO iterations
 BO_ITERS = 100
-NUM_SAMPLES_SOLUTION = 4
+# Number of solution samples
+NUM_SAMPLES_SOLUTION = 1
 
 methods = {
     "mes": "MES",
