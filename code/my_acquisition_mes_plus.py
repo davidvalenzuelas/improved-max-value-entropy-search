@@ -27,6 +27,7 @@ class MyAcquisition(AcquisitionFunction):
         self.initial_model.eval()
         self.initial_model.likelihood.eval()
 
+        # training data from base GP
         train_X = self.initial_model.train_inputs[0].detach()
         train_Y = self.initial_model.train_targets.detach()
         if train_X.ndim == 1:
@@ -38,6 +39,7 @@ class MyAcquisition(AcquisitionFunction):
         device = train_X.device
         d = train_X.shape[-1]
 
+        # Sampled optimum location and values
         self.x_star = self._format_x_star(x_star=x_star, d=d, dtype=dtype, device=device)
         self.y_star = torch.as_tensor(y_star, dtype=dtype, device=device).reshape(-1)
 
@@ -50,6 +52,7 @@ class MyAcquisition(AcquisitionFunction):
         train_Y_cond = train_Y.reshape(-1)
         fixed_inducing_points = train_X.contiguous()
 
+        # Fits one conditional VFE model per optimum sample
         self.conditional_models = torch.nn.ModuleList()
         self.conditional_likelihoods = torch.nn.ModuleList()
 
@@ -66,6 +69,7 @@ class MyAcquisition(AcquisitionFunction):
             self.conditional_models.append(fit.model)
             self.conditional_likelihoods.append(fit.likelihood)
 
+
     @t_batch_mode_transform()
     def forward(self, X: Tensor) -> Tensor:
         if X.shape[-2] != 1:
@@ -74,6 +78,7 @@ class MyAcquisition(AcquisitionFunction):
         batch_shape = X.shape[:-2]
         X_eval = X.reshape(-1, X.shape[-1])
 
+        # Predictive variance before conditioning
         initial_var = self.initial_model.posterior(X_eval, observation_noise=True
         ).variance.reshape(-1).clamp_min(1e-12)
 
@@ -83,13 +88,17 @@ class MyAcquisition(AcquisitionFunction):
             with gpytorch.settings.fast_pred_var():
                 conditional_post = conditional_likelihood(conditional_model(X_eval))
 
+            # Predictive variance after conditioning
             conditional_var = (conditional_post.variance.reshape(-1).clamp_min(1e-12))
 
+            # Entropy reduction for the current optimum sample
             acq_samples.append(0.5 * (torch.log(initial_var)- torch.log(conditional_var)))
 
+        # computes average over optimum samples
         acq = torch.stack(acq_samples, dim=0).mean(dim=0)
         return acq.reshape(batch_shape)
 
+    
     @staticmethod
     def _format_x_star(x_star: float | Tensor, d: int, dtype: torch.dtype,
         device: torch.device,) -> Tensor:

@@ -33,8 +33,11 @@ class MyAcquisition(AcquisitionFunction):
         dtype = train_X.dtype
         device = train_X.device
 
+        # Sampled maximum values
         self.y_star = torch.as_tensor(y_star,dtype=dtype,device=device).reshape(-1)
+        # Observation noise of the base GP
         self.noise = self.initial_model.likelihood.noise.detach().mean().to(dtype=dtype, device=device)
+
 
     @t_batch_mode_transform()
     def forward(self, X: Tensor) -> Tensor:
@@ -44,27 +47,31 @@ class MyAcquisition(AcquisitionFunction):
         batch_shape = X.shape[:-2]
         X_eval = X.reshape(-1, X.shape[-1])
 
+        # Noisy predictive variance before conditioning
         initial_var = self.initial_model.posterior(X_eval, observation_noise=True
         ).variance.reshape(-1).clamp_min(1e-12)
 
+        # Latent predictive mean and variance
         posterior = self.initial_model.posterior(X_eval, observation_noise=False)
-        # Obtains posterior mean and variance
         mean = posterior.mean.reshape(-1)
         variance = posterior.variance.reshape(-1).clamp_min(1e-12)
         std = variance.sqrt()
 
-        # Values for the truncation
+        # Standardized truncation threshold
         beta = (self.y_star[:, None] - mean[None, :]) / std[None, :]
 
         Phi = normal_cdf(beta).clamp_min(1e-12)
         phi = normal_pdf(beta)
         lam = phi / Phi
 
-        # truncated variance
+        # Variance of the truncated Gaussian
         trunc_var = variance[None, :] * (1.0 - beta * lam - lam.pow(2)).clamp_min(1e-12)
 
+        # Adds observation noise
         conditional_var = (trunc_var + self.noise).clamp_min(1e-12)
+        # Entropy reduction for each maximum-value sample
         acq_samples = 0.5 * (torch.log(initial_var)[None, :]- torch.log(conditional_var))
 
+        # Average over maximum-value samples
         acq = acq_samples.mean(dim=0)
         return acq.reshape(batch_shape)
