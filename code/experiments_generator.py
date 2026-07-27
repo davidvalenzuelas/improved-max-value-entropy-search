@@ -80,4 +80,4 @@ for D in DIMENSIONS:
             with open(f"{exp_dir}/config_{folder_name}.json", "w") as f:
                 json.dump(cfg, f, indent=4)
 
-print("Configs generated.")
+print("Configs generated!")
