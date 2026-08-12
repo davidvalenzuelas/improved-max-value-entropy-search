@@ -1,83 +1,68 @@
 """
-Generates the plots for both synthetic and benchmark
-experiments.
+Generates the plots for the synthetic 4D and 6D experiments
+with different numbers of optimum samples.
 
 Author: David Valenzuela Sánchez
 """
-import os
-import numpy as np
+from pathlib import Path
+
 import matplotlib.pyplot as plt
+import numpy as np
 
-# Info about the experiment
-PROBLEM_TYPE = "benchmark"
-BENCHMARK = "shekel"
 
+DIMENSIONS = [4, 6]
+SAMPLE_COUNTS = [1, 2, 4, 8]
+
+NUM_EXPERIMENTS = 100
 BO_ITERS = 100
 N_BOOTSTRAP = 200
 
-if PROBLEM_TYPE == "synthetic":
-    DIMENSIONS = [4, 6]
-    NUM_EXPERIMENTS = 100
-    ROOT_TEMPLATE = "experiments/synthetic_{D}d"
-    RESULTS_FOLDER = "results_synthetic_problem"
+RESULTS_FOLDER = "results_synthetic_problem"
 
-    method_names = ["MES", "MES+", "Random"]
+TARGETS = {
+    "post_mean": (
+        "objective_at_recommendations_post_mean.txt",
+        "Posterior mean recommendation",
+    ),
+    "obs": (
+        "objective_at_recommendations_obs_obs.txt",
+        "Best observed value recommendation",
+    ),
+}
 
-    method_colors = {
-        "MES":"#2563EB",
-        "MES+": "#DC2626",
-        "Random": "#16A34A",
-    }
+METHODS = {
+    "MES": "mes",
+    "MES+": "mes_plus",
+}
 
-    plot_targets = [
-        ("post_mean", "objective_at_recommendations_post_mean.txt", "Posterior mean recommendation"),
-        ("obs", "objective_at_recommendations_obs_obs.txt", "Best observed value recommendation"),
-    ]
+METHOD_COLORS = {
+    "MES": {
+        1: "#FCA5A5",
+        2: "#F87171",
+        4: "#DC2626",
+        8: "#7F1D1D",
+    },
+    "MES+": {
+        1: "#93C5FD",
+        2: "#60A5FA",
+        4: "#2563EB",
+        8: "#1E3A8A",
+    },
+}
 
-elif PROBLEM_TYPE == "benchmark":
-    DIMENSIONS = [4]
-    NUM_EXPERIMENTS = 200
-    ROOT_TEMPLATE = f"experiments/{BENCHMARK}"
-    RESULTS_FOLDER = "results_benchmark_problem"
-
-    method_names = ["MES", "MES+"]
-
-    method_colors = {
-        "MES": "#2563EB",
-        "MES+": "#DC2626",
-        #"RANDOM": "#16A34A"
-    }
-
-    plot_targets = [
-        (
-            "post_mean",
-            "objective_at_recommendations_post_mean.txt",
-            "Posterior mean recommendation",
-        ),
-        (
-            "obs",
-            "objective_at_recommendations_obs_obs.txt",
-            "Best observed recommendation",
-        ),
-    ]
-
-else:
-    raise ValueError(f"Unknown problem type: {PROBLEM_TYPE}")
-
-method_folders = ["mes", "mes_plus"]
-
-reference_files = [
+REFERENCE_FILES = [
     "objective_at_recommendations_obs.txt",
     "objective_at_recommendations_post_mean.txt",
     "objective_at_recommendations_obs_obs.txt",
     "y_optimum_problem.txt",
 ]
 
+
 plt.rcParams.update({
     "font.size": 12,
     "axes.titlesize": 15,
     "axes.labelsize": 13,
-    "legend.fontsize": 11,
+    "legend.fontsize": 10,
     "legend.title_fontsize": 11,
     "xtick.labelsize": 11,
     "ytick.labelsize": 11,
@@ -95,64 +80,85 @@ def load_vector(path):
     return np.atleast_1d(values).astype(float).reshape(-1)
 
 
-def result_path(root, exp_id, method_folder, filename):
-    return f"{root}/exp_{exp_id}/{method_folder}/{RESULTS_FOLDER}/{filename}"
+def result_directory(root, sample_count, exp_id, method_folder):
+    return (
+        root
+        / f"samples_{sample_count}"
+        / f"exp_{exp_id}"
+        / method_folder
+        / RESULTS_FOLDER
+    )
 
 
-def load_results(root, target_file):
-    results = [np.zeros((NUM_EXPERIMENTS, BO_ITERS)) for _ in method_names]
-    counter = 0
+def experiment_is_complete(root, exp_id):
+    for sample_count in SAMPLE_COUNTS:
+        for method_folder in METHODS.values():
+            folder = result_directory(root, sample_count, exp_id, method_folder)
 
-    for exp_id in range(1, NUM_EXPERIMENTS + 1):
-        correct = True
-        value_solution = -np.inf
+            for target_file, _ in TARGETS.values():
+                target_path = folder / target_file
 
-        for method_index, method_folder in enumerate(method_folders):
-            path = result_path(root, exp_id, method_folder, target_file)
+                if not target_path.exists():
+                    return False
 
-            if not os.path.exists(path):
-                correct = False
-                break
+                if load_vector(target_path).size < BO_ITERS:
+                    return False
 
-            current_results = load_vector(path)[:BO_ITERS]
+            for filename in REFERENCE_FILES:
+                if not (folder / filename).exists():
+                    return False
 
-            if len(current_results) != BO_ITERS:
-                correct = False
-                break
+    return True
 
-            results[method_index][counter, :] = current_results
 
-            for reference_file in reference_files:
-                ref_path = result_path(root, exp_id, method_folder, reference_file)
+def get_complete_experiment_ids(root):
+    return [
+        exp_id
+        for exp_id in range(1, NUM_EXPERIMENTS + 1)
+        if experiment_is_complete(root, exp_id)
+    ]
 
-                if not os.path.exists(ref_path):
-                    correct = False
-                    break
 
-                ref_values = load_vector(ref_path)
-                value_solution = max(value_solution, np.max(ref_values))
+def get_reference_value(root, exp_id):
+    values = []
 
-            if not correct:
-                break
+    # We use the same reference value for all methods and sample counts
+    for sample_count in SAMPLE_COUNTS:
+        for method_folder in METHODS.values():
+            folder = result_directory(root, sample_count, exp_id, method_folder)
 
-        if correct:
-            for method_index in range(len(method_names)):
-                value = np.log(
-                    np.maximum(
-                        0.0,
-                        np.abs(value_solution - results[method_index][counter, :])
-                    )
-                    / np.abs(value_solution)
-                    + 1e-6
-                )
-                results[method_index][counter, :] = value
+            for filename in REFERENCE_FILES:
+                current_values = load_vector(folder / filename)
+                current_values = current_values[np.isfinite(current_values)]
+                values.extend(current_values.tolist())
 
-            counter += 1
+    if not values:
+        raise RuntimeError(f"No finite reference values found for exp_{exp_id}.")
 
-        if PROBLEM_TYPE == "benchmark":
-            print(exp_id)
+    return float(np.max(values))
 
-    results = [r[:counter, :] for r in results]
+
+def load_results(root, sample_count, method_folder, target_file,
+    experiment_ids, references):
+
+    results = np.zeros((len(experiment_ids), BO_ITERS))
+
+    for row, exp_id in enumerate(experiment_ids):
+        path = (
+            result_directory(root, sample_count, exp_id, method_folder)
+            / target_file
+        )
+
+        current_results = load_vector(path)[:BO_ITERS]
+        value_solution = references[exp_id]
+
+        # Obtains log regret to the optimum
+        results[row, :] = np.log(
+            np.maximum(0.0, np.abs(value_solution - current_results))
+            / np.abs(value_solution)
+            + 1e-6
+        )
+
     return results
 
 
@@ -171,41 +177,53 @@ def bootstrap_sd_of_mean(runs):
     return bootstrap_estimator[finite, :].std(axis=0, ddof=1)
 
 
-def make_plot(root, D, target_name, target_file, target_title):
-    output_dir = f"{root}/generate_plot"
-    os.makedirs(output_dir, exist_ok=True)
+def make_plot(D, target_name, target_file, target_title):
+    root = Path(f"experiments/synthetic_{D}d_samples")
+    output_dir = root / "generate_plot"
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    results = load_results(root, target_file)
+    experiment_ids = get_complete_experiment_ids(root)
 
-    n_valid = results[0].shape[0]
-    print(f"{D}D - {target_name}: {n_valid} valid experiments")
+    print(f"{D}D - {target_name}: {len(experiment_ids)} valid experiments")
 
-    if n_valid == 0:
-        print(f"No valid experiments for {root}/{target_name}")
+    if not experiment_ids:
+        print(f"No valid experiments for {D}D")
         return
 
-    mean_value = np.zeros((len(method_names), BO_ITERS))
-    sd_value = np.zeros((len(method_names), BO_ITERS))
-
-    for i in range(len(method_names)):
-        mean_value[i, :] = results[i].mean(axis=0)
-        sd_value[i, :] = bootstrap_sd_of_mean(results[i])
+    references = {
+        exp_id: get_reference_value(root, exp_id)
+        for exp_id in experiment_ids
+    }
 
     iterations = np.arange(1, BO_ITERS + 1)
 
-    fig, ax = plt.subplots(figsize=(10.5, 6.2))
+    fig, ax = plt.subplots(figsize=(11, 6.5))
 
-    for i, method_name in enumerate(method_names):
-        color = method_colors[method_name]
+    y_low_values = []
+    y_high_values = []
 
-        if PROBLEM_TYPE == "synthetic":
+    for method_name, method_folder in METHODS.items():
+        for sample_count in SAMPLE_COUNTS:
+            results = load_results(
+                root, sample_count, method_folder, target_file,
+                experiment_ids, references
+            )
+
+            mean_value = results.mean(axis=0)
+            sd_value = bootstrap_sd_of_mean(results)
+
+            if sample_count == 1:
+                sample_label = "1 sample"
+            else:
+                sample_label = f"{sample_count} samples"
+
             ax.errorbar(
                 iterations,
-                mean_value[i, :],
-                yerr=sd_value[i, :],
+                mean_value,
+                yerr=sd_value,
                 fmt="o-",
-                label=method_name,
-                color=color,
+                label=f"{method_name} - {sample_label}",
+                color=METHOD_COLORS[method_name][sample_count],
                 linewidth=1.8,
                 markersize=3.2,
                 markeredgewidth=0.8,
@@ -213,39 +231,23 @@ def make_plot(root, D, target_name, target_file, target_title):
                 capsize=3.0,
                 capthick=1.0,
             )
-        else:
-            ax.errorbar(
-                iterations,
-                mean_value[i, :],
-                yerr=sd_value[i, :],
-                fmt="o-",
-                label=method_name,
-                color=color,
-                linewidth=1.8,
-                markersize=3.0,
-                markeredgewidth=0.8,
-                elinewidth=0.9,
-                capsize=2.8,
-                capthick=0.9,
-            )
+
+            y_low_values.append(mean_value - sd_value)
+            y_high_values.append(mean_value + sd_value)
 
     ax.set_xlabel("Number of BO iterations")
     ax.set_ylabel("Log relative difference to the optimum")
 
-    if PROBLEM_TYPE == "synthetic":
-        plot_title = f"{D}D synthetic (noiseless) problem\n{target_title}"
-    else:
-        plot_title = f"{BENCHMARK.capitalize()} {D}D benchmark\n{target_title}"
-
     ax.set_title(
-        plot_title,
+        f"{D}D synthetic (noiseless) problem\n{target_title}",
         pad=12,
         fontweight="bold",
     )
 
     ax.legend(
-        title="Method",
+        title="Method / optimum samples",
         loc="upper right",
+        ncol=2,
         frameon=True,
         fancybox=True,
         framealpha=0.95,
@@ -253,13 +255,8 @@ def make_plot(root, D, target_name, target_file, target_title):
 
     ax.set_xlim(1, BO_ITERS)
 
-    y_low_values = np.concatenate([
-        mean_value[i, :] - sd_value[i, :] for i in range(len(method_names))
-    ])
-
-    y_high_values = np.concatenate([
-        mean_value[i, :] + sd_value[i, :] for i in range(len(method_names))
-    ])
+    y_low_values = np.concatenate(y_low_values)
+    y_high_values = np.concatenate(y_high_values)
 
     y_min = np.nanmin(y_low_values)
     y_max = np.nanmax(y_high_values)
@@ -269,12 +266,8 @@ def make_plot(root, D, target_name, target_file, target_title):
 
     fig.tight_layout()
 
-    if PROBLEM_TYPE == "synthetic":
-        pdf_path = f"{output_dir}/plot_{D}d_{target_name}.pdf"
-        png_path = f"{output_dir}/plot_{D}d_{target_name}.png"
-    else:
-        pdf_path = f"{output_dir}/plot_{BENCHMARK}{D}d_{target_name}.pdf"
-        png_path = f"{output_dir}/plot_{BENCHMARK}{D}d_{target_name}.png"
+    pdf_path = output_dir / f"plot_{D}d_samples_{target_name}.pdf"
+    png_path = output_dir / f"plot_{D}d_samples_{target_name}.png"
 
     fig.savefig(pdf_path, bbox_inches="tight")
     fig.savefig(png_path, bbox_inches="tight")
@@ -288,10 +281,8 @@ def main():
     np.random.seed(123)
 
     for D in DIMENSIONS:
-        root = ROOT_TEMPLATE.format(D=D)
-
-        for target_name, target_file, target_title in plot_targets:
-            make_plot(root, D, target_name, target_file, target_title)
+        for target_name, (target_file, target_title) in TARGETS.items():
+            make_plot(D, target_name, target_file, target_title)
 
 
 if __name__ == "__main__":
