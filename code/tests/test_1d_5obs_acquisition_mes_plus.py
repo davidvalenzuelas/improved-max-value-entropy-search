@@ -26,7 +26,6 @@ from my_utils import (
     upper_truncated_predictive_moments,
 )
 
-
 NUM_TRAIN = 5
 PLOT_STD_MULT = 1.0
 INIT_NOISE = 1e-6
@@ -34,14 +33,12 @@ M_EXTRA = 10
 EXACT_MAX_TOL = 0.01
 EXACT_NUM_FUNCTION_SAMPLES = 5000
 
-
 def kernel(x: torch.Tensor, y: torch.Tensor, lengthscale: float = 2.0,
     variance: float = 1.0) -> torch.Tensor:
     x_scaled = x / lengthscale
     y_scaled = y / lengthscale
     sqdist = (x_scaled[:, None, :] - y_scaled[None, :, :]).pow(2).sum(dim=-1)
     return variance * torch.exp(-0.5 * sqdist)
-
 
 @torch.no_grad()
 def generate_5obs_problem(num_grid: int = 1000, jitter: float = 1e-7,
@@ -63,7 +60,6 @@ def generate_5obs_problem(num_grid: int = 1000, jitter: float = 1e-7,
     y_train = f_true[p_sel].contiguous()
     return x_grid, f_true, x_train, y_train
 
-
 @dataclass
 class ExactConditionalApproximation:
     mean_f: torch.Tensor
@@ -72,7 +68,6 @@ class ExactConditionalApproximation:
     var_y: torch.Tensor
     accepted_maxima: torch.Tensor
     total_draws: int
-
 
 @torch.no_grad()
 def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Tensor,
@@ -111,7 +106,6 @@ def approximate_exact_conditional_from_function_samples(base_gp, grid: torch.Ten
         total_draws=int(num_function_samples),
     )
 
-
 @torch.no_grad()
 def entropy_reduction(var_initial: torch.Tensor, var_conditional: torch.Tensor) -> torch.Tensor:
     return 0.5 * (
@@ -119,11 +113,9 @@ def entropy_reduction(var_initial: torch.Tensor, var_conditional: torch.Tensor) 
         - torch.log(var_conditional.reshape(-1).clamp_min(1e-12))
     )
 
-
 @torch.no_grad()
 def normalize_acquisition(acq: torch.Tensor) -> torch.Tensor:
     return acq / acq.max().clamp_min(1e-12)
-
 
 @torch.no_grad()
 def get_common_plot_limits(curves: list[np.ndarray], y_star: float | None = None):
@@ -134,34 +126,35 @@ def get_common_plot_limits(curves: list[np.ndarray], y_star: float | None = None
     y_pad = 0.08 * max(1e-6, y_max - y_min)
     return y_min - y_pad, y_max + y_pad
 
-
 @torch.no_grad()
-def plot_predictive(ax, x_grid: torch.Tensor, x_train: torch.Tensor, y_train: torch.Tensor,
-    mean: torch.Tensor, var: torch.Tensor, title: str, y_star: float,
-    exact_cond: Optional[ExactConditionalApproximation] = None):
+def plot_predictive(ax, x_grid, x_train, y_train, mean, var, title, y_star, exact_cond=None):
     x_np = x_grid.squeeze(-1).cpu().numpy()
     mean_np = mean.reshape(-1).cpu().numpy()
     std_np = var.reshape(-1).sqrt().cpu().numpy()
+    color = "tab:green" if title.startswith("MES+") else "tab:orange"
 
-    ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
-        "k*", markersize=8, label="Observed data")
-    ax.plot(x_np, mean_np, linewidth=2.0, label="Mean")
+    ax.plot(x_np, mean_np, color=color, linewidth=1.3, label="Model mean")
     ax.fill_between(x_np, mean_np - PLOT_STD_MULT * std_np,
-        mean_np + PLOT_STD_MULT * std_np, alpha=0.20, label="Band")
-    ax.axhline(float(y_star), color="lightgreen", linestyle="--", label="y*")
+        mean_np + PLOT_STD_MULT * std_np, color=color, alpha=0.20,
+        label=r"Model band")
 
     if exact_cond is not None:
         exact_mean = exact_cond.mean_y.reshape(-1).cpu().numpy()
         exact_std = exact_cond.var_y.reshape(-1).sqrt().cpu().numpy()
-        ax.plot(x_np, exact_mean, linestyle="--", linewidth=2.4,
-            label="Approx. exact mean")
+        ax.plot(x_np, exact_mean, color="tab:blue", linestyle="-",
+            linewidth=1.3, label="Empirical mean")
         ax.fill_between(x_np, exact_mean - PLOT_STD_MULT * exact_std,
-            exact_mean + PLOT_STD_MULT * exact_std, alpha=0.12,
-            label="Approx. exact band")
+            exact_mean + PLOT_STD_MULT * exact_std, color="tab:blue", alpha=0.12,
+            label=r"Empirical band")
+
+    ax.plot(x_train.squeeze(-1).cpu().numpy(), y_train.reshape(-1).cpu().numpy(),
+        "k*", markersize=4, label="Observations")
+    ax.axhline(float(y_star), color="0.35", linestyle=":", linewidth=0.9,
+        label=r"$f_s^\star$")
 
     ax.set_title(title)
-    ax.legend(fontsize=7, loc="best")
-
+    ax.legend(fontsize=6.3, loc="best", ncol=1, framealpha=0.90,
+        columnspacing=0.7, handlelength=1.8, borderpad=0.35, labelspacing=0.3)
 
 def main():
     x_grid, f_true, x_train, y_train = generate_5obs_problem()
@@ -192,7 +185,7 @@ def main():
     )
 
     mean_obj_y, var_obj_y = marginal_mean_variance(
-        acq_object.conditional_model, acq_object.conditional_likelihood,
+        acq_object.conditional_models[0], acq_object.conditional_likelihoods[0],
         x_grid, observation_noise=True)
     mean_trunc_y, var_trunc_y = upper_truncated_predictive_moments(
         base_gp, base_gp.likelihood, x_grid, y_star=y_star, observation_noise=True)
@@ -250,47 +243,65 @@ def main():
         ]
     y_lim_low, y_lim_high = get_common_plot_limits(common_curves, y_star=y_star)
 
-    fig, axes = plt.subplots(2, 2, figsize=(22.0, 15.3))
+    plt.rcParams.update({
+        "font.family": "DejaVu Sans",
+        "mathtext.fontset": "dejavusans",
+        "font.size": 7,
+        "axes.titlesize": 8,
+        "xtick.labelsize": 6,
+        "ytick.labelsize": 6,
+        "axes.linewidth": 0.65,
+        "pdf.fonttype": 42,
+    })
+
+    fig, axes = plt.subplots(2, 2, figsize=(4.8, 3.65))
 
     plot_predictive(axes[0, 0], x_grid, x_train, y_train, mean_obj_y, var_obj_y,
-        "p(y|D,y*) from MES+ acquisition object", y_star, exact_cond)
-    axes[0, 0].set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
-    axes[0, 0].set_ylim(y_lim_low, y_lim_high)
-
+        "MES+ (variational GP)", y_star, exact_cond)
     plot_predictive(axes[0, 1], x_grid, x_train, y_train, mean_trunc_y, var_trunc_y,
-        "p(y|D,y*) from MES Gaussian truncation", y_star, exact_cond)
-    axes[0, 1].set_xlim(float(x_grid.min().item()), float(x_grid.max().item()))
-    axes[0, 1].set_ylim(y_lim_low, y_lim_high)
+        "MES (Gaussian truncation)", y_star, exact_cond)
+
+    for ax in axes[0]:
+        ax.set_xlim(-5, 5)
+        ax.set_ylim(y_lim_low, y_lim_high)
 
     x_np = x_grid.squeeze(-1).cpu().numpy()
-    ax = axes[1, 0]
-    ax.set_title("Acquisition curves")
-    if acq_exact is not None:
-        ax.plot(x_np, acq_exact.reshape(-1).cpu().numpy(), linewidth=2.4,
-            label="Exact_Acq")
-    ax.plot(x_np, acq_trunc.reshape(-1).cpu().numpy(), linewidth=2.4,
-        label="MES_Trunc_Acq")
-    ax.plot(x_np, acq_from_object.reshape(-1).cpu().numpy(), linewidth=2.4,
-        label="MES+_Object_Acq")
-    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
-    ax.legend(fontsize=7, loc="best")
+    for ax, normalized, title in zip(axes[1], [False, True],
+        ["Acquisition functions", "Normalized acquisitions"]):
+        ax.set_title(title)
 
-    ax = axes[1, 1]
-    ax.set_title("Normalized acquisition curves")
-    if acq_exact is not None:
-        ax.plot(x_np, normalize_acquisition(acq_exact).reshape(-1).cpu().numpy(),
-            linewidth=2.4, label="Exact_Acq_Norm")
-    ax.plot(x_np, normalize_acquisition(acq_trunc).reshape(-1).cpu().numpy(),
-        linewidth=2.4, label="MES_Trunc_Acq_Norm")
-    ax.plot(x_np, normalize_acquisition(acq_from_object).reshape(-1).cpu().numpy(),
-        linewidth=2.4, label="MES+_Object_Acq_Norm")
-    ax.axvline(float(x_star), color="lightgreen", linestyle=":", label="x*")
-    ax.legend(fontsize=7, loc="best")
+        curves = [("MES", acq_trunc, "tab:orange", "-"),
+                  ("MES+", acq_from_object, "tab:green", "-")]
+        if acq_exact is not None:
+            curves.insert(0, ("Empirical", acq_exact, "tab:blue", "-"))
 
-    fig.suptitle("1D MES+ acquisition object test with 5 observations", fontsize=15, y=0.98)
-    fig.tight_layout(rect=[0, 0, 1, 0.94], h_pad=3.0)
+        for label, values, color, linestyle in curves:
+            if normalized:
+                values = normalize_acquisition(values)
+            ax.plot(x_np, values.reshape(-1).cpu().numpy(), color=color,
+                linestyle=linestyle, linewidth=1.35, label=label)
+
+        ax.axvline(float(x_star), color="0.35", linestyle=":", linewidth=0.85,
+            label=r"$\mathbf{x}_s^\star$")
+        ax.set_xlim(-5, 5)
+        ax.legend(fontsize=6.3, loc="upper left", ncol=2, framealpha=0.90,
+            columnspacing=0.7, handlelength=1.8, borderpad=0.35, labelspacing=0.3)
+
+    for ax in axes.flat:
+        ax.tick_params(length=2, pad=1)
+        for text in ax.get_legend().get_texts():
+            if text.get_text() in (r"$f_s^\star$", r"$\mathbf{x}_s^\star$"):
+                text.set_fontsize(9)
+
+    fig.tight_layout(pad=0.5, w_pad=0.6, h_pad=0.6)
+
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "figures")
+    os.makedirs(output_dir, exist_ok=True)
+
+    fig.savefig(os.path.join(output_dir, "validation_1d.pdf"))
+    fig.savefig(os.path.join(output_dir, "validation_1d.png"), dpi=600)
+
     plt.show()
-
 
 if __name__ == "__main__":
     main()
