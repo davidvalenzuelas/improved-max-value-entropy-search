@@ -153,8 +153,8 @@ def plot_predictive(ax, x_grid, x_train, y_train, mean, var, title, y_star, exac
         label=r"$f_s^\star$")
 
     ax.set_title(title)
-    ax.legend(fontsize=6.3, loc="best", ncol=1, framealpha=0.90,
-        columnspacing=0.7, handlelength=1.8, borderpad=0.35, labelspacing=0.3)
+    ax.legend(fontsize=5.8, loc="best", ncol=1, framealpha=0.90,
+        columnspacing=0.3, handlelength=1.3, borderpad=0.35, labelspacing=0.3)
 
 def main():
     x_grid, f_true, x_train, y_train = generate_5obs_problem()
@@ -254,7 +254,7 @@ def main():
         "pdf.fonttype": 42,
     })
 
-    fig, axes = plt.subplots(2, 2, figsize=(4.8, 3.65))
+    fig, axes = plt.subplots(2, 2, figsize=(4.8, 3.6))
 
     plot_predictive(axes[0, 0], x_grid, x_train, y_train, mean_obj_y, var_obj_y,
         "MES+ (variational GP)", y_star, exact_cond)
@@ -284,7 +284,7 @@ def main():
         ax.axvline(float(x_star), color="0.35", linestyle=":", linewidth=0.85,
             label=r"$\mathbf{x}_s^\star$")
         ax.set_xlim(-5, 5)
-        ax.legend(fontsize=6.3, loc="upper left", ncol=2, framealpha=0.90,
+        ax.legend(fontsize=6.3, loc="upper left", ncol=1, framealpha=0.90,
             columnspacing=0.7, handlelength=1.8, borderpad=0.35, labelspacing=0.3)
 
     for ax in axes.flat:
