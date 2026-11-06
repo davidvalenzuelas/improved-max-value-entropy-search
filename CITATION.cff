@@ -6,7 +6,6 @@ authors:
     given-names: "David Ángel"
   - family-names: "Hernández-Lobato"
     given-names: "Daniel"
-version: "1.0.0"
 date-released: 2026-06-19
 url: "https://github.com/davidvalenzuelas/improved-max-value-entropy-search"
 type: software
