@@ -2,13 +2,15 @@
 
 This repository contains the code developed for the Bachelor's Thesis "Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada", authored by David Ángel Valenzuela Sánchez under the supervision of Daniel Hernández-Lobato at the Universidad Autónoma de Madrid.
 
-The project implements and compares BO strategies based on max-value entropy. In particular, it includes:
+The project implements and compares Bayesian optimization (BO) acquisitions based on the maximum value entropy. In particular, it includes:
 
 * **MES**, based on a Gaussian truncation approximation.
-* **MES+**, the proposed method, which replaces the local Gaussian truncation approximation with a modified variational sparse GP.
-* **Random search**.
+* **MES+**, our proposed method, which replaces the local Gaussian truncation approximation with a modified variational sparse GP.
+* **Random search**, used as a baseline for comparison.
 
-The experiments are performed on synthetic black-box optimization problems sampled from GP priors, benchmark functions and real MLP hyperparameter optimization problems. The objective is to compare the behaviour of these acquisition functions inside a BO loop.
+The main contribution of MES+ is the use of a VFE sparse GP trained with a modified ELBO that incorporates a soft probabilistic constraint. This constraint encourages the model predictions to remain below a sampled maximum value, providing a more global approximation to the corresponding conditional distribution.
+
+The experiments are performed on synthetic black box optimization problems sampled from GP priors, benchmark functions and real MLP hyperparameter optimization problems. Our objective is to compare the behaviour and computational cost of these methods within a BO loop.
 
 ## Repository structure
 
@@ -46,10 +48,10 @@ improved-max-value-entropy-search/
 The main files are:
 
 * `code/my_loop_BO.py`: main BO loop for synthetic, benchmark and real problems.
-* `code/my_acquisition_mes.py`: MES acquisition function based on Gaussian truncation.
-* `code/my_acquisition_mes_plus.py`: MES+ acquisition function based on the proposed variational approximation.
-* `code/modified_vfe_sparse_gp.py`: implementation of the modified VFE sparse Gaussian process used by MES+.
-* `code/my_utils.py`: utility functions for fitting Gaussian processes, sampling candidate optima, conditioning models and computing predictive quantities.
+* `code/my_acquisition_mes.py`: MES acquisition function, based on local Gaussian truncation.
+* `code/my_acquisition_mes_plus.py`: MES+ acquisition function, based on our more global proposed variational approximation.
+* `code/modified_vfe_sparse_gp.py`: implementation of the modified VFE sparse GP used by MES+.
+* `code/my_utils.py`: utility functions for fitting GPs, sampling candidate optima, conditioning models and computing predictive quantities.
 * `code/util.py`: general utilities for reading configurations, managing paths, setting random seeds and transforming MLP hyperparameters.
 * `code/synthetic_problem.py`: generation of synthetic objective functions sampled from a GP prior.
 * `code/benchmark_problem.py`: implementation of the Shekel and Michalewicz benchmark problems.
@@ -59,9 +61,9 @@ The main files are:
 * `code/experiments_time_generator.py`: generation of configurations for the 4D timing experiments.
 * `code/experiments_plotter.py`: aggregation and plotting of synthetic and benchmark results.
 * `code/experiments_mlp_plotter.py`: aggregation and plotting of the real MLP experiment results.
-* `code/experiments_samples_generator.py`: aggregation and plotting of experiments with different numbers of optimum samples.
+* `code/experiments_samples_generator.py`: comparison and plotting of MES and MES+ with different numbers of posterior optimum samples.
 * `code/time_results.py`: summary of the results obtained in the timing experiments.
-* `code/tests/`: one-dimensional validation scripts for the MES and MES+ approximations and acquisition functions.
+* `code/tests/`: 1D validation scripts for the MES and MES+ approximations and acquisition functions.
 
 External libraries such as BoTorch and GPyTorch are **not included** in the repository. They are installed through `requirements.txt`.
 
@@ -69,7 +71,7 @@ External libraries such as BoTorch and GPyTorch are **not included** in the repo
 
 The code requires:
 
-* Python >= 3.10
+* Python
 * PyTorch
 * GPyTorch
 * BoTorch
@@ -79,7 +81,7 @@ The code requires:
 * Pandas
 * Scikit-learn
 
-The dependencies are listed in `requirements.txt`.
+These dependencies are listed in `requirements.txt`.
 
 ## Installation
 
@@ -109,11 +111,11 @@ pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cp
 pip install --no-cache-dir gpytorch botorch numpy scipy matplotlib pandas scikit-learn
 ```
 
-The virtual environment `venv/` should not be committed to the repository.
+The `venv/` is now ready to be used.
 
 ## Running tests
 
-The one-dimensional validation scripts are included in `code/tests/`. They are useful for checking the behaviour of the MES and MES+ acquisition functions and the approximations used to compute them.
+The 1D validation scripts are included in `code/tests/`. They are useful for checking the behaviour of the MES and MES+ acquisitions and the approximations used to compute them.
 
 Run the required test script from the `code/` directory:
 
@@ -157,13 +159,13 @@ The most relevant parameters are:
 * `file_results`: directory where the results will be stored.
 * `measure_time`: optional Boolean value indicating whether the execution time of every BO iteration should be recorded.
 
-Benchmark configurations also contain the `benchmark` field, while real MLP configurations contain the `dataset`, `n_folds` and `n_repeats` fields.
+Benchmark configurations also contain the `benchmark` parameter, while real MLP configurations contain the `dataset`, `n_folds` and `n_repeats` parameters.
 
 ## Generating batches of experiments
 
 The script `code/experiments_generator.py` creates folders and configuration files for synthetic and benchmark experiments. It reads a base configuration from `code/config.json` and generates one configuration per experiment and method.
 
-Before running it, check the constants at the top of the file:
+Before running it, check the constants at the top of the file, as in this example:
 
 ```python
 PROBLEM_TYPE = "synthetic"
@@ -178,13 +180,13 @@ NUM_SAMPLES_SOLUTION = 1
 These constants control:
 
 * `PROBLEM_TYPE`: whether synthetic or benchmark problems are generated.
-* `BENCHMARK`: benchmark to use when `PROBLEM_TYPE` is `"benchmark"`.
+* `BENCHMARK`: benchmark to use, when `PROBLEM_TYPE` is `"benchmark"`.
 * `DIMENSIONS`: dimensions used in the experiments.
 * `START_EXP` and `END_EXP`: range of experiment identifiers.
 * `BO_ITERS`: number of BO iterations.
 * `NUM_SAMPLES_SOLUTION`: number of posterior optimum samples used by the acquisition functions.
 
-For example, a synthetic experiment can have the following structure:
+E.g., a synthetic experiment can have the following structure:
 
 ```text
 experiments/synthetic_6d_samples/samples_1/
@@ -216,11 +218,24 @@ cd code
 python3 experiments_mlp_generator.py
 ```
 
+## Running BO experiments
+
+The main BO loop is implemented in `code/my_loop_BO.py`. As explained, it takes a JSON configuration file as an argument and runs the specified acquisition method on the selected optimization problem.
+
+For example, after generating the configurations for the 6D synthetic experiments, a single MES experiment can be launched from the `code/` directory with:
+
+```bash
+cd code
+python3 my_loop_BO.py experiments/synthetic_6d_samples/samples_1/exp_1/config_mes.json
+```
+
+To run MES+ instead, use the corresponding `config_mes_plus.json` file.
+
+The results are saved in the directory specified by the `file_results` parameter. Multiple experiments can be executed independently using their respective configuration files.
+
 ## Timing experiments
 
-The script `code/experiments_time_generator.py` generates ten configurations for timing MES, MES+ and random search on a 4D synthetic problem.
-
-Generate the configurations with:
+The script `code/experiments_time_generator.py` generates configurations for 10 independent 4D synthetic experiments, comparing the execution times of MES, MES+ and random search. These configurations can be generated with:
 
 ```bash
 cd code
@@ -260,9 +275,16 @@ cd code
 python3 experiments_mlp_plotter.py
 ```
 
-The plots are saved in a `generate_plot/` folder inside the corresponding experiment directory.
+The experiments comparing different numbers of posterior optimum samples are plotted with:
 
-The synthetic and benchmark plotters compute the log-relative difference with respect to the best available value and use bootstrap estimates to represent the uncertainty of the mean curves. The real MLP plotter represents validation accuracy.
+```bash
+cd code
+python3 experiments_samples_generator.py
+```
+
+Before running this script, check that its configuration matches the experiments to be plotted. The plots are saved in a `generate_plot/` folder inside the corresponding experiment directory.
+
+The synthetic and benchmark plotters compute the log relative difference with respect to the best available value and use bootstrap estimates to represent the uncertainty of the mean curves. The real MLP plotter represents validation accuracy.
 
 ## Output files
 
@@ -278,6 +300,8 @@ During each run, the code stores several files with recommendations and objectiv
 * `y_values_evaluated.txt`
 * `x_optimum_problem.txt`
 * `y_optimum_problem.txt`
+
+Three recommendation strategies are considered: selecting the observed point with the highest GP posterior mean (`recommendations_obs`), selecting the best observed point (`recommendations_obs_obs`), and maximizing the GP posterior mean over the search domain (`recommendations_post_mean`). The corresponding objective values are also stored for performance evaluation.
 
 For benchmark problems, the original optimum location is also stored in:
 
