@@ -2,7 +2,7 @@
 
 This repository contains the code developed for the Bachelor's Thesis "Optimización Bayesiana mediante Entropía del Máximo Valor Mejorada", authored by David Ángel Valenzuela Sánchez under the supervision of Daniel Hernández-Lobato at the Universidad Autónoma de Madrid.
 
-The project implements and compares Bayesian optimization (BO) acquisitions based on the maximum value entropy. In particular, it includes:
+The project implements and compares Bayesian optimization (BO) acquisition based on Max-value entropy. In particular, it includes:
 
 * **MES**, based on a Gaussian truncation approximation.
 * **MES+**, our proposed method, which replaces the local Gaussian truncation approximation with a modified variational sparse GP.
@@ -71,7 +71,7 @@ External libraries such as BoTorch and GPyTorch are **not included** in the repo
 
 The code requires:
 
-* Python
+* Python >= 3.10
 * PyTorch
 * GPyTorch
 * BoTorch
@@ -242,7 +242,7 @@ cd code
 python3 experiments_time_generator.py
 ```
 
-When `measure_time` is enabled, `my_loop_BO.py` stores the execution time of each BO iteration in a file named:
+When `measure_time` is enabled, `my_loop_BO.py` records the time spent fitting the GP and selecting the next candidate, excluding objective evaluations and recommendation computations, in a file named:
 
 ```text
 times.txt
@@ -330,11 +330,13 @@ If you use this repository, please cite it as:
 
 ## Authors
 
-Daniel Hernández-Lobato and David Ángel Valenzuela Sánchez
+Daniel Hernández-Lobato and David A. Valenzuela-Sánchez
 
 ## Acknowledgements
 
-We would like to thank Daniel Fernández Sánchez for his implementation of the MLP problem generator, which was used as the basis for the real MLP experiments included in this repository.
+We acknowledge support from projects PID2022-139856NB-I00 and PID2025-167768NB-I00, funded by MCIN, and from project IDEA-CM (TEC-2024/COM-89) and from the ELLIS Unit Madrid, funded by the Autonomous Community of Madrid. We also acknowledge support from Centro de Computación Cientı́fica-Universidad Autónoma de Madrid (CCC-UAM).
+
+We would also like to thank Daniel Fernández-Sánchez for his implementation of the MLP problem generator, which was used as the basis for the real MLP experiments included in this repository.
 
 ## License
 
